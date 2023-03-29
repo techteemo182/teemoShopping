@@ -4,15 +4,21 @@ import com.teemo.shopping.core.BaseEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@AttributeOverride(name = "id", column = @Column(name = "account_id"))
+@AttributeOverride(name = "id", column = @Column(name = "accounts_id"))
 @Entity
+@Table(
+    name = "accounts"
+)
+
 public class Account extends BaseEntity {
     @Builder
     protected Account(String username, String password) {
