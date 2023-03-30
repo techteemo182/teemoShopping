@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@AttributeOverride(name = "id", column = @Column(name = "accounts_id"))
+@AttributeOverride(name = "id", column = @Column(name = "account_id"))
 @Entity
 @Table(
-    name = "accounts"
+    name = "account"
 )
 
 public class Account extends BaseEntity {

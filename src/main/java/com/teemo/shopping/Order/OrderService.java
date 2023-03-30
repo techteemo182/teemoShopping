@@ -3,7 +3,6 @@ package com.teemo.shopping.Order;
 import com.teemo.shopping.account.Account;
 import com.teemo.shopping.coupon.Coupon;
 import com.teemo.shopping.game.Game;
-import com.teemo.shopping.game.GameCategoriesHasGames;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
@@ -26,17 +25,12 @@ public class OrderService {
         // 카드와 카카오의 경우 바로 결제가 되지 아니하고 Third party 프로그램 사용가능
 
         double totalPrice = 0;
-        List<Payment> payments;
+        List<Payment> payments = new ArrayList<>();
         for (Game game : games) {
             double gameActualPrice = Math.round(
                 game.getPrice() * (1 - game.getDiscount())); // 반올림해서 금액 정액적으로 변경
             totalPrice += gameActualPrice;
-            payments.add(Payment    // 할인 결제수단 추가
-                .builder()
-                .method(PaymentMethod.DISCOUNT)
-                .price(game.getPrice() - gameActualPrice)
-                .build()
-            );
+
         }
 
         Order order = Order
@@ -45,9 +39,9 @@ public class OrderService {
             .totalPrice(totalPrice)
             .build();
 
-        List<OrderHasGame> orderHasGamesList = new ArrayList<>();
+        List<OrdersGames> orderHasGamesList = new ArrayList<>();
         for (Game game : games) {
-            OrderHasGame
+            OrdersGames
                 .builder()
                 .order(order)
                 .game(game)

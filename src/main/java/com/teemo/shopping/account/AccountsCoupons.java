@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
-public class AccountsHasCoupons extends BaseEntity {
+public class AccountsCoupons extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;

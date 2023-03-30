@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
         @Index(columnList = "games_id, resources_id")
     }
 )
-public class GamesHasResources extends BaseEntity {
+public class GameResource extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "games_id")
     Game game;

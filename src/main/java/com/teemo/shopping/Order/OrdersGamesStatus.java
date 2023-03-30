@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public enum OrderHasGameStatus {
+public enum OrdersGamesStatus {
     MAINTAIN("MAINTAIN"),
     REFUND("REFUND");
     private String status;

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class OrderHasPayment extends BaseEntity {
+public class OrdersPayments extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "orders_id")
     private Order order;

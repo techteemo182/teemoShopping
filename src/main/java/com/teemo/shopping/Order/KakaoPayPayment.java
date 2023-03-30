@@ -1,10 +1,8 @@
 package com.teemo.shopping.Order;
 
 import com.teemo.shopping.Order.PaymentMethod.Values;
-import com.teemo.shopping.game.Game;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,17 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(
-    name = "discount_payments"
+    name = "kakaopay_payments"
 )
-@DiscriminatorValue(Values.DISCOUNT)
-public class DiscountPayment extends Payment{
-
+@DiscriminatorValue(Values.KAKAOPAY)
+public class KakaoPayPayment extends Payment{
     @Builder
-    protected DiscountPayment(double price, PaymentStatus status,  Game game) {
+    public KakaoPayPayment(double price, PaymentStatus status) {
         super(price, status);
-        this.game = game;
     }
-
-    @ManyToOne
-    private Game game;
 }

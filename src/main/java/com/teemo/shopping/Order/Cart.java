@@ -16,9 +16,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-@AttributeOverride(name = "id", column = @Column(name = "carts_id"))
+@AttributeOverride(name = "id", column = @Column(name = "cart_id"))
 @Table(
-    name = "carts"
+    name = "cart"
 )
 public class Cart extends BaseEntity {
 
@@ -26,12 +26,12 @@ public class Cart extends BaseEntity {
      * 게정
      */
     @ManyToOne
-    @JoinColumn(name = "accounts_id")
+    @JoinColumn(name = "account_id")
     private Account account;
     /**
      *  게임
      */
     @ManyToOne
-    @JoinColumn(name = "games_id")
+    @JoinColumn(name = "game_id")
     private Game game;
 }

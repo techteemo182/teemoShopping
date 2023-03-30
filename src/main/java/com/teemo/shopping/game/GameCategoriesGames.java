@@ -22,11 +22,11 @@ import lombok.NoArgsConstructor;
         @Index(columnList = "game_categories_id, games_id")
     }
 )
-@AttributeOverride(name = "id", column = @Column(name = "game_categories_has_games_id"))
-public class GameCategoriesHasGames extends BaseEntity {
+@AttributeOverride(name = "id", column = @Column(name = "game_categories_has_game_id"))
+public class GameCategoriesGames extends BaseEntity {
 
     @Builder
-    protected GameCategoriesHasGames(GameCategory gameCategory, Game game) {
+    protected GameCategoriesGames(GameCategory gameCategory, Game game) {
         this.gameCategory = gameCategory;
         this.game = game;
     }

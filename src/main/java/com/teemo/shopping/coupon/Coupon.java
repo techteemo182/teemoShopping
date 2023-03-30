@@ -21,8 +21,10 @@ import org.hibernate.validator.constraints.Range;
 public class Coupon extends BaseEntity {
 
     @Builder
-    protected Coupon(double maxDiscountPrice, double minDiscountPrice, double minFulfillPrice,
+    protected Coupon(String name, String description, double maxDiscountPrice, double minDiscountPrice, double minFulfillPrice,
         CouponMethod method, double amount, LocalTime expiredAt) {
+        this.name = name;
+        this.description =description;
         this.maxDiscountPrice = maxDiscountPrice;
         this.minDiscountPrice = minDiscountPrice;
         this.minFulfillPrice = minFulfillPrice;

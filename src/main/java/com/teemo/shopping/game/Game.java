@@ -25,7 +25,7 @@ import org.hibernate.validator.constraints.Range;
 @Table(
     name = "games",
     indexes = {
-        @Index(columnList = "rating")
+        @Index(columnList = "ratingAvg")
     }
 )
 public class Game extends BaseEntity {
@@ -77,5 +77,5 @@ public class Game extends BaseEntity {
      * 게임이 속한 카테고리
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "game")
-    List<GameCategoriesHasGames> gameCategoryGames = new ArrayList<>();
+    List<GameCategoriesGames> gameCategoryGames = new ArrayList<>();
 }

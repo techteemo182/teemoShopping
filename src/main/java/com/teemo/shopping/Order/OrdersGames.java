@@ -3,14 +3,12 @@ package com.teemo.shopping.Order;
 
 import com.teemo.shopping.core.BaseEntity;
 import com.teemo.shopping.game.Game;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,10 +16,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class OrderHasGame extends BaseEntity {
+public class OrdersGames extends BaseEntity {
 
     @Builder
-    protected OrderHasGame(Order order, Game game) {
+    protected OrdersGames(Order order, Game game) {
         this.order = order;
         this.game = game;
     }
@@ -35,6 +33,6 @@ public class OrderHasGame extends BaseEntity {
     private Game game;
 
     @Enumerated(EnumType.STRING)
-    private OrderHasGameStatus status;
+    private OrdersGamesStatus status;
 }
 

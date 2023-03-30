@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
         @Index(columnList = "coupon_id, game_id")
     }
 )
-public class CouponsHasGames extends BaseEntity {
+public class CouponsGames extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "coupon_id")
     Coupon coupon;

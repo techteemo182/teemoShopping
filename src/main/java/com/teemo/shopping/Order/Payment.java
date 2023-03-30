@@ -12,7 +12,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,19 +27,11 @@ import lombok.NoArgsConstructor;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Payment extends BaseEntity {
 
-    @Builder
-    protected Payment(PaymentMethod method, double price, String info) {
-        this.method = method;
-        this.price = price;
-        this.info = info;
-    }
 
-    /**
-     *  결제 방법
-     *  /@DiscriminatorColumn 이기도 함
-     */
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod method;
+    protected Payment(double price, PaymentStatus status) {
+        this.price = price;
+        this.status = status;
+    }
 
     @Column
     /**
@@ -50,22 +41,13 @@ public class Payment extends BaseEntity {
      */
     private double price;
 
-
-    /**
-     *  결제 정보
-     *  예를 들어 카카오페이 ID
-     *  info 로 부족하면 상속 테이블 만들어서 해결
-     */
-    @Column
-    private String info;
-
     /**
      *  결제 상태
      *  CANCEL : 취소
      *  PENDING : 기다리는 중
      *  SUCCESS : 성공
      */
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
 }
