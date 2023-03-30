@@ -7,7 +7,8 @@ import lombok.AllArgsConstructor;
 public enum PaymentMethod {
     CARD("CARD"),
     KAKAOPAY("KAKAOPAY"), // 예시로 하나만
-    COUPON("COUPON"),
-    DISCOUNT("DISCOUNT");
+    COUPON("COUPON"),  // 쿠폰 할인
+    DISCOUNT("DISCOUNT"),   // 상시 할인
+    POINT("POINT");
     private String method;
 }

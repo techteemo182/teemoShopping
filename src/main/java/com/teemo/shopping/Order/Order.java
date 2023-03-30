@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,8 +19,16 @@ import lombok.NoArgsConstructor;
     name = "orders"
 )
 public class Order extends BaseEntity {
+
+    @Builder
+    public Order(Account account, double totalPrice) {
+        this.account = account;
+        this.totalPrice = totalPrice;
+    }
+
+
     @ManyToOne
-    Account account;    // onwer
+    Account account;
 
     @Column
     private double totalPrice;

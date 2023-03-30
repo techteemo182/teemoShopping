@@ -21,9 +21,10 @@ import lombok.NoArgsConstructor;
 
 public class Account extends BaseEntity {
     @Builder
-    protected Account(String username, String password) {
+    protected Account(String username, String password, double point) {
         this.username = username;
         this.password = password;
+        this.point = point;
     }
 
     @Column
@@ -33,4 +34,8 @@ public class Account extends BaseEntity {
     @Column
     @NotNull
     private String password;    // 암호화된 패스워드 암호화 방식 골라야함
+
+    @Column
+    @NotNull
+    private double point; // 포인트
 }

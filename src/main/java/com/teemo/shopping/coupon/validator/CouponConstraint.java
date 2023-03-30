@@ -6,10 +6,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({
+    ElementType.TYPE,
+})
 @Constraint(validatedBy = CouponValidator.class)
-public @interface CouponCheck {
+public @interface CouponConstraint {
 
     String message() default "Invalid Coupon";
 
