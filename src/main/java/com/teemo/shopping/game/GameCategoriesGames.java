@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
     }
 )
 @AttributeOverride(name = "id", column = @Column(name = "game_category_game_id"))
-public class GameCategoryGame extends BaseEntity {
+public class GameCategoriesGames extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "game_categories_id")
     GameCategory gameCategory;

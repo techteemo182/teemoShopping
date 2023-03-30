@@ -50,5 +50,5 @@ public class Game extends BaseEntity {
     private int ratingCount;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "game")
-    List<GameCategoryGame> gameCategoryGames = new ArrayList<>();
+    List<GameCategoriesGames> gameCategoryGames = new ArrayList<>();
 }

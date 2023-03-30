@@ -4,6 +4,8 @@ import com.teemo.shopping.core.BaseEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,18 +22,18 @@ import lombok.NoArgsConstructor;
 public class Payment extends BaseEntity {
 
     @Builder
-    protected Payment(String method, double price, String info) {
+    protected Payment(PaymentMethod method, double price, String info) {
         this.method = method;
         this.price = price;
         this.info = info;
     }
 
-    @Column
-    String method;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod method;
 
     @Column
-    double price;
+    private double price;
 
     @Column
-    String info;
+    private String info;
 }

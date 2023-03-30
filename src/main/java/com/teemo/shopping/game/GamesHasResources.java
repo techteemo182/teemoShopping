@@ -1,10 +1,8 @@
 package com.teemo.shopping.game;
 
 import com.teemo.shopping.core.BaseEntity;
-import com.teemo.shopping.core.TimeRecordEntity;
 import com.teemo.shopping.resource.Resource;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -21,7 +19,7 @@ import lombok.NoArgsConstructor;
         @Index(columnList = "games_id, resources_id")
     }
 )
-public class GameHasResource extends BaseEntity {
+public class GamesHasResources extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "games_id")
     Game game;
