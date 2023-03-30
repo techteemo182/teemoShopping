@@ -3,7 +3,7 @@ package com.teemo.shopping.Order.service;
 import com.teemo.shopping.Order.domain.Order;
 import com.teemo.shopping.Order.domain.OrdersGames;
 import com.teemo.shopping.Order.domain.Payment;
-import com.teemo.shopping.Order.domain.PaymentMethod;
+import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.repository.OrdersGamesRepository;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.coupon.domain.Coupon;

@@ -1,6 +1,7 @@
 package com.teemo.shopping.Order.domain;
 
 
+import com.teemo.shopping.Order.domain.enums.OrdersGamesStatus;
 import com.teemo.shopping.core.BaseEntity;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.Entity;

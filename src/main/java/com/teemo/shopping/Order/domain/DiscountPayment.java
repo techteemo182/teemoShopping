@@ -1,6 +1,7 @@
 package com.teemo.shopping.Order.domain;
 
-import com.teemo.shopping.Order.domain.PaymentMethod.Values;
+import com.teemo.shopping.Order.domain.enums.PaymentMethod.Values;
+import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
