@@ -5,8 +5,11 @@ import com.teemo.shopping.core.BaseEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,4 +35,14 @@ public class Order extends BaseEntity {
 
     @Column
     private double totalPrice;
+
+    /**
+     * 주문 상태
+     *  CANCEL : 취소
+     *  PENDING : 기다리는 중
+     *  SUCCESS : 성공
+     */
+    @Enumerated
+    private OrderStatus status;
 }
+

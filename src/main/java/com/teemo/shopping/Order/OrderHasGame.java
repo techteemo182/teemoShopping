@@ -5,9 +5,13 @@ import com.teemo.shopping.core.BaseEntity;
 import com.teemo.shopping.game.Game;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,8 +19,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class OrderHasGame extends BaseEntity {
-    @ManyToOne
 
+    @Builder
+    protected OrderHasGame(Order order, Game game) {
+        this.order = order;
+        this.game = game;
+    }
+
+    @ManyToOne
     @JoinColumn(name = "orders_id")
     private Order order;
 
@@ -24,6 +34,7 @@ public class OrderHasGame extends BaseEntity {
     @JoinColumn(name = "games_id")
     private Game game;
 
-    @Column
-    private double price;
+    @Enumerated(EnumType.STRING)
+    private OrderHasGameStatus status;
 }
+

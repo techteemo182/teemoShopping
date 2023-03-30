@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,13 +18,20 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table (
-    name = "game_category_game",
     indexes = {
         @Index(columnList = "game_categories_id, games_id")
     }
 )
-@AttributeOverride(name = "id", column = @Column(name = "game_category_game_id"))
-public class GameCategoriesGames extends BaseEntity {
+@AttributeOverride(name = "id", column = @Column(name = "game_categories_has_games_id"))
+public class GameCategoriesHasGames extends BaseEntity {
+
+    @Builder
+    protected GameCategoriesHasGames(GameCategory gameCategory, Game game) {
+        this.gameCategory = gameCategory;
+        this.game = game;
+    }
+
+
     @ManyToOne
     @JoinColumn(name = "game_categories_id")
     GameCategory gameCategory;

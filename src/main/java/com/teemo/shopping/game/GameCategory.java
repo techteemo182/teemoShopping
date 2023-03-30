@@ -30,7 +30,7 @@ public class GameCategory extends BaseEntity {
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "gameCategory")
-    private List<GameCategoriesGames> gameCategoryGames = new ArrayList<>();
+    private List<GameCategoriesHasGames> gameCategoryGames = new ArrayList<>();
 
     @Column
     @NaturalId

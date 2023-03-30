@@ -21,10 +21,16 @@ import lombok.NoArgsConstructor;
     name = "carts"
 )
 public class Cart extends BaseEntity {
+
+    /**
+     * 게정
+     */
     @ManyToOne
     @JoinColumn(name = "accounts_id")
     private Account account;
-
+    /**
+     *  게임
+     */
     @ManyToOne
     @JoinColumn(name = "games_id")
     private Game game;

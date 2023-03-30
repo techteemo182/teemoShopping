@@ -31,24 +31,51 @@ import org.hibernate.validator.constraints.Range;
 public class Game extends BaseEntity {
 
     @Builder
-    protected Game(String name, double rating, int ratingCount) {
+    protected Game(String name, String description, double ratingAvg, int ratingCount) {
         this.name = name;
-        this.rating = rating;
+        this.description = description;
+        this.ratingAvg = ratingAvg;
         this.ratingCount = ratingCount;
     }
 
     @Column
     @NaturalId
     @NotNull
-    private String name;
+    /**
+     * 게임 이름
+     */
+    private String name; // 게임 이름
+
+    @Column
+    /**
+     * 게임 설명
+     */
+    private String description; // 게임 설명
 
     @Column
     @Range(min = 0, max = 5)
-    private double rating;
+    /**
+     * 게임 평균 평점
+     */
+    private double ratingAvg; // 평균 평점
 
     @Column
+    /**
+     * 게임 평점 개수
+     */
     private int ratingCount;
+    /**
+     *  게임 base 가격 단위(원)
+     */
+    private double price;
 
+    /**
+     *  할인율 단위 (%)
+     */
+    private double discount;
+    /**
+     * 게임이 속한 카테고리
+     */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "game")
-    List<GameCategoriesGames> gameCategoryGames = new ArrayList<>();
+    List<GameCategoriesHasGames> gameCategoryGames = new ArrayList<>();
 }

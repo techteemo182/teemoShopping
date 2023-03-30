@@ -1,7 +1,5 @@
 package com.teemo.shopping.game;
 
-import com.teemo.shopping.Order.Payment;
-import com.teemo.shopping.account.Account;
 import com.teemo.shopping.account.AccountRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
