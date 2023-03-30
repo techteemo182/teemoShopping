@@ -1,7 +1,7 @@
 package com.teemo.shopping.security.user_detail;
 
-import com.teemo.shopping.account.Account;
-import com.teemo.shopping.account.AccountRepository;
+import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.account.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

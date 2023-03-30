@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.example.demo.util.DelegatingServletInputStream;
 import com.teemo.shopping.Main;
-import com.teemo.shopping.account.AccountAlreadyExist;
-import com.teemo.shopping.account.AccountService;
+import com.teemo.shopping.account.exception.AccountAlreadyExist;
+import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.security.filter.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

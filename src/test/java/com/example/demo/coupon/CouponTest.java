@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.teemo.shopping.Main;
-import com.teemo.shopping.coupon.Coupon;
-import com.teemo.shopping.coupon.CouponMethod;
+import com.teemo.shopping.coupon.domain.Coupon;
+import com.teemo.shopping.coupon.domain.CouponMethod;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
