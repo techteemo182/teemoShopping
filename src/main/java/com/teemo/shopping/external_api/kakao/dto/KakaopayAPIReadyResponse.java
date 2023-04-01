@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaopayAPIPrepareResponse {
+public class KakaopayAPIReadyResponse {
     private String tid;
     private String nextRedirectAppUrl;
     private String nextRedirectMobileUrl;

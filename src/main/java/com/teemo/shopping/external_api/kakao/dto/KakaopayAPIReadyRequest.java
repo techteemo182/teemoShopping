@@ -17,7 +17,7 @@ import org.springframework.util.MultiValueMap;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class KakaopayAPIPrepareRequest {
+public class KakaopayAPIReadyRequest {
 
     @NotNull
     private String cid;

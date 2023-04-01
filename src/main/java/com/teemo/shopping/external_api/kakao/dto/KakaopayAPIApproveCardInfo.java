@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonDeserialize
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaopayAPIApprovalCardInfo {
+public class KakaopayAPIApproveCardInfo {
 
     private String purchaseCorp;
     private String purchaseCorpCode;

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonDeserialize
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaopayAPIApprovalResponse {
+public class KakaopayAPIApproveResponse {
     private String aid;
     private String tid;
     private String cid;
@@ -20,8 +20,8 @@ public class KakaopayAPIApprovalResponse {
     private String partnerOrderId;
     private String partnerUserId;
     private String paymentMethodType;
-    private KakaopayAPIApprovalAmount amount;
-    private KakaopayAPIApprovalCardInfo cardInfo;
+    private KakaopayAPIApproveAmount amount;
+    private KakaopayAPIApproveCardInfo cardInfo;
     private String itemName;
     private String itemCode;
     private Integer quantity;

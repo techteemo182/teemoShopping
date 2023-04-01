@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 public class Payment extends BaseEntity {
 
 
-    protected Payment(double price, PaymentStatus status) {
+    protected Payment(int price, PaymentStatus status) {
         this.price = price;
         this.status = status;
     }
@@ -41,7 +41,7 @@ public class Payment extends BaseEntity {
      *  + 면 고객에서 회사로의 지불
      *  - 면 회사에서 고객으로의 반환
      */
-    private double price;
+    private int price;
 
     /**
      *  결제 상태

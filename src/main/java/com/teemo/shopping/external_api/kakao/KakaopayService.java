@@ -1,11 +1,11 @@
 package com.teemo.shopping.external_api.kakao;
 
-import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApprovalResponse;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveResponse;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveRequest;
-import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIPrepareRequest;
-import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIPrepareResponse;
-import com.teemo.shopping.external_api.kakao.dto.KakaopayApprovalRequest;
-import com.teemo.shopping.external_api.kakao.dto.KakaopayPrepareRequest;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIReadyRequest;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIReadyResponse;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayApproveRequest;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayReadyRequest;
 import com.teemo.shopping.game.dto.GameDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,31 +23,31 @@ public class KakaopayService {
     private String KAKAO_ADMIN_KEY;
 
     //Todo: 테스트 작성
-    public void kakaopayPrepare(KakaopayPrepareRequest kakaopayPrepareRequest) { // Parameter DTO로 변경
+    public void prepareKakaopay(KakaopayReadyRequest kakaopayReadyRequest) { // Parameter DTO로 변경
         StringBuffer itemNameBuffer = new StringBuffer();
         String itemName;
         List<GameDTO> gameDTOs = new ArrayList<>();
-        while(kakaopayPrepareRequest.getGameDTOs().hasNext()) {
-            gameDTOs.add(kakaopayPrepareRequest.getGameDTOs().next());
+        while(kakaopayReadyRequest.getGameDTOs().hasNext()) {
+            gameDTOs.add(kakaopayReadyRequest.getGameDTOs().next());
         }
         for (var gameDTO : gameDTOs) {
             itemNameBuffer.append(gameDTO.getName() + ",");
         }
         itemNameBuffer.deleteCharAt(itemNameBuffer.length() - 1);   // 마지막 , 지우기
         itemName = itemNameBuffer.toString();
-        KakaopayAPIPrepareRequest request = KakaopayAPIPrepareRequest.builder()
+        KakaopayAPIReadyRequest request = KakaopayAPIReadyRequest.builder()
             .cid("TC0ONETIME")
             .partnerOrderId(UUID.randomUUID().toString())
             .partnerUserId("main")
             .itemName(itemName)
             .quantity(1)
-            .totalAmount(kakaopayPrepareRequest.getTotalPrice())
+            .totalAmount(kakaopayReadyRequest.getTotalPrice())
             .taxFreeAmount(0)
             .approvalUrl("http://teemohouse.techteemo.store:8080/kakao/success")
             .cancelUrl("http://teemohouse.techteemo.store:8080/kakao/cancle")
             .failUrl("http://teemohouse.techteemo.store:8080/kakao/fail")
             .build();
-        KakaopayAPIPrepareResponse kakaopayAPIPrepareResponse = WebClient.create(
+        KakaopayAPIReadyResponse kakaopayAPIReadyResponse = WebClient.create(
                 "https://kapi.kakao.com/v1/payment/ready")
             .post()
             .header("Authorization", "KakaoAK " + KAKAO_ADMIN_KEY)
@@ -60,25 +60,25 @@ public class KakaopayService {
                 });
                 return null;
             })
-            .bodyToMono(KakaopayAPIPrepareResponse.class)
+            .bodyToMono(KakaopayAPIReadyResponse.class)
             .block();
     }
 
     //Todo: 테스트 작성
-    public void kakaopayApproval(KakaopayApprovalRequest kakaopayApprovalRequest) { // Parameter DTO로 변경
+    public void approveKakaopay(KakaopayApproveRequest kakaopayApproveRequest) { // Parameter DTO로 변경
         StringBuffer itemNameBuffer = new StringBuffer();
         String itemName;
         itemNameBuffer.deleteCharAt(itemNameBuffer.length() - 1);   // 마지막 , 지우기
         itemName = itemNameBuffer.toString();
         KakaopayAPIApproveRequest request = KakaopayAPIApproveRequest.builder()
-            .pgToken(kakaopayApprovalRequest.getPgToken())
+            .pgToken(kakaopayApproveRequest.getPgToken())
             .cid("TC0ONETIME")
-            .tid(kakaopayApprovalRequest.getTid())
-            .partnerOrderId(kakaopayApprovalRequest.getPartnerOrderId())
-            .partnerUserId(kakaopayApprovalRequest.getPartnerUserId())
+            .tid(kakaopayApproveRequest.getTid())
+            .partnerOrderId(kakaopayApproveRequest.getPartnerOrderId())
+            .partnerUserId(kakaopayApproveRequest.getPartnerUserId())
             .build();
 
-            KakaopayAPIApprovalResponse kakaopayAPIApprovalResponse = WebClient.create(
+            KakaopayAPIApproveResponse kakaopayAPIApproveResponse = WebClient.create(
                 "https://kapi.kakao.com/v1/payment/approve")
             .post()
             .header("Authorization", "KakaoAK " + KAKAO_ADMIN_KEY)
@@ -92,7 +92,7 @@ public class KakaopayService {
                 });
                 return null;
             })
-            .bodyToMono(KakaopayAPIApprovalResponse.class)
+            .bodyToMono(KakaopayAPIApproveResponse.class)
             .block();
     }
 }

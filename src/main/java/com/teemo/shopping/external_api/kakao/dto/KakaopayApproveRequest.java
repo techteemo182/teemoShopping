@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class KakaopayApprovalRequest {
+public class KakaopayApproveRequest {
 
     @NotNull
     public String tid;

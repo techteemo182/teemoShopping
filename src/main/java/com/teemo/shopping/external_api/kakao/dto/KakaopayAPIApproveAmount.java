@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonDeserialize
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaopayAPIApprovalAmount {
+public class KakaopayAPIApproveAmount {
 
     private Integer total;
     private Integer taxFree;

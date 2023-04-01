@@ -21,7 +21,7 @@ import org.hibernate.validator.constraints.Length;
 @DiscriminatorValue(Values.KAKAOPAY)
 public class KakaopayPayment extends Payment {
     @Builder
-    public KakaopayPayment(double price, PaymentStatus status) {
+    public KakaopayPayment(int price, PaymentStatus status) {
         super(price, status);
     }
     @Column
@@ -39,4 +39,7 @@ public class KakaopayPayment extends Payment {
 
     @Column
     private String partnerUserId;
+
+    //Status 의 다각화
+    //
 }

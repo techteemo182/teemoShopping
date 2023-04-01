@@ -31,7 +31,8 @@ import org.hibernate.validator.constraints.Range;
 public class Game extends BaseEntity {
 
     @Builder
-    protected Game(String name, String description, double ratingAvg, int ratingCount) {
+    protected Game(String name, String description, double ratingAvg, int ratingCount, int price) {
+        this.price = price;
         this.name = name;
         this.description = description;
         this.ratingAvg = ratingAvg;
@@ -67,7 +68,7 @@ public class Game extends BaseEntity {
     /**
      *  게임 base 가격 단위(원)
      */
-    private double price;
+    private int price;
 
     /**
      *  할인율 단위 (%)

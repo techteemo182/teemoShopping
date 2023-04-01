@@ -11,11 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 
-@Setter
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @AttributeOverride(name = "id", column = @Column(name = "game_categories_id"))
@@ -35,4 +36,8 @@ public class GameCategory extends BaseEntity {
     @Column
     @NaturalId
     private String name;
+
+    public void updateName(String name) {
+        this.name = name;
+    }
 }
