@@ -1,4 +1,4 @@
-package com.teemo.shopping.coupon.domain;
+package com.teemo.shopping.coupon.domain.enums;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

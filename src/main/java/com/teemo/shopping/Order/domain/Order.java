@@ -23,9 +23,10 @@ import lombok.NoArgsConstructor;
 public class Order extends BaseEntity {
 
     @Builder
-    public Order(Account account, double totalPrice) {
+    public Order(Account account, double totalPrice, OrderStatus status) {
         this.account = account;
         this.totalPrice = totalPrice;
+        this.status = status;
     }
 
 

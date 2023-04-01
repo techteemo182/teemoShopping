@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +14,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class OrdersPayments extends BaseEntity {
+
+    @Builder
+    protected OrdersPayments(Order order, Payment payment) {
+        this.order = order;
+        this.payment = payment;
+    }
+
     @ManyToOne
     @JoinColumn(name = "orders_id")
     private Order order;

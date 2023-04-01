@@ -9,6 +9,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 public class OrdersGames extends BaseEntity {
 
     @Builder
-    protected OrdersGames(Order order, Game game) {
+    protected OrdersGames(Order order, Game game, OrdersGamesStatus status) {
         this.order = order;
         this.game = game;
     }
@@ -34,6 +35,7 @@ public class OrdersGames extends BaseEntity {
     private Game game;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private OrdersGamesStatus status;
 }
 

@@ -14,12 +14,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(
-    name = "kakaopay_payments"
+    name = "point_payments"
 )
 @DiscriminatorValue(Values.KAKAOPAY)
-public class KakaoPayPayment extends Payment {
+public class PointPayment extends Payment {
     @Builder
-    public KakaoPayPayment(double price, PaymentStatus status) {
+    public PointPayment(double price, PaymentStatus status) {
         super(price, status);
     }
 }

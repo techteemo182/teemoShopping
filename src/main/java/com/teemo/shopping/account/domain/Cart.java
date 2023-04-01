@@ -1,4 +1,4 @@
-package com.teemo.shopping.Order.domain;
+package com.teemo.shopping.account.domain;
 
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.core.BaseEntity;

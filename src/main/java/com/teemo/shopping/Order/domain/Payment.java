@@ -6,6 +6,7 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
     name = "payments"
 )
 @DiscriminatorColumn(name = "method", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("null")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Payment extends BaseEntity {
 
@@ -49,6 +51,5 @@ public class Payment extends BaseEntity {
      */
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
-
 }
 

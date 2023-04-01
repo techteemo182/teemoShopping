@@ -1,6 +1,7 @@
 package com.teemo.shopping.coupon.domain;
 
 import com.teemo.shopping.core.BaseEntity;
+import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.validator.CouponConstraint;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;

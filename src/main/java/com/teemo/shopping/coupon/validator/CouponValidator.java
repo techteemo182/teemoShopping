@@ -1,7 +1,7 @@
 package com.teemo.shopping.coupon.validator;
 
 import com.teemo.shopping.coupon.domain.Coupon;
-import com.teemo.shopping.coupon.domain.CouponMethod;
+import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.NoArgsConstructor;

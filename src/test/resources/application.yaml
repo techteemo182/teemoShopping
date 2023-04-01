@@ -12,6 +12,7 @@ spring:
   h2:
     console:
       enabled: true
+  port: 6999
   profiles:
     include:
       - secret

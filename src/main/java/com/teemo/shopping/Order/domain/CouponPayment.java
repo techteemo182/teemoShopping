@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 public class CouponPayment extends Payment {
 
     @Builder
-    protected CouponPayment(double price, String info, PaymentStatus status, Coupon coupon,
+    protected CouponPayment(double price,  PaymentStatus status, Coupon coupon,
         Game game) {
         super(price, status);
         this.coupon = coupon;
