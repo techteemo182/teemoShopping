@@ -1,32 +1,28 @@
 package com.teemo.shopping.Order.service;
 
-import com.teemo.shopping.Order.domain.CardPayment;
-import com.teemo.shopping.Order.domain.CouponPayment;
-import com.teemo.shopping.Order.domain.DiscountPayment;
-import com.teemo.shopping.Order.domain.KakaopayPayment;
 import com.teemo.shopping.Order.domain.Order;
 import com.teemo.shopping.Order.domain.OrdersGames;
 import com.teemo.shopping.Order.domain.OrdersPayments;
 import com.teemo.shopping.Order.domain.Payment;
-import com.teemo.shopping.Order.domain.PointPayment;
 import com.teemo.shopping.Order.domain.enums.OrderStatus;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.repository.OrdersGamesRepository;
 import com.teemo.shopping.Order.repository.OrdersPaymentsRepository;
 import com.teemo.shopping.Order.repository.PaymentRepository;
-import com.teemo.shopping.Order.service.payment_factory.OrderContext;
-import com.teemo.shopping.Order.service.payment_factory.OrderedSequencePaymentGenerator;
+import com.teemo.shopping.Order.service.payment_factory.AllGameProductContext;
+import com.teemo.shopping.Order.service.payment_factory.AllProductPaymentFactory;
+import com.teemo.shopping.Order.service.payment_factory.SingleGameProductContext;
+import com.teemo.shopping.Order.service.payment_factory.SingleProductPaymentFactory;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.external_api.kakao.KakaopayService;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.Builder;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,22 +35,14 @@ public class OrderService {
     @Autowired
     private OrdersPaymentsRepository ordersPaymentsRepository;
     @Autowired
-    private PaymentRepository<CouponPayment> couponPaymentRepository;
-    @Autowired
-    private PaymentRepository<DiscountPayment> discountPaymentRepository;
-    @Autowired
-    private PaymentRepository<CardPayment> cardPaymentRepository;
-    @Autowired
-    private PaymentRepository<KakaopayPayment> kakaopayPaymentRepository;
-    @Autowired
-    private PaymentRepository<PointPayment> pointPaymentRepository;
-    @Autowired
     private PaymentRepository<Payment> paymentRepository;
 
     @Autowired
     private KakaopayService kakaopayService;
-    // 상속 테이블의 단점 엄청 많아짐
-
+    @Autowired
+    private List<SingleProductPaymentFactory> singleProductPaymentFactories;
+    @Autowired
+    private List<AllProductPaymentFactory> allProductPaymentFactories;
     @Autowired
     private OrderedSequencePaymentGenerator orderedSequencePaymentGenerator;
 
@@ -78,17 +66,43 @@ public class OrderService {
             .totalPrice(totalPrice)
             .status(OrderStatus.PENDING)
             .build();
-        OrderContext context = OrderContext.builder()
-            .gameCouponMap(gameCouponMap)
-            .account(account)
-            .order(order)
-            .paymentMethods(methods)
-            .games(games)
-            .point(point)
-            .build();
-        List<Payment> payments = orderedSequencePaymentGenerator.process(context);
+
+        List<Payment> payments = new ArrayList<>();
+        int totalRemainPrice = 0;
+        for (var game : games) {
+            Optional<Coupon> coupon = gameCouponMap.get(game);
+            SingleGameProductContext singleGameProductContext = SingleGameProductContext.builder()
+                .game(game)
+                .coupon(coupon == null ? Optional.empty() : coupon)
+                .account(account)
+                .remainPrice(game.getPrice())
+                .build();
+            for (var singleProductPaymentFactory : singleProductPaymentFactories) {
+                singleProductPaymentFactory.create(singleGameProductContext)
+                    .ifPresent(payment -> payments.add(payment));
+            }
+            totalRemainPrice += singleGameProductContext.getRemainPrice();
+        }
+        {
+            AllGameProductContext allGameProductContext = AllGameProductContext.builder()
+                .games(games)
+                .account(account)
+                .point(point)
+                .totalRemainPrice(totalRemainPrice)
+                .build();
+            for (var allProductPaymentFactory : allProductPaymentFactories) {
+                allProductPaymentFactory.create(allGameProductContext)
+                    .ifPresent(payment -> payments.add(payment));
+            }
+            totalRemainPrice = allGameProductContext.getTotalRemainPrice();
+        }
+
+        if (totalRemainPrice == 0) {
+            throw new RuntimeException();   //ROLLBACk
+        }
         for (var payment : payments) {
-            ordersPaymentsRepository.save(OrdersPayments.builder().payment(payment).order(order).build());
+            ordersPaymentsRepository.save(
+                OrdersPayments.builder().payment(payment).order(order).build());
         }
         for (var game : games) {
             ordersGamesRepository.save(OrdersGames.builder().game(game).order(order).build());
