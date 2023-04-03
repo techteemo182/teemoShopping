@@ -1,17 +1,19 @@
-package com.teemo.shopping.Order.service.payment_factory;
+package com.teemo.shopping.Order.domain.factory;
 
 import com.teemo.shopping.Order.domain.KakaopayPayment;
 import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
+import com.teemo.shopping.Order.dto.AllGamePaymentFactoryContext;
 import com.teemo.shopping.Order.repository.PaymentRepository;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@org.springframework.core.annotation.Order(200)
-public class KakaopayPaymentFactory implements AllProductPaymentFactory {    //전략 패턴
+@Order(200)
+public class KakaopayPaymentFactory implements AllGamePaymentFactory {    //전략 패턴
 
     @Autowired
     private PaymentRepository<KakaopayPayment> KakaopayPaymentRepository;
@@ -21,12 +23,12 @@ public class KakaopayPaymentFactory implements AllProductPaymentFactory {    //�
     }
 
     @Override
-    public Optional<Payment> create(AllGameProductContext context) {
-        int totalRemainPrice = context.getTotalRemainPrice();
+    public Optional<Payment> create(AllGamePaymentFactoryContext context) {
+        int remainPrice = context.getRemainPrice();
         KakaopayPayment kakaopayPayment = KakaopayPayment.builder().status(PaymentStatus.PENDING)
-            .price(totalRemainPrice).build();
+            .price(remainPrice).build();
         KakaopayPaymentRepository.save(kakaopayPayment);
-        context.setTotalRemainPrice(0);
+        context.setRemainPrice(0);
         return Optional.of(kakaopayPayment);
     }
 }

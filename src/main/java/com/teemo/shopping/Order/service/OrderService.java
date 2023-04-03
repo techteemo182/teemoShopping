@@ -6,13 +6,14 @@ import com.teemo.shopping.Order.domain.OrdersPayments;
 import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.enums.OrderStatus;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
+import com.teemo.shopping.Order.domain.factory.AllGamePaymentFactory;
+import com.teemo.shopping.Order.domain.factory.OneGamePaymentFactory;
+import com.teemo.shopping.Order.dto.AllGamePaymentFactoryContext;
+import com.teemo.shopping.Order.dto.OneGamePaymentFactoryContext;
+import com.teemo.shopping.Order.exception.NeededContextFieldNotFound;
 import com.teemo.shopping.Order.repository.OrdersGamesRepository;
 import com.teemo.shopping.Order.repository.OrdersPaymentsRepository;
 import com.teemo.shopping.Order.repository.PaymentRepository;
-import com.teemo.shopping.Order.service.payment_factory.AllGameProductContext;
-import com.teemo.shopping.Order.service.payment_factory.AllProductPaymentFactory;
-import com.teemo.shopping.Order.service.payment_factory.SingleGameProductContext;
-import com.teemo.shopping.Order.service.payment_factory.SingleProductPaymentFactory;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.external_api.kakao.KakaopayService;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,11 +42,9 @@ public class OrderService {
     @Autowired
     private KakaopayService kakaopayService;
     @Autowired
-    private List<SingleProductPaymentFactory> singleProductPaymentFactories;
+    private List<OneGamePaymentFactory> oneGamePaymentFactories;
     @Autowired
-    private List<AllProductPaymentFactory> allProductPaymentFactories;
-    @Autowired
-    private OrderedSequencePaymentGenerator orderedSequencePaymentGenerator;
+    private List<AllGamePaymentFactory> allGamePaymentFactories;
 
     /**
      * 주문을 생성하는 서비스입니다. 다양한 결제 수단을 사용할 수 있습니다. 할인, 쿠폰, 포인트등을 주문에 적용합니다. 가격의 적용은 (할인, 쿠폰, 포인트, 카카오페이)
@@ -56,45 +56,42 @@ public class OrderService {
      */
     @Transactional(rollbackOn = RuntimeException.class)
     public Order createOrder(@Valid Account account,    //TODO: DTO 로 변경 예정
-        Map<@Valid Game, @Valid Optional<Coupon>> gameCouponMap, List<PaymentMethod> methods,
+        Map<@Valid Game, @Valid Optional<Coupon>> gameCouponMap, SortedSet<PaymentMethod> methods,
         int point) {
         int totalPrice = gameCouponMap.entrySet().stream()
             .mapToInt(entry -> entry.getKey().getPrice()).reduce(0, (ingPrice, v) -> ingPrice + v);
         List<Game> games = gameCouponMap.entrySet().stream().map(entry -> entry.getKey()).toList();
-        Order order = Order.builder()
-            .account(account)
-            .totalPrice(totalPrice)
-            .status(OrderStatus.PENDING)
-            .build();
-
+        Order order = Order.builder().account(account).totalPrice(totalPrice)
+            .status(OrderStatus.PENDING).build();
         List<Payment> payments = new ArrayList<>();
+
         int totalRemainPrice = 0;
+
         for (var game : games) {
             Optional<Coupon> coupon = gameCouponMap.get(game);
-            SingleGameProductContext singleGameProductContext = SingleGameProductContext.builder()
-                .game(game)
-                .coupon(coupon == null ? Optional.empty() : coupon)
-                .account(account)
-                .remainPrice(game.getPrice())
-                .build();
-            for (var singleProductPaymentFactory : singleProductPaymentFactories) {
-                singleProductPaymentFactory.create(singleGameProductContext)
-                    .ifPresent(payment -> payments.add(payment));
+            OneGamePaymentFactoryContext oneGamePaymentFactoryContext = OneGamePaymentFactoryContext.builder()  // Context 생성
+                .game(game).coupon(coupon == null ? Optional.empty() : coupon).account(account)
+                .remainPrice(game.getPrice()).build();
+            for (var oneGamePaymentFactory : oneGamePaymentFactories) {
+                if (methods.contains(
+                    oneGamePaymentFactory.getTargetPaymentMethod())) { // Payment 생성 해야하는 지 여부 확인
+                    oneGamePaymentFactory.create(oneGamePaymentFactoryContext)
+                        .ifPresent(payment -> payments.add(payment));
+                }
             }
-            totalRemainPrice += singleGameProductContext.getRemainPrice();
+            totalRemainPrice += oneGamePaymentFactoryContext.getRemainPrice();
         }
         {
-            AllGameProductContext allGameProductContext = AllGameProductContext.builder()
-                .games(games)
-                .account(account)
-                .point(point)
-                .totalRemainPrice(totalRemainPrice)
+            AllGamePaymentFactoryContext allGameProductContext = AllGamePaymentFactoryContext.builder() // context 생성
+                .games(games).account(account).point(point).remainPrice(totalRemainPrice)
                 .build();
-            for (var allProductPaymentFactory : allProductPaymentFactories) {
-                allProductPaymentFactory.create(allGameProductContext)
-                    .ifPresent(payment -> payments.add(payment));
+            for (var allProductPaymentFactory : allGamePaymentFactories) {
+                if (methods.contains(allProductPaymentFactory.getTargetPaymentMethod())) { // Payment 생성 해야하는 지 여부 확인
+                    allProductPaymentFactory.create(allGameProductContext)
+                        .ifPresent(payment -> payments.add(payment));
+                }
             }
-            totalRemainPrice = allGameProductContext.getTotalRemainPrice();
+            totalRemainPrice = allGameProductContext.getRemainPrice();
         }
 
         if (totalRemainPrice == 0) {
@@ -110,13 +107,8 @@ public class OrderService {
         return order;
     }
 
-    //TODO: Pending Order 진행 하는 Service 만들어야 함 이서비스는 API 보다는 Redirect 온 후 호출됨
-
-
     /**
-     * OrderId 진행할 OrderId paymentId 진행된 paymentId
-     *
-     * @param orderId
+     * Order 의 상태를 Update 하는 코드 Payment 의 상태를 보고 Order의 상태를 업데이트한다. Payment 가 변경 되었을때 호출 하는 것이 좋다.
      */
     public void updateOrder(Long orderId) {
 

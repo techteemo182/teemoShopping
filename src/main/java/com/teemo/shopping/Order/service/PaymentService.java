@@ -9,7 +9,4 @@ import org.springframework.stereotype.Service;
 public class PaymentService {
     @Autowired
     private KakaopayService kakaopayService;
-    @Transactional
-    public void readyKakaodpay() {
-    }
 }

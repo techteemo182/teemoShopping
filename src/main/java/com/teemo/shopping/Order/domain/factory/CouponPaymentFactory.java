@@ -1,41 +1,50 @@
-package com.teemo.shopping.Order.service.payment_factory;
+package com.teemo.shopping.Order.domain.factory;
 
 import com.teemo.shopping.Order.domain.CouponPayment;
 import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
+import com.teemo.shopping.Order.dto.OneGamePaymentFactoryContext;
 import com.teemo.shopping.Order.repository.PaymentRepository;
+import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.account.domain.AccountsCoupons;
+import com.teemo.shopping.account.repository.AccountCouponsRepository;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
+import com.teemo.shopping.game.domain.Game;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@org.springframework.core.annotation.Order(200)
-public class CouponPaymentFactory implements SingleProductPaymentFactory {
+@Order(200)
+public class CouponPaymentFactory implements OneGamePaymentFactory {
 
     @Autowired
     private PaymentRepository<CouponPayment> couponPaymentRepository;
 
+    @Autowired
+    private AccountCouponsRepository accountCouponsRepository;
     public PaymentMethod getTargetPaymentMethod() {
         return PaymentMethod.COUPON;
     }
 
     @Override
-    public Optional<Payment> create(SingleGameProductContext context) {
-        if (context.getCoupon().isEmpty()) {
+    public Optional<Payment> create(OneGamePaymentFactoryContext context) throws RuntimeException {
+        Game game = context.getGame();
+        Coupon coupon = context.getCoupon().orElse(null);
+        Account account = context.getAccount();
+
+        if (coupon == null) {
             return Optional.empty();
         }
-        Coupon coupon = context.getCoupon().orElseThrow();  // 타입 스크립트는 타입체크 후 그냥 가져가게 해주는데 ㅠ
-        if (context.getAccount().getCoupons().contains(coupon)) { //account has coupon validate
-            throw new RuntimeException();
-        }
         if (coupon.getMinFulfillPrice()
-            > context.getRemainPrice()) {//coupon minFulfillPrice validate
+            > context.getRemainPrice()) { //쿠폰 최소 금액 충족 여부
             throw new RuntimeException();
         }
 
+        AccountsCoupons accountsCoupons = accountCouponsRepository.findFirstByAccountAndCoupon(account, coupon).orElseThrow(RuntimeException::new);
         int couponPrice = 0;
         if (coupon.getMethod() == CouponMethod.PERCENT) {
             couponPrice = Math.max(coupon.getMinDiscountPrice(),
@@ -44,9 +53,15 @@ public class CouponPaymentFactory implements SingleProductPaymentFactory {
         } else if (coupon.getMethod() == CouponMethod.STATIC) {
             couponPrice = Math.max(0, (int) (context.getRemainPrice() - coupon.getAmount()));
         }
+
         CouponPayment couponPayment = CouponPayment.builder().coupon(coupon).status(
-            PaymentStatus.SUCCESS).game(context.getGame()).build();
-        couponPaymentRepository.save(couponPayment);
+            PaymentStatus.SUCCESS).game(game).build();
+        if(accountsCoupons.getAmount() == 1) {
+            accountCouponsRepository.deleteById(accountsCoupons.getId());   // 1개면 삭제
+        } else {
+            accountsCoupons.updateAmount(accountsCoupons.getAmount() - 1);  // 아니면 1개 차감
+            couponPaymentRepository.save(couponPayment);
+        }
         context.setRemainPrice(context.getRemainPrice() - couponPrice);
         return Optional.of(couponPayment);
     }

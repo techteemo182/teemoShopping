@@ -45,5 +45,5 @@ public class Account extends BaseEntity {
     private double point; // 포인트
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
-    private List<Coupon> coupons = new ArrayList<>();
+    private List<AccountsCoupons> accountsCoupons = new ArrayList<>();
 }
