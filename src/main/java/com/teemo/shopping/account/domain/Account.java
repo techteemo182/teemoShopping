@@ -1,11 +1,16 @@
 package com.teemo.shopping.account.domain;
 
 import com.teemo.shopping.core.BaseEntity;
+import com.teemo.shopping.coupon.domain.Coupon;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,4 +43,7 @@ public class Account extends BaseEntity {
     @Column
     @NotNull
     private double point; // 포인트
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    private List<Coupon> coupons = new ArrayList<>();
 }

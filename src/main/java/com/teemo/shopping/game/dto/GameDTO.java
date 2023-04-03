@@ -8,6 +8,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class GameDTO {
+    private Long gameId;
     private String name;
     private String description;
     private double ratingAvg;

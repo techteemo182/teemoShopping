@@ -39,7 +39,7 @@ public class AccountService {
 
     @Transactional
     public void register(String username, String password) throws AccountAlreadyExist {
-        if(accountRepository.findByUsername(username).isPresent()) {
+        if (accountRepository.findByUsername(username).isPresent()) {
             throw new AccountAlreadyExist();
         }
         accountRepository.save(
