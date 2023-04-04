@@ -24,6 +24,7 @@ public class OrdersGames extends BaseEntity {
     protected OrdersGames(Order order, Game game, OrdersGamesStatus status) {
         this.order = order;
         this.game = game;
+        this.status = status;
     }
 
     @ManyToOne
@@ -37,5 +38,9 @@ public class OrdersGames extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @NotNull
     private OrdersGamesStatus status;
+
+    public void updateStatus(OrdersGamesStatus status) {
+        this.status = status;
+    }
 }
 

@@ -12,6 +12,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,9 +31,10 @@ import lombok.NoArgsConstructor;
 public class Payment extends BaseEntity {
 
 
-    protected Payment(int price, PaymentStatus status) {
+    protected Payment(int price, PaymentStatus status, Order order) {
         this.price = price;
         this.status = status;
+        this.order = order;
     }
 
     @Column
@@ -51,5 +53,11 @@ public class Payment extends BaseEntity {
      */
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
+
+    @ManyToOne
+    private Order order;
+    public void updateStatus(PaymentStatus status) {
+        this.status = status;
+    }
 }
 

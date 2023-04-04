@@ -8,7 +8,7 @@ import com.teemo.shopping.Order.dto.OneGamePaymentFactoryContext;
 import com.teemo.shopping.Order.repository.PaymentRepository;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsCoupons;
-import com.teemo.shopping.account.repository.AccountCouponsRepository;
+import com.teemo.shopping.account.repository.AccountsCouponsRepository;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.game.domain.Game;
@@ -25,7 +25,7 @@ public class CouponPaymentFactory implements OneGamePaymentFactory {
     private PaymentRepository<CouponPayment> couponPaymentRepository;
 
     @Autowired
-    private AccountCouponsRepository accountCouponsRepository;
+    private AccountsCouponsRepository accountsCouponsRepository;
     public PaymentMethod getTargetPaymentMethod() {
         return PaymentMethod.COUPON;
     }
@@ -35,7 +35,7 @@ public class CouponPaymentFactory implements OneGamePaymentFactory {
         Game game = context.getGame();
         Coupon coupon = context.getCoupon().orElse(null);
         Account account = context.getAccount();
-
+        com.teemo.shopping.Order.domain.Order order = context.getOrder();
         if (coupon == null) {
             return Optional.empty();
         }
@@ -44,7 +44,7 @@ public class CouponPaymentFactory implements OneGamePaymentFactory {
             throw new RuntimeException();
         }
 
-        AccountsCoupons accountsCoupons = accountCouponsRepository.findFirstByAccountAndCoupon(account, coupon).orElseThrow(RuntimeException::new);
+        AccountsCoupons accountsCoupons = accountsCouponsRepository.findFirstByAccountAndCoupon(account, coupon).orElseThrow(RuntimeException::new);
         int couponPrice = 0;
         if (coupon.getMethod() == CouponMethod.PERCENT) {
             couponPrice = Math.max(coupon.getMinDiscountPrice(),
@@ -54,10 +54,10 @@ public class CouponPaymentFactory implements OneGamePaymentFactory {
             couponPrice = Math.max(0, (int) (context.getRemainPrice() - coupon.getAmount()));
         }
 
-        CouponPayment couponPayment = CouponPayment.builder().coupon(coupon).status(
+        CouponPayment couponPayment = CouponPayment.builder().coupon(coupon).order(order).status(
             PaymentStatus.SUCCESS).game(game).build();
         if(accountsCoupons.getAmount() == 1) {
-            accountCouponsRepository.deleteById(accountsCoupons.getId());   // 1개면 삭제
+            accountsCouponsRepository.deleteById(accountsCoupons.getId());   // 1개면 삭제
         } else {
             accountsCoupons.updateAmount(accountsCoupons.getAmount() - 1);  // 아니면 1개 차감
             couponPaymentRepository.save(couponPayment);

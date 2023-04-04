@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 
 public class Account extends BaseEntity {
     @Builder
-    protected Account(String username, String password, double point) {
+    protected Account(String username, String password, int point) {
         this.username = username;
         this.password = password;
         this.point = point;
@@ -42,7 +42,7 @@ public class Account extends BaseEntity {
 
     @Column
     @NotNull
-    private double point; // 포인트
+    private int point; // 포인트
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<AccountsCoupons> accountsCoupons = new ArrayList<>();

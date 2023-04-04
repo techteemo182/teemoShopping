@@ -22,8 +22,8 @@ import lombok.NoArgsConstructor;
 public class DiscountPayment extends Payment {
 
     @Builder
-    protected DiscountPayment(int price, PaymentStatus status,  Game game) {
-        super(price, status);
+    public DiscountPayment(int price, PaymentStatus status, Order order, Game game) {
+        super(price, status, order);
         this.game = game;
     }
 

@@ -40,7 +40,6 @@ public class Game extends BaseEntity {
     }
 
     @Column
-    @NaturalId
     @NotNull
     /**
      * 게임 이름

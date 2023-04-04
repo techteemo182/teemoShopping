@@ -9,9 +9,10 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-//그냥 Lombok 쓰지 말까 Lombok 자체가 확장성이 없다.
-
 public class KakaopayReadyRequest {
     private Iterator<GameDTO> gameDTOs;
-    private Integer totalPrice;
+    private String cid;
+    private String partnerOrderId;
+    private String partnerUserId;
+    private Integer price;
 }

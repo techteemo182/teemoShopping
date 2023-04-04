@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AccountCouponsRepository extends JpaRepository<AccountsCoupons, Long> {
+public interface AccountsCouponsRepository extends JpaRepository<AccountsCoupons, Long> {
     Optional<AccountsCoupons> findFirstByAccountAndCoupon(Account account, Coupon coupon);
 
 }

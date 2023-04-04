@@ -24,14 +24,14 @@ public class Coupon extends BaseEntity {
     @Builder
     protected Coupon(String name, String description, int maxDiscountPrice, int minDiscountPrice, int minFulfillPrice,
         CouponMethod method, double amount, LocalTime expiredAt) {
-        this.name = name;
-        this.description = description;
-        this.maxDiscountPrice = maxDiscountPrice;
-        this.minDiscountPrice = minDiscountPrice;
-        this.minFulfillPrice = minFulfillPrice;
-        this.method = method;
-        this.amount = amount;
-        this.expiredAt = expiredAt;
+            this.name = name;
+            this.description = description;
+            this.maxDiscountPrice = maxDiscountPrice;
+            this.minDiscountPrice = minDiscountPrice;
+            this.minFulfillPrice = minFulfillPrice;
+            this.method = method;
+            this.amount = amount;
+            this.expiredAt = expiredAt;
     }
 
     @Column

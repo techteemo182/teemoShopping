@@ -34,13 +34,13 @@ public class KakaopayAPIApproveRequest {
         ret.add("tid", tid);
         ret.add("partner_order_id", partnerOrderId);
         ret.add("partner_user_id", partnerUserId);
-        if(pgToken != null) {
-            ret.add("pg_token", pgToken);
-        }
+        ret.add("pg_token", pgToken);
         if(payload != null) {
             ret.add("payload", payload);
         }
-        ret.add("total_amount", totalAmount.toString());
+        if(totalAmount != null) {
+            ret.add("total_amount", totalAmount.toString());
+        }
 
         return ret;
     }

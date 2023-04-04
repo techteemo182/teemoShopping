@@ -2,17 +2,19 @@ package com.teemo.shopping.Order.service;
 
 import com.teemo.shopping.Order.domain.Order;
 import com.teemo.shopping.Order.domain.OrdersGames;
-import com.teemo.shopping.Order.domain.OrdersPayments;
 import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.enums.OrderStatus;
+import com.teemo.shopping.Order.domain.enums.OrdersGamesStatus;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
+import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import com.teemo.shopping.Order.domain.factory.AllGamePaymentFactory;
 import com.teemo.shopping.Order.domain.factory.OneGamePaymentFactory;
 import com.teemo.shopping.Order.dto.AllGamePaymentFactoryContext;
+import com.teemo.shopping.Order.dto.CreateOrderReturn;
 import com.teemo.shopping.Order.dto.OneGamePaymentFactoryContext;
-import com.teemo.shopping.Order.exception.NeededContextFieldNotFound;
+import com.teemo.shopping.Order.dto.OrderDTO;
+import com.teemo.shopping.Order.repository.OrderRepository;
 import com.teemo.shopping.Order.repository.OrdersGamesRepository;
-import com.teemo.shopping.Order.repository.OrdersPaymentsRepository;
 import com.teemo.shopping.Order.repository.PaymentRepository;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.coupon.domain.Coupon;
@@ -32,10 +34,10 @@ import org.springframework.stereotype.Service;
 public class OrderService {
 
     @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
     private OrdersGamesRepository ordersGamesRepository;
 
-    @Autowired
-    private OrdersPaymentsRepository ordersPaymentsRepository;
     @Autowired
     private PaymentRepository<Payment> paymentRepository;
 
@@ -55,23 +57,29 @@ public class OrderService {
      * OrderStatus.SUCCESS 사용한 모든 Payment.status = OrderStatus.SUCCESS
      */
     @Transactional(rollbackOn = RuntimeException.class)
-    public Order createOrder(@Valid Account account,    //TODO: DTO 로 변경 예정
+    public CreateOrderReturn createOrder(@Valid Account account,    //TODO: DTO 로 변경 예정
         Map<@Valid Game, @Valid Optional<Coupon>> gameCouponMap, SortedSet<PaymentMethod> methods,
         int point) {
+        var createOrderReturnBuilder = CreateOrderReturn.builder();
+
         int totalPrice = gameCouponMap.entrySet().stream()
             .mapToInt(entry -> entry.getKey().getPrice()).reduce(0, (ingPrice, v) -> ingPrice + v);
+        createOrderReturnBuilder.totalPrice(totalPrice);
+
         List<Game> games = gameCouponMap.entrySet().stream().map(entry -> entry.getKey()).toList();
+
         Order order = Order.builder().account(account).totalPrice(totalPrice)
             .status(OrderStatus.PENDING).build();
+        createOrderReturnBuilder.order(OrderDTO.from(order));
+        orderRepository.save(order);
         List<Payment> payments = new ArrayList<>();
 
         int totalRemainPrice = 0;
-
         for (var game : games) {
             Optional<Coupon> coupon = gameCouponMap.get(game);
             OneGamePaymentFactoryContext oneGamePaymentFactoryContext = OneGamePaymentFactoryContext.builder()  // Context 생성
-                .game(game).coupon(coupon == null ? Optional.empty() : coupon).account(account)
-                .remainPrice(game.getPrice()).build();
+                .createOrderReturnBuilder(createOrderReturnBuilder).game(game).coupon(coupon == null ? Optional.empty() : coupon).account(account)
+                .remainPrice(game.getPrice()).order(order).build();
             for (var oneGamePaymentFactory : oneGamePaymentFactories) {
                 if (methods.contains(
                     oneGamePaymentFactory.getTargetPaymentMethod())) { // Payment 생성 해야하는 지 여부 확인
@@ -81,12 +89,15 @@ public class OrderService {
             }
             totalRemainPrice += oneGamePaymentFactoryContext.getRemainPrice();
         }
+
+
         {
             AllGamePaymentFactoryContext allGameProductContext = AllGamePaymentFactoryContext.builder() // context 생성
-                .games(games).account(account).point(point).remainPrice(totalRemainPrice)
+                .games(games).account(account).point(point).order(order).createOrderReturnBuilder(createOrderReturnBuilder).remainPrice(totalRemainPrice)
                 .build();
             for (var allProductPaymentFactory : allGamePaymentFactories) {
-                if (methods.contains(allProductPaymentFactory.getTargetPaymentMethod())) { // Payment 생성 해야하는 지 여부 확인
+                if (methods.contains(
+                    allProductPaymentFactory.getTargetPaymentMethod())) { // Payment 생성 해야하는 지 여부 확인
                     allProductPaymentFactory.create(allGameProductContext)
                         .ifPresent(payment -> payments.add(payment));
                 }
@@ -94,28 +105,74 @@ public class OrderService {
             totalRemainPrice = allGameProductContext.getRemainPrice();
         }
 
-        if (totalRemainPrice == 0) {
+        if (totalRemainPrice != 0) {
             throw new RuntimeException();   //ROLLBACk
         }
-        for (var payment : payments) {
-            ordersPaymentsRepository.save(
-                OrdersPayments.builder().payment(payment).order(order).build());
-        }
+
+        order = orderRepository.findById(order.getId()).get();
         for (var game : games) {
-            ordersGamesRepository.save(OrdersGames.builder().game(game).order(order).build());
+            ordersGamesRepository.save(OrdersGames.builder().game(game).order(order).status(
+                OrdersGamesStatus.PENDING).build());
         }
-        return order;
+        /*for(var payment : payments) {
+            order.getPayments().add(payment);
+        }*/
+
+        int pointPrice = 0;  // 포인트 사용량
+        int discountPrice = 0;    // 할인된 가격
+        int couponPrice = 0;    // 쿠폰 가격
+        for (var payment : payments) {
+            if (payment.getStatus().equals(PaymentMethod.DISCOUNT)) {
+                discountPrice += payment.getPrice();
+            } else if (payment.getStatus().equals(PaymentMethod.COUPON)) {
+                couponPrice += payment.getPrice();
+            } else if (payment.getStatus().equals(PaymentMethod.POINT)) {
+                pointPrice += payment.getPrice();
+            }
+        }
+        createOrderReturnBuilder.pointPrice(pointPrice);
+        createOrderReturnBuilder.couponPrice(couponPrice);
+        createOrderReturnBuilder.discountPrice(discountPrice);
+
+        createOrderReturnBuilder.order(updateOrder(order.getId())); // order 업데이트
+        return createOrderReturnBuilder.build();
     }
 
     /**
-     * Order 의 상태를 Update 하는 코드 Payment 의 상태를 보고 Order의 상태를 업데이트한다. Payment 가 변경 되었을때 호출 하는 것이 좋다.
+     * Order 의 상태를 Update 하는 코드 Payment 의 상태를 보고 Order의 상태를 업데이트한다. Payment의 Status가 변경 되었을때 호출 하는
+     * 것이 좋다.\ Order 의 모든 Payment의 Status가  Success이면  Order Success 로 변경
      */
-    public void updateOrder(Long orderId) {
-
+    @Transactional
+    public OrderDTO updateOrder(Long orderId) throws RuntimeException {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        boolean isOrderSuccess = true;
+        boolean isOrderCancel = false;
+        for (var payment : order.getPayments()) {
+            if(payment.getStatus().equals(PaymentStatus.CANCEL)) {
+                isOrderCancel = true;
+                break;
+            } else if(!payment.getStatus().equals(PaymentStatus.SUCCESS)) {
+                isOrderSuccess = false;
+                break;
+            }
+        }
+        if (isOrderCancel) {
+            order.updateStatus(OrderStatus.CANCEL);
+            for(var ordersGames : order.getOrdersGames()) {
+                ordersGames.updateStatus(OrdersGamesStatus.REFUND);
+            }
+            for(var payment : order.getPayments()) {
+                System.out.println("[주의] payment 환불 구현");
+                //TODO: 환불 혹은 취소 만들기 - 전략패턴 사용하기
+            }
+        }
+        if (isOrderSuccess) {
+            order.updateStatus(OrderStatus.SUCCESS);
+            for(var ordersGames : order.getOrdersGames()) {
+                ordersGames.updateStatus(OrdersGamesStatus.PURCHASE);
+            }
+        }
+        return OrderDTO.from(order);
     }
 }
-
-// 한계점 Context가 이 createOrder가 의도하는 input에 의존성이 있음
-// 그러나 동적인 변수를 추가한다 하더라도 높은 pro 를 기대 할 수 없음
-
 

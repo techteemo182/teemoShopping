@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @DiscriminatorValue(Values.KAKAOPAY)
 public class CardPayment extends Payment {
     @Builder
-    public CardPayment(int price, PaymentStatus status) {
-        super(price, status);
+    public CardPayment(int price, PaymentStatus status, Order order) {
+        super(price, status, order);
     }
 }

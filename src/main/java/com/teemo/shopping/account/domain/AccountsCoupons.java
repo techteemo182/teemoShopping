@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class AccountsCoupons extends BaseEntity {
+    @Builder
+    public AccountsCoupons(Account account, Coupon coupon, int amount) {
+        this.account = account;
+        this.coupon = coupon;
+        this.amount = amount;
+    }
+
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;

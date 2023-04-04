@@ -26,6 +26,7 @@ public class DiscountPaymentFactory implements OneGamePaymentFactory {    //ì „ë
     @Override
     public Optional<Payment> create(OneGamePaymentFactoryContext context) {
         Game game = context.getGame();
+        com.teemo.shopping.Order.domain.Order order = context.getOrder();
         int discountPrice = (int) (
             context.getRemainPrice() * (1 - game.getDiscount()));
         DiscountPayment discountPayment = DiscountPayment.builder().game(game)

@@ -11,11 +11,13 @@ import lombok.Getter;
 public class KakaopayApproveRequest {
 
     @NotNull
-    public String tid;
+    private final String tid;
     @NotNull
-    public String partnerOrderId;
+    private final String cid;
     @NotNull
-    public String partnerUserId;
+    private final String partnerOrderId;
     @NotNull
-    public String pgToken;
+    private final String partnerUserId;
+    @NotNull
+    private final String pgToken;
 }

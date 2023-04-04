@@ -68,7 +68,7 @@ public class KakaopayAPIReadyRequest {
         if (greenDeposit != null) {
             multiValueMap.add("green_deposit", greenDeposit.toString());
         }
-        multiValueMap.add("approval_url", approvalUrl);
+        multiValueMap.add("approval_url", approvalUrl); //static Resource 로 만들기
         multiValueMap.add("cancel_url", cancelUrl);
         multiValueMap.add("fail_url", failUrl);
         /**

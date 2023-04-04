@@ -26,11 +26,12 @@ public class PointPaymentFactory implements AllGamePaymentFactory {
     public Optional<Payment> create(AllGamePaymentFactoryContext context) {
         int remainPrice = context.getRemainPrice();
         int pointPrice = context.getPoint();
-        if (remainPrice > pointPrice) {
+        com.teemo.shopping.Order.domain.Order order = context.getOrder();
+        if (remainPrice < pointPrice) {
             throw new RuntimeException();
         }
         PointPayment payment = PointPayment.builder().status(PaymentStatus.SUCCESS)
-            .price(pointPrice).build();
+            .price(pointPrice).order(order).build();
         pointPaymentRepository.save(payment);
         context.setRemainPrice(remainPrice - pointPrice);
         return Optional.of(payment);
