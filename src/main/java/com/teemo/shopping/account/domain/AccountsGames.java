@@ -1,10 +1,11 @@
-package com.teemo.shopping.game.domain;
+package com.teemo.shopping.account.domain;
 
 import com.teemo.shopping.core.entity.BaseEntity;
+import com.teemo.shopping.coupon.domain.Coupon;
+import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -14,29 +15,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 @Getter
 @Entity
-@Table (
-    indexes = {
-        @Index(columnList = "game_categories_id, games_id")
-    }
-)
-@AttributeOverride(name = "id", column = @Column(name = "game_categories_games_id"))
-public class GameCategoriesGames extends BaseEntity {
-
+@AttributeOverride(name = "id", column = @Column(name = "accounts_games_id"))
+public class AccountsGames extends BaseEntity {
     @Builder
-    protected GameCategoriesGames(GameCategory gameCategory, Game game) {
-        this.gameCategory = gameCategory;
+    public AccountsGames(Account account, Game game) {
+        this.account = account;
         this.game = game;
     }
 
-
     @ManyToOne
-    @JoinColumn(name = "game_categories_id")
-    GameCategory gameCategory;
+    @JoinColumn(name = "accounts_id")
+    private Account account;
 
     @ManyToOne
     @JoinColumn(name = "games_id")
-    Game game;
+    private Game game;
+
 }

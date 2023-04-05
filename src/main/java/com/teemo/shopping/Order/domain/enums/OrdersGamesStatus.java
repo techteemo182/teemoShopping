@@ -8,7 +8,8 @@ import lombok.Getter;
 @Getter
 public enum OrdersGamesStatus {
     PENDING("PENDING"), // 상태 기다리는 중
-    PURCHASE("PURCHASE"), // 구매 상태
-    REFUND("REFUND"); // 환불 상태
+    PURCHASE("PURCHASE"), // 게임 구매
+    REFUND("REFUND"), // 게임 환불
+    CANCEL("CANCEL") // 게임 주문 취소
     private String status;
 }

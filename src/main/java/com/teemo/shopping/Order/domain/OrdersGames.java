@@ -4,6 +4,8 @@ package com.teemo.shopping.Order.domain;
 import com.teemo.shopping.Order.domain.enums.OrdersGamesStatus;
 import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.game.domain.Game;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,6 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
+@AttributeOverride(name = "id", column = @Column(name = "orders_games_id"))
 public class OrdersGames extends BaseEntity {
 
     @Builder

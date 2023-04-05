@@ -2,6 +2,8 @@ package com.teemo.shopping.game.domain;
 
 import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.resource.domain.Resource;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -19,6 +21,7 @@ import lombok.NoArgsConstructor;
         @Index(columnList = "games_id, resources_id")
     }
 )
+@AttributeOverride(name = "id", column = @Column(name = "games_resources_id"))
 public class GamesResources extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "games_id")

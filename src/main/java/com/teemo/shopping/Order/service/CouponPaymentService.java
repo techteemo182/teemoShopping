@@ -5,6 +5,7 @@ import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import com.teemo.shopping.Order.dto.OneGamePaymentServiceContext;
+import com.teemo.shopping.Order.dto.PaymentCancelParameter;
 import com.teemo.shopping.Order.repository.PaymentRepository;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsCoupons;
@@ -64,5 +65,10 @@ public class CouponPaymentService extends OneGamePaymentService {
         }
         context.setRemainPrice(context.getRemainPrice() - couponPrice);
         return Optional.of(couponPayment);
+    }
+
+    @Override
+    void cancel(PaymentCancelParameter parameter) {
+
     }
 }

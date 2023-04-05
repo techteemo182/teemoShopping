@@ -7,7 +7,6 @@ import com.teemo.shopping.Order.domain.enums.OrderStatus;
 import com.teemo.shopping.Order.domain.enums.OrdersGamesStatus;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
-import com.teemo.shopping.Order.domain.observer.OrderUpdateObserver;
 import com.teemo.shopping.Order.dto.AllGamePaymentServiceContext;
 import com.teemo.shopping.Order.dto.CreateOrderReturn;
 import com.teemo.shopping.Order.dto.OneGamePaymentServiceContext;
@@ -15,6 +14,8 @@ import com.teemo.shopping.Order.dto.OrderDTO;
 import com.teemo.shopping.Order.repository.OrderRepository;
 import com.teemo.shopping.Order.repository.OrdersGamesRepository;
 import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.account.domain.AccountsGames;
+import com.teemo.shopping.account.repository.AccountsGamesRepository;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.transaction.Transactional;
@@ -39,6 +40,8 @@ public class OrderService {
     @Autowired
     private List<AllGamePaymentService> allGamePaymentFactories;
 
+    @Autowired
+    private AccountsGamesRepository accountsGamesRepository;
 
     /**
      * 주문을 생성하는 서비스입니다. 다양한 결제 수단을 사용할 수 있습니다. 할인, 쿠폰, 포인트등을 주문에 적용합니다. 가격의 적용은 (할인, 쿠폰, 포인트, 카카오페이)
@@ -70,7 +73,8 @@ public class OrderService {
         for (var game : games) {
             Optional<Coupon> coupon = gameCouponMap.get(game);
             OneGamePaymentServiceContext oneGamePaymentServiceContext = OneGamePaymentServiceContext.builder()  // Context 생성
-                .createOrderReturnBuilder(createOrderReturnBuilder).game(game).coupon(coupon == null ? Optional.empty() : coupon).account(account)
+                .createOrderReturnBuilder(createOrderReturnBuilder).game(game)
+                .coupon(coupon == null ? Optional.empty() : coupon).account(account)
                 .remainPrice(game.getPrice()).order(order).build();
             for (var oneGamePaymentFactory : oneGamePaymentFactories) {
                 if (methods.contains(
@@ -82,10 +86,10 @@ public class OrderService {
             totalRemainPrice += oneGamePaymentServiceContext.getRemainPrice();
         }
 
-
         {
             AllGamePaymentServiceContext allGameProductContext = AllGamePaymentServiceContext.builder() // context 생성
-                .games(games).account(account).point(point).order(order).createOrderReturnBuilder(createOrderReturnBuilder).remainPrice(totalRemainPrice)
+                .games(games).account(account).point(point).order(order)
+                .createOrderReturnBuilder(createOrderReturnBuilder).remainPrice(totalRemainPrice)
                 .build();
             for (var allProductPaymentFactory : allGamePaymentFactories) {
                 if (methods.contains(
@@ -106,9 +110,6 @@ public class OrderService {
             ordersGamesRepository.save(OrdersGames.builder().game(game).order(order).status(
                 OrdersGamesStatus.PENDING).build());
         }
-        /*for(var payment : payments) {
-            order.getPayments().add(payment);
-        }*/
 
         int pointPrice = 0;  // 포인트 사용량
         int discountPrice = 0;    // 할인된 가격
@@ -134,37 +135,62 @@ public class OrderService {
      * Order 의 상태를 Update 하는 코드 Payment 의 상태를 보고 Order의 상태를 업데이트한다. Payment의 Status가 변경 되었을때 호출 하는
      * 것이 좋다.\ Order 의 모든 Payment의 Status가  Success이면  Order Success 로 변경
      */
+
+    @Autowired
+    private AccountsGamesRepository accountsGamesRepository;
+
     @Transactional
     public OrderDTO updateOrder(Long orderId) throws RuntimeException {
         Order order = orderRepository.findById(orderId).orElseThrow();
         boolean isOrderSuccess = true;
+        boolean isPaymentPendingRemain = false;
+        boolean isPaymentCancelRemain = false;
         boolean isOrderCancel = false;
         for (var payment : order.getPayments()) {
-            if(payment.getStatus().equals(PaymentStatus.CANCEL)) {
-                isOrderCancel = true;
-                break;
-            } else if(!payment.getStatus().equals(PaymentStatus.SUCCESS)) {
-                isOrderSuccess = false;
-                break;
+            if (payment.getStatus().equals(PaymentStatus.CANCEL)) {
+                isPaymentCancelRemain = true;
+            } else if (!payment.getStatus().equals(PaymentStatus.PENDING)) {
+                isPaymentPendingRemain = true;
             }
         }
-        if (isOrderCancel) {
+        isOrderSuccess = !isPaymentPendingRemain && !isPaymentCancelRemain; // 모든 payment 성공 일때 성공
+
+        /***
+         *  PENDING 상태 없고 CANCEL 상태가 하나라도 있으면 CANCEL
+         *  즉 모든 Payment가 종결 되어야 취소가능
+         */
+        isOrderCancel = !isPaymentPendingRemain && isPaymentCancelRemain;
+        if (isOrderCancel) {    // 주문 취소 이미 체결된 결제에 대해서 반환 처리
             order.updateStatus(OrderStatus.CANCEL);
-            for(var ordersGames : order.getOrdersGames()) {
+            for (var ordersGames : order.getOrdersGames()) {
                 ordersGames.updateStatus(OrdersGamesStatus.REFUND);
             }
-            for(var payment : order.getPayments()) {
-                System.out.println("[주의] payment 환불 구현");
-                //TODO: 환불 혹은 취소 만들기 - 전략패턴 사용하기
+
+            for (var payment : order.getPayments()) {       // 전략 패턴도 생각
+                PaymentMethod paymentMethod;
+                //설계 다시해야해
+                // PaymentService 에서 실행하면 OneClick 하자
+
             }
         }
-        if (isOrderSuccess) {
+        if (isOrderSuccess) {       // 주문 성공 : 이후 처리
             order.updateStatus(OrderStatus.SUCCESS);
-            for(var ordersGames : order.getOrdersGames()) {
-                ordersGames.updateStatus(OrdersGamesStatus.PURCHASE);
+            List<OrdersGames> ordersGames = order.getOrdersGames();
+            Account account = order.getAccount();
+            for(var ordersGamesEntry : ordersGames) {
+                ordersGamesEntry.updateStatus(OrdersGamesStatus.PURCHASE);
+                Game game = ordersGamesEntry.getGame();
+                accountsGamesRepository.save(AccountsGames.builder().account(account).game(game).build());
             }
+
         }
         return OrderDTO.from(order);
+    }
+
+    @Transactional
+    public OrderDTO refundGame(Account account, Game game) {
+        // account 가 game 을 가지고 있는지 확인
+
     }
 }
 
