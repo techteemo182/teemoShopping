@@ -38,7 +38,7 @@ class TestContorller {
 	@GetMapping(path = "/")
 	RedirectView main() {
 		return new RedirectView(kakaopayService.readyKakaopay(KakaopayReadyRequest.builder()
-				.gameDTOs(List.of(GameDTO.builder().name("100만원 기부해주세요").build()).iterator())
+				.itemName("100만원 기부해주세요")
 				.price(1000000)
 				.partnerUserId("123")
 				.partnerOrderId("123")

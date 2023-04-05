@@ -1,5 +1,6 @@
 package com.teemo.shopping.game.service;
 
+import com.teemo.shopping.core.layer.ServiceLayer;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.dto.GameAdd;
 import com.teemo.shopping.game.dto.GameRemoveById;
@@ -9,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GameService {
+public class GameService implements ServiceLayer {
 
     @Autowired
     GameRepository gameRepository;

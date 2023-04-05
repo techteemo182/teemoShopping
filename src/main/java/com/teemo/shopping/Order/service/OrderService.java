@@ -7,18 +7,15 @@ import com.teemo.shopping.Order.domain.enums.OrderStatus;
 import com.teemo.shopping.Order.domain.enums.OrdersGamesStatus;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
-import com.teemo.shopping.Order.domain.factory.AllGamePaymentFactory;
-import com.teemo.shopping.Order.domain.factory.OneGamePaymentFactory;
-import com.teemo.shopping.Order.dto.AllGamePaymentFactoryContext;
+import com.teemo.shopping.Order.domain.observer.OrderUpdateObserver;
+import com.teemo.shopping.Order.dto.AllGamePaymentServiceContext;
 import com.teemo.shopping.Order.dto.CreateOrderReturn;
-import com.teemo.shopping.Order.dto.OneGamePaymentFactoryContext;
+import com.teemo.shopping.Order.dto.OneGamePaymentServiceContext;
 import com.teemo.shopping.Order.dto.OrderDTO;
 import com.teemo.shopping.Order.repository.OrderRepository;
 import com.teemo.shopping.Order.repository.OrdersGamesRepository;
-import com.teemo.shopping.Order.repository.PaymentRepository;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.coupon.domain.Coupon;
-import com.teemo.shopping.external_api.kakao.KakaopayService;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -37,16 +34,11 @@ public class OrderService {
     private OrderRepository orderRepository;
     @Autowired
     private OrdersGamesRepository ordersGamesRepository;
+    @Autowired
+    private List<OneGamePaymentService> oneGamePaymentFactories;
+    @Autowired
+    private List<AllGamePaymentService> allGamePaymentFactories;
 
-    @Autowired
-    private PaymentRepository<Payment> paymentRepository;
-
-    @Autowired
-    private KakaopayService kakaopayService;
-    @Autowired
-    private List<OneGamePaymentFactory> oneGamePaymentFactories;
-    @Autowired
-    private List<AllGamePaymentFactory> allGamePaymentFactories;
 
     /**
      * 주문을 생성하는 서비스입니다. 다양한 결제 수단을 사용할 수 있습니다. 할인, 쿠폰, 포인트등을 주문에 적용합니다. 가격의 적용은 (할인, 쿠폰, 포인트, 카카오페이)
@@ -77,22 +69,22 @@ public class OrderService {
         int totalRemainPrice = 0;
         for (var game : games) {
             Optional<Coupon> coupon = gameCouponMap.get(game);
-            OneGamePaymentFactoryContext oneGamePaymentFactoryContext = OneGamePaymentFactoryContext.builder()  // Context 생성
+            OneGamePaymentServiceContext oneGamePaymentServiceContext = OneGamePaymentServiceContext.builder()  // Context 생성
                 .createOrderReturnBuilder(createOrderReturnBuilder).game(game).coupon(coupon == null ? Optional.empty() : coupon).account(account)
                 .remainPrice(game.getPrice()).order(order).build();
             for (var oneGamePaymentFactory : oneGamePaymentFactories) {
                 if (methods.contains(
                     oneGamePaymentFactory.getTargetPaymentMethod())) { // Payment 생성 해야하는 지 여부 확인
-                    oneGamePaymentFactory.create(oneGamePaymentFactoryContext)
+                    oneGamePaymentFactory.create(oneGamePaymentServiceContext)
                         .ifPresent(payment -> payments.add(payment));
                 }
             }
-            totalRemainPrice += oneGamePaymentFactoryContext.getRemainPrice();
+            totalRemainPrice += oneGamePaymentServiceContext.getRemainPrice();
         }
 
 
         {
-            AllGamePaymentFactoryContext allGameProductContext = AllGamePaymentFactoryContext.builder() // context 생성
+            AllGamePaymentServiceContext allGameProductContext = AllGamePaymentServiceContext.builder() // context 생성
                 .games(games).account(account).point(point).order(order).createOrderReturnBuilder(createOrderReturnBuilder).remainPrice(totalRemainPrice)
                 .build();
             for (var allProductPaymentFactory : allGamePaymentFactories) {

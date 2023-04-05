@@ -1,11 +1,11 @@
-package com.example.demo.account;
+package com.teemo.shopping.account;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.example.demo.util.DelegatingServletInputStream;
+import com.teemo.shopping.util.DelegatingServletInputStream;
 import com.teemo.shopping.Main;
 import com.teemo.shopping.account.exception.AccountAlreadyExist;
 import com.teemo.shopping.account.service.AccountService;

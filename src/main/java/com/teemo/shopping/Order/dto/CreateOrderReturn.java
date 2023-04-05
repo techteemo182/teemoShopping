@@ -6,8 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CreateOrderReturn {
-    //Map<CouponDTO, GameDTO> usedCouponGameMap;    // 게임에 사용한 쿠폰들
-    //List<GameDTO> purchaseGames;    // 구입한 게임들
     private OrderDTO order;    // 주문
     private int pointPrice;  // 포인트 사용량
     private int discountPrice;    // 할인된 가격

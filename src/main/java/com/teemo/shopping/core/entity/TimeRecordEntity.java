@@ -1,4 +1,4 @@
-package com.teemo.shopping.core;
+package com.teemo.shopping.core.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

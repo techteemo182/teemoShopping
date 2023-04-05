@@ -1,5 +1,6 @@
 package com.teemo.shopping.external_api.kakao.dto;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonDeserialize
+@JsonRootName(value = "card_info")
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaopayAPIApproveCardInfo {
 

@@ -1,4 +1,4 @@
-package com.teemo.shopping.core;
+package com.teemo.shopping.core.entity;
 
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.model.naming.PhysicalNamingStrategy;

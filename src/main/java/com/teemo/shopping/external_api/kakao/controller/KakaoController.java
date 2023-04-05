@@ -3,8 +3,8 @@ package com.teemo.shopping.external_api.kakao.controller;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.dto.KakaopayRedirectParameter;
 import com.teemo.shopping.Order.dto.KakaopayRedirectParameter.KakaopayRedirectType;
+import com.teemo.shopping.Order.service.KakaopayPaymentService;
 import com.teemo.shopping.Order.service.OrderService;
-import com.teemo.shopping.Order.service.PaymentService;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsCoupons;
 import com.teemo.shopping.account.repository.AccountRepository;
@@ -12,13 +12,10 @@ import com.teemo.shopping.account.repository.AccountsCouponsRepository;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.repository.CouponRepository;
-import com.teemo.shopping.external_api.kakao.KakaopayService;
 import com.teemo.shopping.external_api.kakao.dto.KakaoRedirectRequest;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.repository.GameRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Persistent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -37,13 +33,13 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/kakao")
 public class KakaoController {
     @Autowired
-    private PaymentService paymentService;
+    private KakaopayPaymentService kakaopayPaymentService;
 
     // Todo: 리다이렉트가 프론트에서도 되는데 해결방법 찾기
     @GetMapping("/success")
     public void success(KakaoRedirectRequest kakaoRedirectRequest) {
         try {
-            paymentService.onKakaopayRedirectResponse(
+            kakaopayPaymentService.onKakaopayRedirectResponse(
                 KakaopayRedirectParameter.builder().pgToken(kakaoRedirectRequest.getPgToken())
                     .type(KakaopayRedirectType.SUCCESS)
                     .partnerOrderId(kakaoRedirectRequest.getPartnerOrderId())
@@ -56,7 +52,7 @@ public class KakaoController {
     @GetMapping("/cancel")
     public void cancel(KakaoRedirectRequest kakaoRedirectReqeust) {
         try {
-            paymentService.onKakaopayRedirectResponse(
+            kakaopayPaymentService.onKakaopayRedirectResponse(
                 KakaopayRedirectParameter.builder().type(KakaopayRedirectType.CANCEL)
                     .partnerOrderId(kakaoRedirectReqeust.getPartnerOrderId())
                     .partnerUserId(kakaoRedirectReqeust.getPartnerUserId()).build());
@@ -68,7 +64,7 @@ public class KakaoController {
     @GetMapping("/fail")
     public void fail(KakaoRedirectRequest kakaoRedirectReqeust) {
         try {
-            paymentService.onKakaopayRedirectResponse(
+            kakaopayPaymentService.onKakaopayRedirectResponse(
                 KakaopayRedirectParameter.builder().type(KakaopayRedirectType.FAIL)
                     .partnerOrderId(kakaoRedirectReqeust.getPartnerOrderId())
                     .partnerUserId(kakaoRedirectReqeust.getPartnerUserId()).build());

@@ -1,10 +1,10 @@
-package com.teemo.shopping.Order.domain.factory;
+package com.teemo.shopping.Order.service;
 
 import com.teemo.shopping.Order.domain.CouponPayment;
 import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
-import com.teemo.shopping.Order.dto.OneGamePaymentFactoryContext;
+import com.teemo.shopping.Order.dto.OneGamePaymentServiceContext;
 import com.teemo.shopping.Order.repository.PaymentRepository;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsCoupons;
@@ -15,11 +15,11 @@ import com.teemo.shopping.game.domain.Game;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @Order(200)
-public class CouponPaymentFactory implements OneGamePaymentFactory {
+public class CouponPaymentService extends OneGamePaymentService {
 
     @Autowired
     private PaymentRepository<CouponPayment> couponPaymentRepository;
@@ -31,7 +31,7 @@ public class CouponPaymentFactory implements OneGamePaymentFactory {
     }
 
     @Override
-    public Optional<Payment> create(OneGamePaymentFactoryContext context) throws RuntimeException {
+    public Optional<Payment> create(OneGamePaymentServiceContext context) throws RuntimeException {
         Game game = context.getGame();
         Coupon coupon = context.getCoupon().orElse(null);
         Account account = context.getAccount();

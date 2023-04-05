@@ -1,6 +1,6 @@
 package com.teemo.shopping.account.domain;
 
-import com.teemo.shopping.core.BaseEntity;
+import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.coupon.domain.Coupon;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

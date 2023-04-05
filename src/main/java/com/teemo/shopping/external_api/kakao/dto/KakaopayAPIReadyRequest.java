@@ -1,18 +1,18 @@
 package com.teemo.shopping.external_api.kakao.dto;
 
+import com.teemo.shopping.util.ConverterToMultiValueMap;
+import com.teemo.shopping.util.CustomConverter;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-/**
- * @implNote 리팩토링 반드시 필요
- */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -48,46 +48,11 @@ public class KakaopayAPIReadyRequest {
     private Integer installMonth;
 
     public MultiValueMap<String, String> toFormData() {
-        MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap();
-        multiValueMap.add("cid", cid);
-        if (cidSecret != null) {
-            multiValueMap.add("cid_secret", cidSecret);
-        }
-        multiValueMap.add("partner_order_id", partnerOrderId);
-        multiValueMap.add("partner_user_id", partnerUserId);
-        multiValueMap.add("item_name", itemName);
-        if (itemCode != null) {
-            multiValueMap.add("item_code", itemCode);
-        }
-        multiValueMap.add("quantity", quantity.toString());
-        multiValueMap.add("total_amount", totalAmount.toString());
-        multiValueMap.add("tax_free_amount", taxFreeAmount.toString());
-        if (vatAmount != null) {
-            multiValueMap.add("vat_amount", vatAmount.toString());
-        }
-        if (greenDeposit != null) {
-            multiValueMap.add("green_deposit", greenDeposit.toString());
-        }
-        multiValueMap.add("approval_url", approvalUrl); //static Resource 로 만들기
-        multiValueMap.add("cancel_url", cancelUrl);
-        multiValueMap.add("fail_url", failUrl);
-        /**
-         * 예시
-         * ["HANA", "BC"]
-         */
-
-        if (availableCards != null && !availableCards.isEmpty()) {
-            String availableCardsString =
-                "[" + String.join(", ", availableCards) + "]";
-            multiValueMap.add("available_cards", availableCardsString);
-        }
-
-        if (paymentMethodType != null) {
-            multiValueMap.add("payment_method_type", paymentMethodType);
-        }
-        if (installMonth != null) {
-            multiValueMap.add("install_month", installMonth.toString());
-        }
-        return multiValueMap;
+        Map<String, CustomConverter> customConveterMap = new HashMap<>();
+        customConveterMap.put("availableCards", (obj) -> {
+            List<String> strs = (List<String>) obj;
+            return "[" + String.join(",", strs) + "]";
+        });
+        return ConverterToMultiValueMap.convertToFormData(this, customConveterMap);
     }
 }

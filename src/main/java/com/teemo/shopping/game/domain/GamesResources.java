@@ -1,6 +1,6 @@
 package com.teemo.shopping.game.domain;
 
-import com.teemo.shopping.core.BaseEntity;
+import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.resource.domain.Resource;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;

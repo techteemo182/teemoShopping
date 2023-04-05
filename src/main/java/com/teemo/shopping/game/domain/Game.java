@@ -1,6 +1,6 @@
 package com.teemo.shopping.game.domain;
 
-import com.teemo.shopping.core.BaseEntity;
+import com.teemo.shopping.core.entity.BaseEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +15,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Range;
 
 @Getter

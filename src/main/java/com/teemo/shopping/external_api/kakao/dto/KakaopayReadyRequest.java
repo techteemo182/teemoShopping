@@ -10,7 +10,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class KakaopayReadyRequest {
-    private Iterator<GameDTO> gameDTOs;
+    private String itemName;
     private String cid;
     private String partnerOrderId;
     private String partnerUserId;

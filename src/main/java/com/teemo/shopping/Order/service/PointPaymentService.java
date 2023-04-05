@@ -1,19 +1,19 @@
-package com.teemo.shopping.Order.domain.factory;
+package com.teemo.shopping.Order.service;
 
 import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.PointPayment;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
-import com.teemo.shopping.Order.dto.AllGamePaymentFactoryContext;
+import com.teemo.shopping.Order.dto.AllGamePaymentServiceContext;
 import com.teemo.shopping.Order.repository.PaymentRepository;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @Order(100)
-public class PointPaymentFactory implements AllGamePaymentFactory {
+public class PointPaymentService extends AllGamePaymentService {
 
     @Autowired
     private PaymentRepository<PointPayment> pointPaymentRepository;
@@ -23,7 +23,7 @@ public class PointPaymentFactory implements AllGamePaymentFactory {
     }
 
     @Override
-    public Optional<Payment> create(AllGamePaymentFactoryContext context) {
+    public Optional<Payment> create(AllGamePaymentServiceContext context) {
         int remainPrice = context.getRemainPrice();
         int pointPrice = context.getPoint();
         com.teemo.shopping.Order.domain.Order order = context.getOrder();

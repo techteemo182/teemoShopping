@@ -1,7 +1,6 @@
 package com.teemo.shopping.coupon.domain;
 
-import com.teemo.shopping.core.BaseEntity;
-import com.teemo.shopping.coupon.domain.Coupon;
+import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.game.domain.GameCategory;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;

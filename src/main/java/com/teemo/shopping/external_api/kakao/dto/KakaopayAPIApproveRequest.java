@@ -1,5 +1,6 @@
 package com.teemo.shopping.external_api.kakao.dto;
 
+import com.teemo.shopping.util.ConverterToMultiValueMap;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,22 +27,6 @@ public class KakaopayAPIApproveRequest {
     public Integer totalAmount;
 
     public MultiValueMap<String, String> toFormData() {
-        MultiValueMap<String, String> ret = new LinkedMultiValueMap<>();
-        ret.add("cid", cid);
-        if(cidSecret != null) {
-            ret.add("cid_secret", cidSecret);
-        }
-        ret.add("tid", tid);
-        ret.add("partner_order_id", partnerOrderId);
-        ret.add("partner_user_id", partnerUserId);
-        ret.add("pg_token", pgToken);
-        if(payload != null) {
-            ret.add("payload", payload);
-        }
-        if(totalAmount != null) {
-            ret.add("total_amount", totalAmount.toString());
-        }
-
-        return ret;
+        return ConverterToMultiValueMap.convertToFormData(this);
     }
 }

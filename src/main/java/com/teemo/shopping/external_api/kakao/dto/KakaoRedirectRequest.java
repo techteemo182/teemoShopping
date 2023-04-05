@@ -1,11 +1,7 @@
 package com.teemo.shopping.external_api.kakao.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class KakaoRedirectRequest {
