@@ -12,7 +12,7 @@ import com.teemo.shopping.account.repository.AccountsCouponsRepository;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.repository.CouponRepository;
-import com.teemo.shopping.external_api.kakao.dto.KakaoRedirectRequest;
+import com.teemo.shopping.external_api.kakao.dto.KakaoRedirectParameter;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.repository.GameRepository;
 import jakarta.persistence.EntityManager;
@@ -37,20 +37,20 @@ public class KakaoController {
 
     // Todo: 리다이렉트가 프론트에서도 되는데 해결방법 찾기
     @GetMapping("/success")
-    public void success(KakaoRedirectRequest kakaoRedirectRequest) {
+    public void success(KakaoRedirectParameter kakaoRedirectParameter) {
         try {
             kakaopayPaymentService.onKakaopayRedirectResponse(
-                KakaopayRedirectParameter.builder().pgToken(kakaoRedirectRequest.getPgToken())
+                KakaopayRedirectParameter.builder().pgToken(kakaoRedirectParameter.getPgToken())
                     .type(KakaopayRedirectType.SUCCESS)
-                    .partnerOrderId(kakaoRedirectRequest.getPartnerOrderId())
-                    .partnerUserId(kakaoRedirectRequest.getPartnerUserId()).build());
+                    .partnerOrderId(kakaoRedirectParameter.getPartnerOrderId())
+                    .partnerUserId(kakaoRedirectParameter.getPartnerUserId()).build());
         } catch (Exception e) {
             System.out.println("[Wrong]");
         }
     }
 
     @GetMapping("/cancel")
-    public void cancel(KakaoRedirectRequest kakaoRedirectReqeust) {
+    public void cancel(KakaoRedirectParameter kakaoRedirectReqeust) {
         try {
             kakaopayPaymentService.onKakaopayRedirectResponse(
                 KakaopayRedirectParameter.builder().type(KakaopayRedirectType.CANCEL)
@@ -62,7 +62,7 @@ public class KakaoController {
     }
 
     @GetMapping("/fail")
-    public void fail(KakaoRedirectRequest kakaoRedirectReqeust) {
+    public void fail(KakaoRedirectParameter kakaoRedirectReqeust) {
         try {
             kakaopayPaymentService.onKakaopayRedirectResponse(
                 KakaopayRedirectParameter.builder().type(KakaopayRedirectType.FAIL)

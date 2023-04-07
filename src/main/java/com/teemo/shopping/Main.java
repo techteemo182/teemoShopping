@@ -1,9 +1,7 @@
 package com.teemo.shopping;
 
 import com.teemo.shopping.external_api.kakao.KakaopayService;
-import com.teemo.shopping.external_api.kakao.dto.KakaopayReadyRequest;
-import com.teemo.shopping.game.dto.GameDTO;
-import java.util.List;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayReadyParameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -37,12 +35,10 @@ class TestContorller {
 	@ResponseBody
 	@GetMapping(path = "/")
 	RedirectView main() {
-		return new RedirectView(kakaopayService.readyKakaopay(KakaopayReadyRequest.builder()
+		return new RedirectView(kakaopayService.readyKakaopay(KakaopayReadyParameter.builder()
 				.itemName("100만원 기부해주세요")
 				.price(1000000)
-				.partnerUserId("123")
 				.partnerOrderId("123")
-				.cid(cid)
 			.build()).block().getNextRedirectPcUrl());
 	}
 }

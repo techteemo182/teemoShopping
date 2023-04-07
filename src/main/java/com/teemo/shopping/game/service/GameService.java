@@ -25,7 +25,6 @@ public class GameService implements ServiceLayer {
     @Transactional
     public void removeById(GameRemoveById gameRemoveById) throws Exception {
         gameRepository.deleteById(gameRemoveById.getId());
-
     }
 
 }

@@ -1,5 +1,6 @@
 package com.teemo.shopping.Order.repository;
 
+import com.teemo.shopping.Order.domain.Order;
 import com.teemo.shopping.Order.domain.Payment;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

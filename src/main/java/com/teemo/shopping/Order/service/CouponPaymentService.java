@@ -1,11 +1,12 @@
 package com.teemo.shopping.Order.service;
 
 import com.teemo.shopping.Order.domain.CouponPayment;
+import com.teemo.shopping.Order.domain.Order;
 import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
-import com.teemo.shopping.Order.dto.OneGamePaymentServiceContext;
-import com.teemo.shopping.Order.dto.PaymentCancelParameter;
+import com.teemo.shopping.Order.dto.PaymentRefundParameter;
+import com.teemo.shopping.Order.dto.PaymentCreateContext;
 import com.teemo.shopping.Order.repository.PaymentRepository;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsCoupons;
@@ -15,24 +16,22 @@ import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.game.domain.Game;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-@Order(200)
-public class CouponPaymentService extends OneGamePaymentService {
+@Qualifier("forOneProduct")
+@org.springframework.core.annotation.Order(200)
+public class CouponPaymentService extends PaymentService {
 
     @Autowired
     private PaymentRepository<CouponPayment> couponPaymentRepository;
 
     @Autowired
     private AccountsCouponsRepository accountsCouponsRepository;
-    public PaymentMethod getTargetPaymentMethod() {
-        return PaymentMethod.COUPON;
-    }
 
     @Override
-    public Optional<Payment> create(OneGamePaymentServiceContext context) throws RuntimeException {
+    public Optional<Payment> create(PaymentCreateContext context) throws RuntimeException {
         Game game = context.getGame();
         Coupon coupon = context.getCoupon().orElse(null);
         Account account = context.getAccount();
@@ -68,7 +67,25 @@ public class CouponPaymentService extends OneGamePaymentService {
     }
 
     @Override
-    void cancel(PaymentCancelParameter parameter) {
+    void refund(PaymentRefundParameter parameter) { // 부분 취소 불가능
+        CouponPayment payment = couponPaymentRepository.findById(parameter.getPaymentId()).get();
+        Coupon coupon = payment.getCoupon();
+        Order order = payment.getOrder();
+        Account account = order.getAccount();
+        AccountsCoupons accountsCoupons = accountsCouponsRepository.findFirstByAccountAndCoupon(account, coupon).orElse(null);
+        if(accountsCoupons == null) {
+            accountsCoupons = AccountsCoupons.builder().coupon(coupon).account(account).amount(1).build();
+            accountsCouponsRepository.save(accountsCoupons);
+        } else {
+            accountsCoupons.updateAmount(accountsCoupons.getAmount() + 1);
+        }
 
+        payment.updateStatus(PaymentStatus.REFUNDED);
+        payment.updateRefundedPoint(payment.getPrice());
+    }
+
+    @Override
+    public PaymentMethod getPaymentMethod() {
+        return PaymentMethod.COUPON;
     }
 }

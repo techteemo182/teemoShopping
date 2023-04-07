@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class KakaoRedirectRequest {
+public class KakaoRedirectParameter {
     private final String pg_token;
     private final String partner_order_id;
     private final String partner_user_id;

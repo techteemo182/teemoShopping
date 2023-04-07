@@ -1,5 +1,6 @@
 package com.teemo.shopping.Order.domain;
 
+import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod.Values;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import com.teemo.shopping.game.domain.Game;
@@ -23,7 +24,7 @@ public class DiscountPayment extends Payment {
 
     @Builder
     public DiscountPayment(int price, PaymentStatus status, Order order, Game game) {
-        super(price, status, order);
+        super(price, status, order, PaymentMethod.DISCOUNT);
         this.game = game;
     }
 

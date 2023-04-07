@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class OrderUpdateObserverContext extends ObserverContext {
+public class PaymentStatusUpdateObserverContext extends ObserverContext {
 
     private final Payment payment;
 }

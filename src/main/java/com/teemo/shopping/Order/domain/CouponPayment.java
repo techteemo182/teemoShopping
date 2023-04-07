@@ -1,5 +1,6 @@
 package com.teemo.shopping.Order.domain;
 
+import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod.Values;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import com.teemo.shopping.coupon.domain.Coupon;
@@ -10,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
@@ -17,12 +19,13 @@ import lombok.NoArgsConstructor;
 @Table (
     name = "coupon_payments"
 )
+@Getter
 @DiscriminatorValue(Values.COUPON)
 public class CouponPayment extends Payment {
 
     @Builder
     public CouponPayment(int price, PaymentStatus status, Order order, Coupon coupon, Game game) {
-        super(price, status, order);
+        super(price, status, order, PaymentMethod.COUPON);
         this.coupon = coupon;
         this.game = game;
     }
