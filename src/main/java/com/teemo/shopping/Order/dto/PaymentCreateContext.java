@@ -5,23 +5,25 @@ import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class OneGamePaymentServiceContext {        // context for All PaymentFactory
+public class PaymentCreateContext {
+    private final Game game;
+    private final List<Game> games;
+    private final Optional<Coupon> coupon;
     @NotNull
-    private Game game;
-    private Optional<Coupon> coupon;
+    private final Order order;
     @NotNull
-    private Account account;
+    private final Account account;
+    private final int point;
     private int remainPrice;
     @NotNull
-    private CreateOrderReturn.CreateOrderReturnBuilder createOrderReturnBuilder;
-    @NotNull
-    private Order order;
+    private final CreateOrderReturn.CreateOrderReturnBuilder createOrderReturnBuilder;
     public void setRemainPrice(int remainPrice) {
         this.remainPrice = remainPrice;
     }

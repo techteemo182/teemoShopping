@@ -1,6 +1,7 @@
 package com.teemo.shopping.Order.domain;
 
 
+import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod.Values;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import jakarta.persistence.DiscriminatorValue;
@@ -21,6 +22,6 @@ import lombok.NoArgsConstructor;
 public class CardPayment extends Payment {
     @Builder
     public CardPayment(int price, PaymentStatus status, Order order) {
-        super(price, status, order);
+        super(price, status, order, PaymentMethod.CARD);
     }
 }

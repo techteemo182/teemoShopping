@@ -1,5 +1,6 @@
 package com.teemo.shopping.Order.domain;
 
+import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod.Values;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import jakarta.persistence.DiscriminatorValue;
@@ -21,6 +22,6 @@ public class PointPayment extends Payment {
 
     @Builder
     public PointPayment(int price, PaymentStatus status, Order order) {
-        super(price, status, order);
+        super(price, status, order, PaymentMethod.POINT);
     }
 }

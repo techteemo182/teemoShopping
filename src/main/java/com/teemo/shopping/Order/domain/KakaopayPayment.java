@@ -1,5 +1,6 @@
 package com.teemo.shopping.Order.domain;
 
+import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod.Values;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import jakarta.persistence.Column;
@@ -30,8 +31,8 @@ public class KakaopayPayment extends Payment {
 
     @Builder
     public KakaopayPayment(int price, PaymentStatus status, Order order,
-        String tid, String cid, String partnerUserId) {
-        super(price, status, order);
+        String tid, String cid, String partnerUserIdm) {
+        super(price, status, order, PaymentMethod.KAKAOPAY);
         this.tid = tid;
         this.cid = cid;
         this.partnerUserId = partnerUserId;
