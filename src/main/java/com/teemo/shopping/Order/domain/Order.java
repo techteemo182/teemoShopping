@@ -7,15 +7,13 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 @Getter
 @NoArgsConstructor
@@ -35,9 +33,11 @@ public class Order extends BaseEntity {
 
 
     @ManyToOne
-    Account account;
+    @NotNull
+    private Account account;
 
     @Column
+    @Range(min = 0)
     private int totalPrice;
 
     /**
@@ -47,12 +47,8 @@ public class Order extends BaseEntity {
      *  SUCCESS : 성공
      */
     @Enumerated
+    @NotNull
     private OrderStatus status;
-
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-    private List<Payment> payments = new ArrayList<>();
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-    private List<OrdersGames> ordersGames = new ArrayList<>();
     public void updateStatus(OrderStatus status) {
         this.status = status;
     }

@@ -3,6 +3,7 @@ package com.teemo.shopping.external_api.kakao.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
+import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Builder
@@ -11,5 +12,6 @@ public class KakaopayCancelParameter {
     private final String tid;
 
     @NotNull
-    private final Integer price;
+    @Range(min = 1)
+    private final Integer amount;
 }

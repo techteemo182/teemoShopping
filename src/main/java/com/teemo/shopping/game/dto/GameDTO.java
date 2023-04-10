@@ -9,14 +9,13 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class GameDTO {
-
-    private Long gameId;
-    private String name;
-    private String description;
-    private double ratingAvg;
-    private int ratingCount;
-    private double price;
-    private double discount;
+    private final Long gameId;
+    private final String name;
+    private final String description;
+    private final double ratingAvg;
+    private final int ratingCount;
+    private final double price;
+    private final double discount;
 
     public static GameDTO from(Game game) {
         return GameDTO.builder()
@@ -26,7 +25,7 @@ public class GameDTO {
             .ratingAvg(game.getRatingAvg())
             .ratingCount(game.getRatingCount())
             .price(game.getPrice())
-            .discount(game.getDiscount())
+            .discount(game.getDiscountPercent())
             .build();
     }
 }

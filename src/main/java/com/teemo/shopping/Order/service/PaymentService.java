@@ -4,18 +4,29 @@ import com.teemo.shopping.Order.domain.Payment;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.dto.PaymentStatusUpdateObserverContext;
 import com.teemo.shopping.Order.dto.PaymentRefundParameter;
-import com.teemo.shopping.Order.dto.PaymentCreateContext;
+import com.teemo.shopping.Order.dto.OrderCreateContext;
+import com.teemo.shopping.Order.dto.payment_create_param.PaymentCreateParam;
 import com.teemo.shopping.core.layer.ServiceLayer;
 import com.teemo.shopping.core.observer.Observer;
 import com.teemo.shopping.core.observer.Subject;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public abstract class PaymentService implements ServiceLayer, Subject<PaymentStatusUpdateObserverContext, Observer<PaymentStatusUpdateObserverContext>> {
+public abstract class PaymentService<T extends PaymentCreateParam> implements ServiceLayer, Subject<PaymentStatusUpdateObserverContext, Observer<PaymentStatusUpdateObserverContext>> {
 
-    abstract Optional<Payment> create(PaymentCreateContext context);    // 지불
+
+    /**
+     *
+     * @param param
+     * context를 이용하여 payment 생성
+     * @return 생성한 Payment 반환
+     */
+
+
+    //Context
+    abstract Optional<Long> create(T param);    // 지불
     abstract void refund(PaymentRefundParameter parameter);    // 환불
-    abstract PaymentMethod getPaymentMethod();
+    abstract Class<? extends Payment> getTargetPaymentClass();
     private ArrayList<Observer<PaymentStatusUpdateObserverContext>> observers = new ArrayList<>();  // 옵저버
     @Override
     public void registerObserver(Observer<PaymentStatusUpdateObserverContext> observer) {   // 옵저버 등록

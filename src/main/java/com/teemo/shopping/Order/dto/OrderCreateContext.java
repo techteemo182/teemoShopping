@@ -12,20 +12,17 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PaymentCreateContext {
-    private final Game game;
-    private final List<Game> games;
-    private final Optional<Coupon> coupon;
+public class OrderCreateContext {
     @NotNull
     private final Order order;
     @NotNull
     private final Account account;
-    private final int point;
-    private int remainPrice;
-    @NotNull
-    private final CreateOrderReturn.CreateOrderReturnBuilder createOrderReturnBuilder;
-    public void setRemainPrice(int remainPrice) {
-        this.remainPrice = remainPrice;
-    }
+    private final Game game;
+    private final List<Game> games;
+    private final Optional<Coupon> coupon;
+    private final Integer point;
+    private final Integer amount;
+    private final String itemName;
+
 }
 

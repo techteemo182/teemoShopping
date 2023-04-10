@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,11 +27,13 @@ public class Cart extends BaseEntity {
      */
     @ManyToOne
     @JoinColumn(name = "account_id")
+    @NotNull
     private Account account;
     /**
      *  게임
      */
     @ManyToOne
     @JoinColumn(name = "game_id")
+    @NotNull
     private Game game;
 }

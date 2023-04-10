@@ -4,16 +4,14 @@ import com.teemo.shopping.core.entity.BaseEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -33,6 +31,7 @@ public class Account extends BaseEntity {
 
     @Column
     @NotNull
+    @Size(max = 30)
     private String username;    // 유저 이름
 
     @Column
@@ -41,8 +40,10 @@ public class Account extends BaseEntity {
 
     @Column
     @NotNull
+    @Range(min = 0)
     private int point; // 포인트
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
-    private List<AccountsCoupons> accountsCoupons = new ArrayList<>();
+    public void updatePoint(int point) {
+        this.point = point;
+    }
 }

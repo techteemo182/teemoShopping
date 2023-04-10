@@ -17,11 +17,11 @@ import lombok.NoArgsConstructor;
 @Table(
     name = "point_payments"
 )
-@DiscriminatorValue(Values.KAKAOPAY)
-public class PointPayment extends Payment {
+@DiscriminatorValue(Values.POINT)
+public class PointPayment extends AllProductPayment {
 
     @Builder
-    public PointPayment(int price, PaymentStatus status, Order order) {
-        super(price, status, order, PaymentMethod.POINT);
+    public PointPayment(int amount, PaymentStatus status, Order order) {
+        super(amount, status, order, PaymentMethod.POINT);
     }
 }

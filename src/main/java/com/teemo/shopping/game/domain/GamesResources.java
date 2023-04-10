@@ -9,6 +9,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,9 +26,11 @@ import lombok.NoArgsConstructor;
 public class GamesResources extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "games_id")
-    Game game;
+    @NotNull
+    private Game game;
 
     @ManyToOne
     @JoinColumn(name = "resources_id")
-    Resource resource;
+    @NotNull
+    private Resource resource;
 }

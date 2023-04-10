@@ -20,14 +20,10 @@ import lombok.NoArgsConstructor;
     name = "discount_payments"
 )
 @DiscriminatorValue(Values.DISCOUNT)
-public class DiscountPayment extends Payment {
+public class DiscountPayment extends GameProductPayment {
 
     @Builder
-    public DiscountPayment(int price, PaymentStatus status, Order order, Game game) {
-        super(price, status, order, PaymentMethod.DISCOUNT);
-        this.game = game;
+    protected DiscountPayment(int amount, PaymentStatus status, Order order, Game game) {
+        super(amount, status, order, PaymentMethod.DISCOUNT, game);
     }
-
-    @ManyToOne
-    private Game game;
 }

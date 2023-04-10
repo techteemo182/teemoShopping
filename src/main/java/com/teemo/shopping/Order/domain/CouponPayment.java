@@ -10,31 +10,29 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table (
     name = "coupon_payments"
 )
 @Getter
 @DiscriminatorValue(Values.COUPON)
-public class CouponPayment extends Payment {
+public class CouponPayment extends GameProductPayment {
 
     @Builder
-    public CouponPayment(int price, PaymentStatus status, Order order, Coupon coupon, Game game) {
-        super(price, status, order, PaymentMethod.COUPON);
+    public CouponPayment(int amount, PaymentStatus status, Order order, Coupon coupon, Game game) {
+        super(amount, status, order, PaymentMethod.COUPON, game);
         this.coupon = coupon;
-        this.game = game;
     }
 
     @ManyToOne
     @JoinColumn(name = "coupons_id")
+    @NotNull
     Coupon coupon;
-
-    @ManyToOne
-    @JoinColumn(name = "games_id")
-    Game game;
 }

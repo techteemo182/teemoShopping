@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,10 +28,12 @@ public class AccountsGames extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "accounts_id")
+    @NotNull
     private Account account;
 
     @ManyToOne
     @JoinColumn(name = "games_id")
+    @NotNull
     private Game game;
 
 }

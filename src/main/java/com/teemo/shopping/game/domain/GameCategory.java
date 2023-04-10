@@ -4,11 +4,8 @@ import com.teemo.shopping.core.entity.BaseEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,12 +25,8 @@ public class GameCategory extends BaseEntity {
     protected GameCategory(String name) {
         this.name = name;
     }
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "gameCategory")
-    private List<GameCategoriesGames> gameCategoryGames = new ArrayList<>();
-
     @Column
-    @NaturalId
+    @NotNull
     private String name;
 
     public void updateName(String name) {

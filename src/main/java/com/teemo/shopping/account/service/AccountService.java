@@ -29,6 +29,7 @@ public class AccountService {
     @Autowired
     private AccountsGamesRepository accountsGamesRepository;
 
+    @Autowired
     @Qualifier("loginFilter")
     private PasswordEncoder passwordEncoder;
 

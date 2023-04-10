@@ -8,6 +8,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Table(
     indexes = {
@@ -18,9 +19,11 @@ import jakarta.persistence.Table;
 public class CouponsCategories extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "coupon_id")
-    Coupon coupon;
+    @NotNull
+    private Coupon coupon;
 
     @ManyToOne
     @JoinColumn(name = "game_category_id")
-    GameCategory gameCategory;
+    @NotNull
+    private GameCategory gameCategory;
 }

@@ -19,9 +19,9 @@ import lombok.NoArgsConstructor;
     name = "card_payments"
 )
 @DiscriminatorValue(Values.KAKAOPAY)
-public class CardPayment extends Payment {
+public class CardPayment extends AllProductPayment {
     @Builder
-    public CardPayment(int price, PaymentStatus status, Order order) {
-        super(price, status, order, PaymentMethod.CARD);
+    public CardPayment(int amount, PaymentStatus status, Order order) {
+        super(amount, status, order, PaymentMethod.CARD);
     }
 }

@@ -1,40 +1,46 @@
 package com.teemo.shopping.Order.service;
 
-import com.teemo.shopping.Order.domain.CouponPayment;
 import com.teemo.shopping.Order.domain.DiscountPayment;
 import com.teemo.shopping.Order.domain.Order;
-import com.teemo.shopping.Order.domain.Payment;
-import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
-import com.teemo.shopping.Order.dto.PaymentCreateContext;
 import com.teemo.shopping.Order.dto.PaymentRefundParameter;
+import com.teemo.shopping.Order.dto.payment_create_param.DiscountPaymentCreateParam;
+import com.teemo.shopping.Order.repository.OrderRepository;
 import com.teemo.shopping.Order.repository.PaymentRepository;
+import com.teemo.shopping.account.repository.AccountRepository;
 import com.teemo.shopping.game.domain.Game;
+import com.teemo.shopping.game.repository.GameRepository;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-@Qualifier("forOneProduct")
-@org.springframework.core.annotation.Order(100)
-public class DiscountPaymentService extends PaymentService {    //전략 패턴
+public class DiscountPaymentService extends GameProductPaymentService<DiscountPaymentCreateParam> {    //전략 패턴
 
 
     @Autowired
     private PaymentRepository<DiscountPayment> discountPaymentRepository;
 
+    @Autowired
+    private GameRepository gameRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private AccountRepository accountRepository;
+
     @Override
-    public Optional<Payment> create(PaymentCreateContext context) {
-        Game game = context.getGame();
-        com.teemo.shopping.Order.domain.Order order = context.getOrder();
-        int discountPrice = (int) (
-            context.getRemainPrice() * (1 - game.getDiscount()));
-        DiscountPayment discountPayment = DiscountPayment.builder().game(game)
-            .price(discountPrice).status(PaymentStatus.SUCCESS).build();
+    public Optional<Long> create(DiscountPaymentCreateParam param) {
+        Game game = gameRepository.findById(param.getGameId()).get();
+        Order order = orderRepository.findById(param.getOrderId()).get();
+        double discountPercent = game.getDiscountPercent();
+        double discountDecimalPercent = discountPercent / 100d;
+        int amount = param.getAmount();
+        int discountAmount = (int) (amount * discountDecimalPercent);
+        DiscountPayment discountPayment = DiscountPayment.builder().game(game).order(order)
+            .amount(discountAmount).status(PaymentStatus.SUCCESS).build();
         discountPaymentRepository.save(discountPayment);
-        context.setRemainPrice(context.getRemainPrice() - discountPrice);
-        return Optional.of(discountPayment);
+        return Optional.of(discountPayment.getId());
     }
 
     @Override
@@ -44,12 +50,12 @@ public class DiscountPaymentService extends PaymentService {    //전략 패턴
         if (payment.getStatus() != PaymentStatus.SUCCESS) {
             throw new RuntimeException();
         }
-        payment.updateRefundedPoint(payment.getPrice());
+        payment.updateRefundedPoint(payment.getAmount());
         payment.updateStatus(PaymentStatus.REFUNDED);
     }
 
     @Override
-    public PaymentMethod getPaymentMethod() {
-        return PaymentMethod.DISCOUNT;
+    public Class<DiscountPayment> getTargetPaymentClass() {
+        return DiscountPayment.class;
     }
 }

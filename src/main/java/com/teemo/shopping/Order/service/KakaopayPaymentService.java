@@ -1,61 +1,63 @@
 package com.teemo.shopping.Order.service;
 
 import com.teemo.shopping.Order.domain.KakaopayPayment;
-import com.teemo.shopping.Order.domain.Payment;
-import com.teemo.shopping.Order.domain.enums.PaymentMethod;
+import com.teemo.shopping.Order.domain.Order;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import com.teemo.shopping.Order.dto.KakaopayRedirectParameter;
 import com.teemo.shopping.Order.dto.KakaopayRedirectParameter.KakaopayRedirectType;
-import com.teemo.shopping.Order.dto.PaymentCreateContext;
 import com.teemo.shopping.Order.dto.PaymentRefundParameter;
 import com.teemo.shopping.Order.dto.PaymentStatusUpdateObserverContext;
+import com.teemo.shopping.Order.dto.payment_create_param.KakaopayPaymentCreateParam;
 import com.teemo.shopping.Order.repository.KakaopayPaymentRepository;
+import com.teemo.shopping.Order.repository.OrderRepository;
 import com.teemo.shopping.external_api.kakao.KakaopayService;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveResponse;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIReadyResponse;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayApproveParameter;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayCancelParameter;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayReadyParameter;
+import com.teemo.shopping.game.repository.GameRepository;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 @Service
-@Qualifier("forAllProduct")
-@Order(200)
-public class KakaopayPaymentService extends PaymentService {    //전략 패턴
+public class KakaopayPaymentService extends
+    AllProductPaymentService<KakaopayPaymentCreateParam> {    //전략 패턴
 
     @Autowired
     private KakaopayPaymentRepository kakaopayPaymentRepository;
     @Autowired
     private KakaopayService kakaopayService;
+    @Autowired
+    private OrderRepository orderRepository;
 
 
     @Override
     @Transactional(rollbackOn = RuntimeException.class)
-    public Optional<Payment> create(PaymentCreateContext context) {
-        int remainPrice = context.getRemainPrice();
-        com.teemo.shopping.Order.domain.Order order = context.getOrder();
+    public Optional<Long> create(KakaopayPaymentCreateParam param) {
+        int amount = param.getAmount();
+        Order order = orderRepository.findById(param.getOrderId()).get();
         KakaopayPayment kakaopayPayment = KakaopayPayment.builder().status(PaymentStatus.PENDING)
-            .price(remainPrice).order(order).build();
-        kakaopayPayment = kakaopayPaymentRepository.saveAndFlush(kakaopayPayment);
+            .amount(amount).order(order).build();
+        kakaopayPayment = kakaopayPaymentRepository.save(kakaopayPayment);
 
-        String itemName = String.join(",", context.getGames().stream().map(game -> game.getName())
-            .toList());    //GameName 추출 후 "," 으로 Join
-        KakaopayReadyParameter request = KakaopayReadyParameter.builder().itemName(itemName)
-            .partnerOrderId(kakaopayPayment.getId().toString()).price(remainPrice).build();
-        var response = kakaopayService.readyKakaopay(request)   // throws RuntimeException
-            .block();
+        String itemName = param.getItemName();
+        KakaopayAPIReadyResponse response;
+        try {
+            KakaopayReadyParameter request = KakaopayReadyParameter.builder().itemName(itemName)
+                .partnerOrderId(kakaopayPayment.getId().toString()).amount(amount).build();
+            response = kakaopayService.readyKakaopay(request)   // throws RuntimeException
+                .block();
+        } catch (Exception e) {
+            throw new IllegalStateException("카카오 API 에러");
+        }
+        kakaopayPayment.updateRedirect(response.getNextRedirectAppUrl(),
+            response.getNextRedirectMobileUrl(), response.getNextRedirectPcUrl()
+            , response.getAndroidAppScheme(), response.getIosAppScheme());
         kakaopayPayment.updateTid(response.getTid());
-        kakaopayPaymentRepository.save(kakaopayPayment);
-
-        var createOrderReturnBuilder = context.getCreateOrderReturnBuilder();
-        createOrderReturnBuilder.nextRedirectAppUrl(response.getNextRedirectAppUrl());
-        createOrderReturnBuilder.nextRedirectMobileUrl(response.getNextRedirectMobileUrl());
-        createOrderReturnBuilder.nextRedirectPcUrl(response.getNextRedirectPcUrl());
-        context.setRemainPrice(0);
-        return Optional.of(kakaopayPayment);
+        return Optional.of(kakaopayPayment.getId());
     }
 
     @Override
@@ -66,22 +68,24 @@ public class KakaopayPaymentService extends PaymentService {    //전략 패턴
             || payment.getStatus() == PaymentStatus.SUCCESS)) { // 환불 가능 조건
             throw new RuntimeException();
         }
-        if (payment.getPrice() - payment.getRefundedPrice()
-            < parameter.getPrice()) {    // 환불할 금액이 환불가능 금액보다 크면 안됌
+        if (payment.getRefundableAmount()
+            < parameter.getRefundPrice()) {    // 환불할 금액이 환불가능 금액보다 크면 안됌
             throw new RuntimeException();
         }
 
-        kakaopayService.cancelKakaopay(KakaopayCancelParameter.builder()    //실패시 throw RuntimeException
-            .price(parameter.getPrice()).tid(payment.getTid()).build()).block();
+        kakaopayService.cancelKakaopay(
+            KakaopayCancelParameter.builder()    //실패시 throw RuntimeException
+                .amount(parameter.getRefundPrice()).tid(payment.getTid()).build()).block();
 
-        payment.updateRefundedPoint(payment.getRefundedPrice() + parameter.getPrice());
+        payment.updateRefundedPoint(payment.getRefundedAmount() + parameter.getRefundPrice());
         payment.updateStatus(
-            payment.getRefundedPrice() == payment.getPrice() ? PaymentStatus.REFUNDED
+            payment.getRefundedAmount() == payment.getAmount() ? PaymentStatus.REFUNDED
                 : PaymentStatus.PARTIAL_REFUNDED);
     }
 
     @Transactional(rollbackOn = RuntimeException.class)
-    public void onKakaopayRedirectResponse(KakaopayRedirectParameter parameter)
+    public Optional<KakaopayAPIApproveResponse> onKakaopayRedirectResponse(
+        KakaopayRedirectParameter parameter)
         throws RuntimeException {
         KakaopayRedirectType type = parameter.getType();
 
@@ -97,15 +101,16 @@ public class KakaopayPaymentService extends PaymentService {    //전략 패턴
         if (kakaopayPayment.getStatus() != PaymentStatus.PENDING) {
             throw new RuntimeException("중복 접근");
         }
+        Optional<KakaopayAPIApproveResponse> response = Optional.empty();
         if (parameter.getType() == KakaopayRedirectType.FAIL
             || parameter.getType() == KakaopayRedirectType.CANCEL) {
             kakaopayPayment.updateStatus(PaymentStatus.CANCEL);
         } else if (parameter.getType() == KakaopayRedirectType.SUCCESS) {
             try {
-                var response = kakaopayService.approveKakaopay(
+                response = Optional.of(kakaopayService.approveKakaopay(
                     KakaopayApproveParameter.builder().pgToken(parameter.getPgToken())
                         .partnerOrderId(kakaopayPayment.getId().toString())
-                        .tid(kakaopayPayment.getTid()).build()).block();
+                        .tid(kakaopayPayment.getTid()).build()).block());
                 kakaopayPayment.updateStatus(PaymentStatus.SUCCESS);
             } catch (Exception e) {
                 kakaopayPayment.updateStatus(PaymentStatus.CANCEL);
@@ -113,10 +118,12 @@ public class KakaopayPaymentService extends PaymentService {    //전략 패턴
         }
         notifyObservers(
             PaymentStatusUpdateObserverContext.builder().payment(kakaopayPayment).build());
+        return response;
     }
+
     @Override
-    public PaymentMethod getPaymentMethod() {
-        return PaymentMethod.KAKAOPAY;
+    public Class<KakaopayPayment> getTargetPaymentClass() {
+        return KakaopayPayment.class;
     }
 
 }

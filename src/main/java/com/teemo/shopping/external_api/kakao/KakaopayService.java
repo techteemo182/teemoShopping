@@ -36,7 +36,7 @@ public class KakaopayService implements ServiceLayer {
             .partnerUserId(partnerUserId)
             .itemName(kakaopayReadyParameter.getItemName())
             .quantity(1)
-            .totalAmount(kakaopayReadyParameter.getPrice())
+            .totalAmount(kakaopayReadyParameter.getAmount())
             .taxFreeAmount(0)
             .approvalUrl("http://teemohouse.techteemo.store:8080/kakao/success?partner_order_id=" + partnerOrderId + "&partner_user_id=" + partnerUserId)       // URL SSL 암호화 못믿으면 JWT 토큰 사용
             .cancelUrl("http://teemohouse.techteemo.store:8080/kakao/cancle?partner_order_id=" + partnerOrderId + "&partner_user_id=" + partnerUserId)
@@ -77,7 +77,7 @@ public class KakaopayService implements ServiceLayer {
         KakaopayCancelParameter parameter) {
         KakaopayAPICancelRequest request = KakaopayAPICancelRequest.builder()
             .tid(parameter.getTid())
-            .cancelAmount(parameter.getPrice())
+            .cancelAmount(parameter.getAmount())
             .cid(cid)
             .cancelTaxFreeAmount(0)
             .build();

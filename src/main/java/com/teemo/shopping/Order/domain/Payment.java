@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,6 +20,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
@@ -31,10 +33,11 @@ import org.hibernate.validator.constraints.Range;
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("null")
 @Inheritance(strategy = InheritanceType.JOINED)
+@Embeddable
 public class Payment extends BaseEntity {
 
-    protected Payment(int price, PaymentStatus status, Order order,PaymentMethod method) {
-        this.price = price;
+    protected Payment(int amount, PaymentStatus status, Order order,PaymentMethod method) {
+        this.amount = amount;
         this.status = status;
         this.order = order;
         this.method = method;
@@ -42,16 +45,20 @@ public class Payment extends BaseEntity {
 
     @Column
     /**
-     *  가격
-     *  + 면 고객에서 회사로의 지불
-     *  - 면 회사에서 고객으로의 반환
+     *  결제의 양 또는 환불의 양
      */
-    private int price;
+    @Range(min = 0)
+    private int amount;
 
+    @Formula("amount - refunded_amount")
+    /**
+     *  환불 가능 금액
+     */
+    private int refundableAmount;
 
     @Column
     @NotNull
-    private int refundedPrice;
+    private int refundedAmount;
 
     /**
      *  결제 상태
@@ -74,11 +81,11 @@ public class Payment extends BaseEntity {
     private PaymentStatus status;
 
     @ManyToOne
+    @NotNull
     private Order order;
 
     public void updateStatus(PaymentStatus status) {
         this.status = status;
     }
-    public void updateRefundedPoint(int refundedPrice) {this.refundedPrice = refundedPrice;}
+    public void updateRefundedPoint(int refundedPrice) {this.refundedAmount = refundedPrice;}
 }
-

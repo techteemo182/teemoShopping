@@ -7,5 +7,5 @@ import lombok.Getter;
 @Builder
 public class PaymentRefundParameter {
     Long paymentId;
-    int price;
+    int refundPrice;
 }

@@ -37,7 +37,7 @@ class TestContorller {
 	RedirectView main() {
 		return new RedirectView(kakaopayService.readyKakaopay(KakaopayReadyParameter.builder()
 				.itemName("100만원 기부해주세요")
-				.price(1000000)
+				.amount(1000000)
 				.partnerOrderId("123")
 			.build()).block().getNextRedirectPcUrl());
 	}

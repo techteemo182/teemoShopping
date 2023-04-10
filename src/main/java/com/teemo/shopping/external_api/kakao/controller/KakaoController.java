@@ -1,8 +1,12 @@
 package com.teemo.shopping.external_api.kakao.controller;
 
+import com.teemo.shopping.Order.domain.KakaopayPayment;
+import com.teemo.shopping.Order.domain.Order;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.dto.KakaopayRedirectParameter;
 import com.teemo.shopping.Order.dto.KakaopayRedirectParameter.KakaopayRedirectType;
+import com.teemo.shopping.Order.repository.KakaopayPaymentRepository;
+import com.teemo.shopping.Order.repository.OrderRepository;
 import com.teemo.shopping.Order.service.KakaopayPaymentService;
 import com.teemo.shopping.Order.service.OrderService;
 import com.teemo.shopping.account.domain.Account;
@@ -13,11 +17,14 @@ import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.repository.CouponRepository;
 import com.teemo.shopping.external_api.kakao.dto.KakaoRedirectParameter;
+import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveResponse;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.repository.GameRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
@@ -35,11 +42,12 @@ public class KakaoController {
     @Autowired
     private KakaopayPaymentService kakaopayPaymentService;
 
-    // Todo: 리다이렉트가 프론트에서도 되는데 해결방법 찾기
     @GetMapping("/success")
-    public void success(KakaoRedirectParameter kakaoRedirectParameter) {
+    public Optional<KakaopayAPIApproveResponse> success(KakaoRedirectParameter kakaoRedirectParameter) {
+
+        Optional<KakaopayAPIApproveResponse> response = Optional.empty();
         try {
-            kakaopayPaymentService.onKakaopayRedirectResponse(
+            response = kakaopayPaymentService.onKakaopayRedirectResponse(
                 KakaopayRedirectParameter.builder().pgToken(kakaoRedirectParameter.getPgToken())
                     .type(KakaopayRedirectType.SUCCESS)
                     .partnerOrderId(kakaoRedirectParameter.getPartnerOrderId())
@@ -47,6 +55,7 @@ public class KakaoController {
         } catch (Exception e) {
             System.out.println("[Wrong]");
         }
+        return response;
     }
 
     @GetMapping("/cancel")
@@ -85,6 +94,10 @@ public class KakaoController {
     private CouponRepository couponRepository;
     @Autowired
     private AccountsCouponsRepository accountsCouponsRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private KakaopayPaymentRepository kakaopayPaymentRepository;
 
     @GetMapping("/test")
     public RedirectView test() {
@@ -129,14 +142,16 @@ public class KakaoController {
         gameCouponMap.put(game1, Optional.empty());
         gameCouponMap.put(game2, Optional.of(coupon));
 
-        SortedSet<PaymentMethod> methods = new TreeSet<>();
+        List<PaymentMethod> methods = new ArrayList<>();
         methods.add(PaymentMethod.COUPON);
         methods.add(PaymentMethod.POINT);
         methods.add(PaymentMethod.KAKAOPAY);
 
         int point = 500;
         var result = orderService.createOrder(account, gameCouponMap, methods, point);
-        return new RedirectView(result.getNextRedirectPcUrl());
+        Order order = orderRepository.findById(result).get();
+        KakaopayPayment kakaopayPayment = kakaopayPaymentRepository.findByOrder(order).get();
+        return new RedirectView(kakaopayPayment.getNextRedirectPcUrl());
     }
 }
 

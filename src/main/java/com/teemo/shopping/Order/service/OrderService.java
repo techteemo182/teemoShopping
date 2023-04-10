@@ -1,54 +1,84 @@
 package com.teemo.shopping.Order.service;
 
+import com.teemo.shopping.Order.domain.AllProductPayment;
+import com.teemo.shopping.Order.domain.CouponPayment;
+import com.teemo.shopping.Order.domain.DiscountPayment;
+import com.teemo.shopping.Order.domain.GameProductPayment;
+import com.teemo.shopping.Order.domain.KakaopayPayment;
 import com.teemo.shopping.Order.domain.Order;
 import com.teemo.shopping.Order.domain.OrdersGames;
 import com.teemo.shopping.Order.domain.Payment;
+import com.teemo.shopping.Order.domain.PointPayment;
 import com.teemo.shopping.Order.domain.enums.OrderStatus;
 import com.teemo.shopping.Order.domain.enums.OrdersGamesStatus;
 import com.teemo.shopping.Order.domain.enums.PaymentMethod;
 import com.teemo.shopping.Order.domain.enums.PaymentStatus;
 import com.teemo.shopping.Order.dto.CreateOrderReturn;
+import com.teemo.shopping.Order.dto.OrderCreateContext;
 import com.teemo.shopping.Order.dto.OrderDTO;
-import com.teemo.shopping.Order.dto.PaymentCreateContext;
 import com.teemo.shopping.Order.dto.PaymentRefundParameter;
+import com.teemo.shopping.Order.dto.payment_create_param.CouponPaymentCreateParam;
+import com.teemo.shopping.Order.dto.payment_create_param.DiscountPaymentCreateParam;
+import com.teemo.shopping.Order.dto.payment_create_param.KakaopayPaymentCreateParam;
+import com.teemo.shopping.Order.dto.payment_create_param.PaymentCreateParam;
+import com.teemo.shopping.Order.dto.payment_create_param.PointPaymentCreateParam;
 import com.teemo.shopping.Order.repository.OrderRepository;
 import com.teemo.shopping.Order.repository.OrdersGamesRepository;
 import com.teemo.shopping.Order.repository.PaymentRepository;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsGames;
+import com.teemo.shopping.account.repository.AccountRepository;
 import com.teemo.shopping.account.repository.AccountsGamesRepository;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.game.domain.Game;
-import jakarta.transaction.Transactional;
+import com.teemo.shopping.game.repository.GameRepository;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.SortedSet;
+import java.util.Set;
+import java.util.TreeSet;
+import org.apache.catalina.valves.AbstractAccessLogValve;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.jaxb.SpringDataJaxb.OrderDto;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
 
     @Autowired
+    private List<PaymentService> paymentServices;
+    private List<AllProductPaymentService> allProductPaymentServices = new ArrayList<>();
+    private List<GameProductPaymentService> gameProductPaymentServices = new ArrayList<>();
+    @Autowired
+    private GameRepository gameRepository;
+    @Autowired
     private OrderRepository orderRepository;
     @Autowired
     private OrdersGamesRepository ordersGamesRepository;
     @Autowired
-    @Qualifier("forOneProduct")
-    private List<PaymentService> oneProductPaymentServices;
-    @Autowired
-    @Qualifier("forAllProduct")
-    private List<PaymentService> allProductPaymentServices;
-
-    @Autowired
-    private List<PaymentService> paymentServices;
-    @Autowired
     private AccountsGamesRepository accountsGamesRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
+    private PaymentCreateParamFactory paymentCreateParamFactory = new PaymentCreateParamFactory();
+    @Autowired
+    OrderService(DiscountPaymentService discountPaymentService,
+        CouponPaymentService couponPaymentService, PointPaymentService pointPaymentService,
+        KakaopayPaymentService kakaopayPaymentService) {
+        // 이 순서대로 결제 실행
+        gameProductPaymentServices.add(discountPaymentService);
+        gameProductPaymentServices.add(couponPaymentService);
+        allProductPaymentServices.add(pointPaymentService);
+        allProductPaymentServices.add(kakaopayPaymentService);
+    }
     /**
      * 주문을 생성하는 서비스입니다. 다양한 결제 수단을 사용할 수 있습니다. 할인, 쿠폰, 포인트등을 주문에 적용합니다. 가격의 적용은 (할인, 쿠폰, 포인트, 카카오페이)
      * 순으로 진행됩니다. 모든 결제수단은 다른 결제수단들이 완료되어야 PaymentStatus.SUCCESS 가 됩니다. 안료되지 않은 경우
@@ -57,122 +87,158 @@ public class OrderService {
      * 이 경우 할인 쿠폰 포인트등 내부 API를 사용하여 구현 되는 경우 바로 처리가 가능하므로 예) 100% 할인으로 남은 결제금액 0원인 경우 Order.status =
      * OrderStatus.SUCCESS 사용한 모든 Payment.status = OrderStatus.SUCCESS
      */
-    @Transactional(rollbackOn = RuntimeException.class)
-    public CreateOrderReturn createOrder(@Valid Account account,    //TODO: DTO 로 변경 예정
-        Map<@Valid Game, @Valid Optional<Coupon>> gameCouponMap, SortedSet<PaymentMethod> methods,
+    @Transactional
+    public Long createOrder(@Valid Account account,    //TODO: DTO 로 변경 예정
+        Map<@Valid Game, @Valid Optional<Coupon>> gameCouponMap, List<PaymentMethod> methods,
         int point) {
         var createOrderReturnBuilder = CreateOrderReturn.builder();
 
-        int totalPrice = gameCouponMap.entrySet().stream()
-            .mapToInt(entry -> entry.getKey().getPrice()).reduce(0, (accPrice, v) -> accPrice + v);
-        createOrderReturnBuilder.totalPrice(totalPrice);
-
         List<Game> games = gameCouponMap.entrySet().stream().map(entry -> entry.getKey()).toList();
+
+        int totalPrice = games.stream().mapToInt(game -> game.getPrice())
+            .reduce(0, (accPrice, v) -> accPrice + v);
+        createOrderReturnBuilder.totalPrice(totalPrice);
 
         Order order = Order.builder().account(account).totalPrice(totalPrice)
             .status(OrderStatus.PENDING).build();
-        createOrderReturnBuilder.order(OrderDTO.from(order));
-        orderRepository.save(order);
+        order = orderRepository.save(order);
 
         List<Payment> payments = new ArrayList<>();
-
         int totalRemainPrice = 0;
         for (var game : games) {    // 게임 개별에 결제 적용
             Optional<Coupon> coupon = gameCouponMap.get(game);
-            PaymentCreateContext paymentCreateContext = PaymentCreateContext.builder()  // Context 생성
-                .createOrderReturnBuilder(createOrderReturnBuilder).game(game)
-                .coupon(coupon == null ? Optional.empty() : coupon).account(account)
-                .remainPrice(game.getPrice()).order(order).build();
-            for (var oneProductPaymentService : oneProductPaymentServices) {
-                if (methods.contains(
-                    oneProductPaymentService.getPaymentMethod())) { // Payment 생성 해야하는 지 여부 확인
-                    oneProductPaymentService.create(paymentCreateContext)
-                        .ifPresent(payment -> payments.add(payment));
+            int gameRemainPrice = game.getPrice();
+            for (var gameProductPaymentService : gameProductPaymentServices) {
+                if (gameRemainPrice == 0) {    // 남은 금액이 0 이면 끝
+                    break;
                 }
+                OrderCreateContext orderCreateContext = OrderCreateContext.builder()  // Context 생성
+                    .game(game).coupon(coupon == null ? Optional.empty() : coupon).account(account)
+                    .amount(gameRemainPrice).order(order).build();
+                Optional<Long> optionalPaymentId;
+                try {
+                    optionalPaymentId = gameProductPaymentService.create(
+                        paymentCreateParamFactory.create(
+                                gameProductPaymentService.getTargetPaymentClass(), orderCreateContext)
+                            .get());
+                } catch (IllegalStateException e) {
+                    // improve: PaymentExceptionHandler
+                    throw new IllegalStateException("결제 실패");
+                }
+                if (optionalPaymentId.isEmpty()) {
+                    continue;
+                }
+                Payment payment = (Payment) paymentRepository.findById(optionalPaymentId.get())
+                    .get();
+                gameRemainPrice -= payment.getAmount();
+                payments.add(payment);
             }
-            totalRemainPrice += paymentCreateContext.getRemainPrice();
+            totalRemainPrice += gameRemainPrice;
         }
 
         {
-            PaymentCreateContext paymentCreateContext = PaymentCreateContext.builder() // context 생성
-                .games(games).account(account).point(point).order(order)
-                .createOrderReturnBuilder(createOrderReturnBuilder).remainPrice(totalRemainPrice)
-                .build();
-            for (var paymentService : allProductPaymentServices) {
-                if (methods.contains(
-                    paymentService.getPaymentMethod())) { // Payment 생성 해야하는 지 여부 확인
-                    paymentService.create(paymentCreateContext)
-                        .ifPresent(payment -> payments.add(payment));
+            String itemName = String.join(",", games.stream().map(game -> game.getName()).toList());
+            for (var allProductPaymentService : allProductPaymentServices) {
+                if (totalRemainPrice == 0) {    // 남은 금액이 0 이면 끝
+                    break;
                 }
+                OrderCreateContext orderCreateContext = OrderCreateContext.builder() // context 생성
+                    .games(games).account(account).point(point).order(order).itemName(itemName)
+                    .amount(totalRemainPrice).build();
+                Optional<Long> optionalPaymentId;
+                try {
+                    optionalPaymentId = allProductPaymentService.create(
+                        paymentCreateParamFactory.create(
+                                allProductPaymentService.getTargetPaymentClass(), orderCreateContext)
+                            .get());
+                } catch (IllegalStateException e) {
+                    // improve: PaymentExceptionHandler
+                    throw new IllegalStateException("결제 실패");
+                }
+                if (optionalPaymentId.isEmpty()) {
+                    continue;
+                }
+                Payment payment = (Payment) paymentRepository.findById(optionalPaymentId.get())
+                    .get();
+                totalRemainPrice -= payment.getAmount();
+                payments.add(payment);
             }
-            totalRemainPrice = paymentCreateContext.getRemainPrice();
         }
-
         if (totalRemainPrice != 0) {
-            throw new RuntimeException();   //ROLLBACk
+            throw new IllegalStateException("결제 총액이 결제 총액과 맞지 않음");
         }
 
-        order = orderRepository.findById(order.getId()).get();
         for (var game : games) { // 전체 게임에 결제 적용
             ordersGamesRepository.save(
                 OrdersGames.builder().game(game).order(order).status(OrdersGamesStatus.PENDING)
                     .build());
         }
-
-        int pointPrice = 0;  // 포인트 사용량
-        int discountPrice = 0;    // 할인된 가격
-        int couponPrice = 0;    // 쿠폰 가격
-        for (var payment : payments) {
-            if (payment.getMethod().equals(PaymentMethod.DISCOUNT)) {
-                discountPrice += payment.getPrice();
-            } else if (payment.getMethod().equals(PaymentMethod.COUPON)) {
-                couponPrice += payment.getPrice();
-            } else if (payment.getMethod().equals(PaymentMethod.POINT)) {
-                pointPrice += payment.getPrice();
-            }
-        }
-        createOrderReturnBuilder.pointPrice(pointPrice);
-        createOrderReturnBuilder.couponPrice(couponPrice);
-        createOrderReturnBuilder.discountPrice(discountPrice);
-
-        createOrderReturnBuilder.order(updateOrder(order.getId())); // order 업데이트
-        return createOrderReturnBuilder.build();
+        updateOrder(order.getId());
+        return order.getId();
     }
 
     /**
-     *  Payments 에서 Status.Pending이 있으면 Skip
-     *  Status.CANCEL 이 하나라도 있으면 주문 취소
-     *  전부 Status.SUCCESS 면 주문 성공
+     * @param orderId
+     * @return order 반환
      */
+    @Transactional(readOnly = true)
+    public OrderDTO getOrder(Long orderId) {
+        Order order;
+        try {
+            order = orderRepository.findById(orderId).get();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("orderId를 가지고있는 Order 없음");
+        }
+        return OrderDTO.from(order);
+    }
 
+    /**
+     *
+     * @param accountId
+     * @return account가 소유하는 orders 반환
+     */
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getOrders(Long accountId) {
+        Account account;
+        try {
+            account = accountRepository.findById(accountId).get();
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("accountId를 가지고있는 Account 없음");
+        }
+        return orderRepository.findAllByAccount(account)
+            .stream().map(order -> OrderDTO.from(order)).toList();
+    }
 
+    /**
+     * Payments 에서 Status.Pending이 있으면 Skip Status.CANCEL 이 하나라도 있으면 주문 취소 전부 Status.SUCCESS 면 주문
+     * 성공
+     */
     @Transactional
-    public OrderDTO updateOrder(Long orderId) throws RuntimeException {
-        Order order = orderRepository.findById(orderId).orElseThrow();
+    public void updateOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId).get();
+        List<Payment> payments = paymentRepository.findAllByOrder(order);
+        List<OrdersGames> ordersGames = ordersGamesRepository.findAll();
         boolean isPaymentPendingRemain = false;
         boolean isPaymentCancelRemain = false;
-        for (var payment : order.getPayments()) {
+        for (var payment : payments) {
             if (payment.getStatus().equals(PaymentStatus.CANCEL)) {
                 isPaymentCancelRemain = true;
-            } else if (!payment.getStatus().equals(PaymentStatus.PENDING)) {
+            } else if (payment.getStatus().equals(PaymentStatus.PENDING)) {
                 isPaymentPendingRemain = true;
             }
         }
         boolean isOrderSuccess = !isPaymentPendingRemain && !isPaymentCancelRemain;
         boolean isOrderCancel = !isPaymentPendingRemain && isPaymentCancelRemain;
 
-
-
         if (isOrderCancel) {    // 주문 취소
             order.updateStatus(OrderStatus.CANCEL);
-            refundPayments(order.getPayments());
-            for (var ordersGames : order.getOrdersGames()) {
-                ordersGames.updateStatus(OrdersGamesStatus.CANCEL);
+            refundPayments(payments);
+            for (var ordersGamesEntry : ordersGames) {
+                ordersGamesEntry.updateStatus(OrdersGamesStatus.CANCEL);
             }
         }
         if (isOrderSuccess) {       // 주문 성공
             order.updateStatus(OrderStatus.SUCCESS);
-            List<OrdersGames> ordersGames = order.getOrdersGames();
             Account account = order.getAccount();
             for (var ordersGamesEntry : ordersGames) {
                 ordersGamesEntry.updateStatus(OrdersGamesStatus.PURCHASE);
@@ -182,47 +248,202 @@ public class OrderService {
             }
 
         }
-        return OrderDTO.from(order);
     }
 
     /**
-     *  입력된 모든 결제를 환불
+     * 입력된 모든 결제를 환불
      */
+
     @Transactional
-    public void refundPayments(List<Payment> payments) {
-        for (var payment : payments) {       //주문 전체 취소
-            if (!(payment.getStatus() == PaymentStatus.SUCCESS || payment.getStatus() == PaymentStatus.PARTIAL_REFUNDED)) {  // 환불 가능한 상태인지 확인
+    public void refundPayments(Map<Payment, Integer> paymentRefundPriceMap) {
+        for (var paymentRefundPriceEntry : paymentRefundPriceMap.entrySet()) {
+            Payment payment = paymentRefundPriceEntry.getKey();
+            Integer refundPrice = paymentRefundPriceEntry.getValue();
+            if (!(payment.getStatus() == PaymentStatus.SUCCESS
+                || payment.getStatus() == PaymentStatus.PARTIAL_REFUNDED)) {  // 환불 가능한 상태인지 확인
                 continue;
             }
-            for (var paymentService : paymentServices) {
-                if (paymentService.getPaymentMethod() == payment.getMethod()) {     //improve: Hashmap 사용해서 O(1) 가능
+            // 환불 금액이 환불 가능 금액 보다 클때
+            if (refundPrice > payment.getRefundableAmount()) {
+                throw new RuntimeException();
+            }
+            for (var paymentService : paymentServices) { //improve: Hashmap 사용해서 O(1) 가능
+                if (paymentService.getTargetPaymentClass()
+                    .equals(payment.getClass())) {
                     paymentService.refund(
                         PaymentRefundParameter.builder().paymentId(payment.getId())
-                            .price(payment.getPrice() - payment.getRefundedPrice()).build());   // 환불 가능한 금액만 환불
+                            .refundPrice(payment.getRefundedAmount() + refundPrice)
+                            .build());   // 환불 가능한 금액만 환불
                 }
             }
         }
+
     }
 
+    public void refundPayments(List<Payment> payments) {
+        Map<Payment, Integer> paymentRefundPriceMap = new HashMap<>();
+        payments.stream().forEach((payment) -> {
+            paymentRefundPriceMap.put(payment, payment.getRefundableAmount());
+        });
+        refundPayments(paymentRefundPriceMap);
+    }
+
+    public void refundPayment(Payment payment) {
+        refundPayments(List.of(payment));
+    }
+
+    public void refundPayment(Payment payment, Integer refundPrice) {
+        refundPayments(Map.of(payment, refundPrice));
+    }
+
+
     /**
-     *  주문을 환불하고
-     *  게정과 게임 관계 삭제
+     * 주문을 환불하고 게정과 게임 관계 삭제
      */
     @Transactional
     public void refundOrder(Long orderId) {
         Order order = orderRepository.findById(orderId).get();
         Account account = order.getAccount();
-        List<Payment> payments = order.getPayments();
+        List<Payment> payments = paymentRepository.findAllByOrder(order);
 
         refundPayments(payments);
 
-        List<OrdersGames> ordersGames = order.getOrdersGames();
+        List<OrdersGames> ordersGames = ordersGamesRepository.findAllByOrder(order);
         ordersGames.forEach((ordersGamesEntry) -> {
             if (ordersGamesEntry.getStatus().equals(OrdersGamesStatus.PURCHASE)) {
                 accountsGamesRepository.findByAccountAndGame(account, ordersGamesEntry.getGame());
                 ordersGamesEntry.updateStatus(OrdersGamesStatus.REFUND);
             }
         });
+    }
+
+    @Transactional
+    public void refundGame(Long orderId, Long gameId) {
+        Order order = orderRepository.findById(orderId).get();
+        Game game = gameRepository.findById(gameId).get();
+        Account account = order.getAccount();
+
+        //주문 상태 환불로 변경
+        OrdersGames ordersGames = ordersGamesRepository.findByOrderAndGame(order, game).get();
+        ordersGames.updateStatus(OrdersGamesStatus.REFUND);
+
+        //계정에서 게임 제거
+        AccountsGames accountsGames = accountsGamesRepository.findByAccountAndGame(account, game)
+            .get();
+        accountsGamesRepository.delete(accountsGames);
+
+        /**
+         * 환불 절차
+         * 1. gameProductPayment 전부 환불
+         * 2. finalPayment 환불
+         * 2.1 현금 부터 환불
+         * 2.2 환불할 현금이 없으면 포인트 환불
+         */
+        List<Payment> payments = paymentRepository.findAllByOrder(order);
+        List<Payment> gameProductPayments = new ArrayList<>();
+        List<Payment> allProductPayments = new ArrayList<>();
+
+        for (var payment : payments) {
+            if (payment instanceof GameProductPayment) {
+                gameProductPayments.add(payment);
+            } else if (payment instanceof AllProductPayment) {
+                allProductPayments.add(payment);
+            }
+        }
+        int remainRefundPrice = 0;
+        for (var payment : payments) {
+            remainRefundPrice += payment.getAmount();
+        }
+        refundPayments(gameProductPayments);
+        for (var gameProductPayment : gameProductPayments) {
+            remainRefundPrice -= gameProductPayment.getAmount();
+        }
+
+        /** 2. finalPayment 환불
+         확장 가능한 형식이지만 너무 코드 길음
+         finalPaymentPriorityMap 의 경우 그냥 데이터
+         Alternative 2가지
+         1. Payment 에 order 내장
+         2. Data class 나 Method 만들어서 Mapping
+         */
+
+        Map<Class, Integer> allProductPaymentPriorityMap = new HashMap<>();
+        allProductPaymentPriorityMap.put(PointPayment.class, Integer.MAX_VALUE); // 가장 우선순위 낮음
+        int defaultPriority = Integer.MAX_VALUE / 2;
+        Set<AllProductPayment> allProductPaymentSet = new TreeSet<>((o1, o2) -> {
+            Integer aPriority = allProductPaymentPriorityMap.get(o1.getClass());
+            Integer bPriority = allProductPaymentPriorityMap.get(o2.getClass());
+            if (aPriority == null) {
+                aPriority = defaultPriority;
+            }
+            if (bPriority == null) {
+                bPriority = defaultPriority;
+            }
+            return bPriority - aPriority;
+        });
+
+        for (var allProductPayment : allProductPayments) {
+            allProductPaymentSet.add((AllProductPayment) allProductPayment);
+        }
+
+        for (var allProductPayment : allProductPaymentSet) {
+            if (remainRefundPrice == 0) {
+                break;
+            }
+            int nowRefundablePrice = Math.min(allProductPayment.getRefundableAmount(),
+                remainRefundPrice);
+            refundPayment(allProductPayment, nowRefundablePrice);
+            remainRefundPrice -= nowRefundablePrice;
+        }
+    }
+
+    protected class PaymentCreateParamFactory {
+        public Optional<PaymentCreateParam> create(Class paymentClass,
+            OrderCreateContext orderCreateContext) {
+            if (paymentClass.equals(CouponPayment.class)) {
+                Coupon coupon = orderCreateContext.getCoupon().orElse(null);
+
+                return Optional.of(
+                    CouponPaymentCreateParam
+                        .builder()
+                        .couponId(coupon == null ? null : coupon.getId())
+                        .gameId(orderCreateContext.getGame().getId())
+                        .amount(orderCreateContext.getAmount())
+                        .orderId(orderCreateContext.getOrder().getId())
+                        .accountId(orderCreateContext.getAccount().getId())
+                        .build()
+                );
+            } else if(paymentClass.equals(DiscountPayment.class)) {
+                return Optional.of(
+                    DiscountPaymentCreateParam
+                        .builder()
+                        .gameId(orderCreateContext.getGame().getId())
+                        .amount(orderCreateContext.getAmount())
+                        .orderId(orderCreateContext.getOrder().getId())
+                        .build()
+                );
+            } else if(paymentClass.equals(KakaopayPayment.class)) {
+                return Optional.of(
+                    KakaopayPaymentCreateParam
+                        .builder()
+                        .amount(orderCreateContext.getAmount())
+                        .orderId(orderCreateContext.getOrder().getId())
+                        .itemName(orderCreateContext.getItemName())
+                        .build()
+                );
+            } else if(paymentClass.equals(PointPayment.class)) {
+                return Optional.of(
+                    PointPaymentCreateParam
+                        .builder()
+                        .amount(orderCreateContext.getAmount())
+                        .availablePoint(orderCreateContext.getPoint())
+                        .orderId(orderCreateContext.getOrder().getId())
+                        .accountId(orderCreateContext.getAccount().getId())
+                        .build()
+                );
+            }
+            return Optional.empty();
+        }
     }
 }
 

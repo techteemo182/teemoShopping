@@ -8,10 +8,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -27,13 +29,16 @@ public class AccountsCoupons extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "accounts_id")
+    @NotNull
     private Account account;
 
     @ManyToOne
     @JoinColumn(name = "coupons_id")
+    @NotNull
     private Coupon coupon;
 
     @Column
+    @Range(min = 1)
     private int amount;
 
     public void updateAmount(int amount) {

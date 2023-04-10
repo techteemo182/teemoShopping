@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AccountsCouponsRepository extends JpaRepository<AccountsCoupons, Long> {
-    Optional<AccountsCoupons> findFirstByAccountAndCoupon(Account account, Coupon coupon);
+    Optional<AccountsCoupons> findByAccountAndCoupon(Account account, Coupon coupon);
 
 }

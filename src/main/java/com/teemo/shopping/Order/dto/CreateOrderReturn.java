@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CreateOrderReturn {
-    private OrderDTO order;    // 주문
+    private Long orderId;    // 주문
     private int pointPrice;  // 포인트 사용량
     private int discountPrice;    // 할인된 가격
     private int couponPrice;    // 쿠폰 가격

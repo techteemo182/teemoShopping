@@ -7,6 +7,7 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -35,32 +36,36 @@ public class Coupon extends BaseEntity {
     }
 
     @Column
+    @NotNull
     private String name;
 
     @Column
+    @NotNull
     private String description;
 
     @Column
-    @Range(min = 0)
-    int maxDiscountPrice; // For Percent
+    private int maxDiscountPrice; // For Percent
+
+    @Column
+    private int minDiscountPrice; // For Percent
 
     @Column
     @Range(min = 0)
-    int minDiscountPrice; // For Percent
-
-    @Column
-    @Range(min = 0)
-    int minFulfillPrice; // For all
+    private int minFulfillPrice; // For all
 
     @Enumerated
-    CouponMethod method;
+    private CouponMethod method;
 
+    /**
+     * if (method == PERCENT) 0 ~ 100 [%]
+     * else if(method == STATIC) 0 ~ [원]
+     */
     @Column
     @Range(min = 0)
-    double amount;  // For all
+    private double amount;
 
     @Column
-    LocalTime expiredAt;
+    private LocalTime expiredAt;
 
 }
 

@@ -8,6 +8,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Table(
     indexes = {
@@ -17,10 +18,12 @@ import jakarta.persistence.Table;
 @AttributeOverride(name = "id", column = @Column(name = "coupons_games_id"))
 public class CouponsGames extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "coupon_id")
-    Coupon coupon;
+    @JoinColumn(name = "coupons_id")
+    @NotNull
+    private Coupon coupon;
 
     @ManyToOne
-    @JoinColumn(name = "game_id")
-    Game game;
+    @JoinColumn(name = "games_id")
+    @NotNull
+    private Game game;
 }
