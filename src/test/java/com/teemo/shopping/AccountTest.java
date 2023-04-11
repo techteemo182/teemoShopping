@@ -1,17 +1,17 @@
-package com.teemo.shopping.account;
+package com.teemo.shopping;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.teemo.shopping.account.domain.Account;
-import com.teemo.shopping.account.repository.AccountRepository;
-import com.teemo.shopping.util.DelegatingServletInputStream;
 import com.teemo.shopping.Main;
 import com.teemo.shopping.account.exception.AccountAlreadyExist;
+import com.teemo.shopping.account.repository.AccountRepository;
 import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.security.filter.LoginFilter;
+import com.teemo.shopping.util.DelegatingServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -35,15 +35,9 @@ class AccountTest {
         //Given
         String username = "chickenWorld1231";
         String password = "123j-12dkspfjgb-hjgr";
-        String adminUsername = "adminChicken";
-        String adminPassword = "12319djvsdvsdokqKDSKSd120";
         String rawJSON = "{username:\"" + username + "\", password:\"" + password + "\"}";
 
         accountAuthenticationService.register(username, password);
-        Long adminUserAccountId = accountAuthenticationService.register(adminUsername, adminPassword);
-        Account adminAccount = accountRepository.findById(adminUserAccountId).get();
-        adminAccount.updateIsAdmin(true);   // 어드민 유저로 업데이트
-
 
         HttpServletRequest mockedHttpServletRequest = mock(HttpServletRequest.class);
         when(mockedHttpServletRequest.getMethod()).thenReturn("POST");
@@ -62,6 +56,9 @@ class AccountTest {
 
         //then
         assertTrue(isAuthenticated);
+        assertThrows(Exception.class, () -> {
+            accountAuthenticationService.register(username, password);
+        });
     }
 
     @Test

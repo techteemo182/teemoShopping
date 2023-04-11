@@ -5,7 +5,6 @@ import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.enums.PaymentStatus;
 import com.teemo.shopping.order.dto.KakaopayRedirectParameter;
 import com.teemo.shopping.order.dto.KakaopayRedirectParameter.KakaopayRedirectType;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
 import com.teemo.shopping.order.dto.PaymentStatusUpdateObserverContext;
 import com.teemo.shopping.order.dto.payment_create_param.KakaopayPaymentCreateParam;
 import com.teemo.shopping.order.repository.KakaopayPaymentRepository;
@@ -60,23 +59,22 @@ public class KakaopayPaymentService extends
     }
 
     @Override
-    void refund(PaymentRefundParameter parameter) {
-        KakaopayPayment payment = kakaopayPaymentRepository.findById(parameter.getPaymentId())
+    void refund(Long paymentId, int refundAmount) {
+        KakaopayPayment payment = kakaopayPaymentRepository.findById(paymentId)
             .get();
         if (!(payment.getStatus() == PaymentStatus.PARTIAL_REFUNDED
             || payment.getStatus() == PaymentStatus.SUCCESS)) { // 환불 가능 조건
-            throw new RuntimeException();
+            throw new IllegalStateException("환불 불가능한 상태임");
         }
-        if (payment.getRefundableAmount()
-            < parameter.getRefundPrice()) {    // 환불할 금액이 환불가능 금액보다 크면 안됌
-            throw new RuntimeException();
+        if (payment.getRefundableAmount() < refundAmount) {    // 환불할 금액이 환불가능 금액보다 크면 안됌
+            throw new IllegalStateException("환불할 금액이 환불 가능한 금액보다 큼");
         }
 
         kakaopayService.cancelKakaopay(
             KakaopayCancelParameter.builder()    //실패시 throw RuntimeException
-                .amount(parameter.getRefundPrice()).tid(payment.getTid()).build()).block();
+                .amount(refundAmount).tid(payment.getTid()).build()).block();
 
-        payment.updateRefundedPoint(payment.getRefundedAmount() + parameter.getRefundPrice());
+        payment.updateRefundedPoint(payment.getRefundedAmount() + refundAmount);
         payment.updateStatus(
             payment.getRefundedAmount() == payment.getAmount() ? PaymentStatus.REFUNDED
                 : PaymentStatus.PARTIAL_REFUNDED);

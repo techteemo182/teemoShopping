@@ -2,7 +2,6 @@ package com.teemo.shopping.order.service;
 
 import com.teemo.shopping.order.domain.Payment;
 import com.teemo.shopping.order.dto.PaymentStatusUpdateObserverContext;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
 import com.teemo.shopping.order.dto.payment_create_param.PaymentCreateParam;
 import com.teemo.shopping.core.layer.ServiceLayer;
 import com.teemo.shopping.core.observer.Observer;
@@ -23,7 +22,7 @@ public abstract class PaymentService<T extends PaymentCreateParam> implements Se
 
     //Context
     abstract Optional<Long> create(T param);    // 지불
-    abstract void refund(PaymentRefundParameter parameter);    // 환불
+    abstract void refund(Long paymentId, int refundAmount);    // 환불
     abstract Class<? extends Payment> getTargetPaymentClass();
     private ArrayList<Observer<PaymentStatusUpdateObserverContext>> observers = new ArrayList<>();  // 옵저버
     @Override

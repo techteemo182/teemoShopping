@@ -1,8 +1,7 @@
-package com.teemo.shopping.order;
+package com.teemo.shopping;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.teemo.shopping.Main;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsCoupons;
 import com.teemo.shopping.account.repository.AccountRepository;

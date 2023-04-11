@@ -2,9 +2,9 @@ package com.teemo.shopping.external_api.kakao.controller;
 
 import com.teemo.shopping.order.domain.KakaopayPayment;
 import com.teemo.shopping.order.domain.Order;
-import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.dto.KakaopayRedirectParameter;
 import com.teemo.shopping.order.dto.KakaopayRedirectParameter.KakaopayRedirectType;
+import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.repository.KakaopayPaymentRepository;
 import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.order.service.KakaopayPaymentService;

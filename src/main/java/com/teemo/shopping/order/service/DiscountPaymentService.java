@@ -3,7 +3,6 @@ package com.teemo.shopping.order.service;
 import com.teemo.shopping.order.domain.DiscountPayment;
 import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
 import com.teemo.shopping.order.dto.payment_create_param.DiscountPaymentCreateParam;
 import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.order.repository.PaymentRepository;
@@ -44,8 +43,8 @@ public class DiscountPaymentService extends GameProductPaymentService<DiscountPa
     }
 
     @Override
-    public void refund(PaymentRefundParameter parameter) {    // 부분 취소 불가능
-        DiscountPayment payment = discountPaymentRepository.findById(parameter.getPaymentId())
+    public void refund(Long paymentId, int refundAmount) {    // 부분 취소 불가능
+        DiscountPayment payment = discountPaymentRepository.findById(paymentId)
             .get();
         if (payment.getStatus() != PaymentStatus.SUCCESS) {
             throw new RuntimeException();

@@ -4,7 +4,6 @@ import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.domain.PointPayment;
 import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
 import com.teemo.shopping.order.dto.payment_create_param.PointPaymentCreateParam;
 import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.order.repository.PaymentRepository;
@@ -50,13 +49,12 @@ public class PointPaymentService extends AllProductPaymentService<PointPaymentCr
 
     @Override
     @Transactional
-    void refund(PaymentRefundParameter parameter) {    // 부분 취소 가능
-        PointPayment payment = pointPaymentRepository.findById(parameter.getPaymentId()).get();
-        int refundPrice = parameter.getRefundPrice();
-        if(payment.getRefundableAmount() < refundPrice) { // 환불 가능한 금액이 환불할 금액보다 큼
-            throw new RuntimeException();
+    void refund(Long paymentId, int refundAmount) {    // 부분 취소 가능
+        PointPayment payment = pointPaymentRepository.findById(paymentId).get();
+        if(payment.getRefundableAmount() < refundAmount) { // 환불 가능한 금액이 환불할 금액보다 큼
+            throw new IllegalStateException("환불할 금액이 환불 가능한 금액보다 큼");
         }
-        payment.updateRefundedPoint(payment.getRefundedAmount() + refundPrice);
+        payment.updateRefundedPoint(payment.getRefundedAmount() + refundAmount);
         payment.updateStatus(payment.getAmount() == payment.getRefundedAmount() ? PaymentStatus.REFUNDED : PaymentStatus.PARTIAL_REFUNDED);   // 환불 상태 결정
     }
     @Override

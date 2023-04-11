@@ -13,10 +13,8 @@ import com.teemo.shopping.order.enums.OrderStatus;
 import com.teemo.shopping.order.enums.OrdersGamesStatus;
 import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.dto.CreateOrderReturn;
 import com.teemo.shopping.order.dto.OrderCreateContext;
 import com.teemo.shopping.order.dto.OrderDTO;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
 import com.teemo.shopping.order.dto.payment_create_param.CouponPaymentCreateParam;
 import com.teemo.shopping.order.dto.payment_create_param.DiscountPaymentCreateParam;
 import com.teemo.shopping.order.dto.payment_create_param.KakaopayPaymentCreateParam;
@@ -89,7 +87,6 @@ public class OrderService {
     //Todo: account 가 game을 이미 가지고있으면 Exception 추가
     @Transactional
     public Long createOrder(Long accountId, int point, List<PaymentMethod> methods, Map<Long, Optional<Long>> gameCouponIdMap) {
-        var createOrderReturnBuilder = CreateOrderReturn.builder();
         Account account = accountRepository.findById(accountId).get();
         List<Long> gameIds = new ArrayList<>();
         List<Long> couponIds = new ArrayList<>();
@@ -118,7 +115,6 @@ public class OrderService {
 
         int totalPrice = games.stream().mapToInt(game -> game.getPrice())
             .reduce(0, (accPrice, v) -> accPrice + v);
-        createOrderReturnBuilder.totalPrice(totalPrice);
 
         Order order = Order.builder().account(account).totalPrice(totalPrice)
             .status(OrderStatus.PENDING).build();
@@ -276,25 +272,22 @@ public class OrderService {
      */
 
     @Transactional
-    public void refundPayments(Map<Payment, Integer> paymentRefundPriceMap) {
-        for (var paymentRefundPriceEntry : paymentRefundPriceMap.entrySet()) {
+    public void refundPayments(Map<Payment, Integer> paymentRefundAmountMap) {
+        for (var paymentRefundPriceEntry : paymentRefundAmountMap.entrySet()) {
             Payment payment = paymentRefundPriceEntry.getKey();
-            Integer refundPrice = paymentRefundPriceEntry.getValue();
+            Integer refundAmount = paymentRefundPriceEntry.getValue();
             if (!(payment.getStatus() == PaymentStatus.SUCCESS
                 || payment.getStatus() == PaymentStatus.PARTIAL_REFUNDED)) {  // 환불 가능한 상태인지 확인
                 continue;
             }
             // 환불 금액이 환불 가능 금액 보다 클때
-            if (refundPrice > payment.getRefundableAmount()) {
+            if (refundAmount > payment.getRefundableAmount()) {
                 throw new RuntimeException();
             }
             for (var paymentService : paymentServices) { //improve: Hashmap 사용해서 O(1) 가능
                 if (paymentService.getTargetPaymentClass()
                     .equals(payment.getClass())) {
-                    paymentService.refund(
-                        PaymentRefundParameter.builder().paymentId(payment.getId())
-                            .refundPrice(payment.getRefundedAmount() + refundPrice)
-                            .build());   // 환불 가능한 금액만 환불
+                    paymentService.refund(payment.getId(), refundAmount);   // 환불 가능한 금액만 환불
                 }
             }
         }

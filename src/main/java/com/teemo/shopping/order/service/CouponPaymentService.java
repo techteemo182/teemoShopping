@@ -3,7 +3,6 @@ package com.teemo.shopping.order.service;
 import com.teemo.shopping.order.domain.CouponPayment;
 import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
 import com.teemo.shopping.order.dto.payment_create_param.CouponPaymentCreateParam;
 import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.order.repository.PaymentRepository;
@@ -76,8 +75,8 @@ public class CouponPaymentService extends GameProductPaymentService<CouponPaymen
     }
 
     @Override
-    void refund(PaymentRefundParameter parameter) { // 부분 취소 불가능
-        CouponPayment payment = couponPaymentRepository.findById(parameter.getPaymentId()).get();
+    void refund(Long paymentId, int refundAmount) { // 부분 취소 불가능
+        CouponPayment payment = couponPaymentRepository.findById(paymentId).get();
         Coupon coupon = payment.getCoupon();
         Order order = payment.getOrder();
         Account account = order.getAccount();

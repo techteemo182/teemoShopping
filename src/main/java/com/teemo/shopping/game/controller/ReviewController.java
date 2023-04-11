@@ -1,7 +1,6 @@
 package com.teemo.shopping.game.controller;
 
 import com.teemo.shopping.game.dto.ReviewDTO;
-import com.teemo.shopping.game.repository.ReviewRepository;
 import com.teemo.shopping.game.service.ReviewService;
 import com.teemo.shopping.security.PermissionChecker;
 import java.util.List;

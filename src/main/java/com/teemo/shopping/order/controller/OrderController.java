@@ -3,15 +3,13 @@ package com.teemo.shopping.order.controller;
 import com.teemo.shopping.order.dto.OrderDTO;
 import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.service.OrderService;
-import com.teemo.shopping.account.dto.AccountDTO;
 import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.security.PermissionChecker;
+import com.teemo.shopping.security.PermissionUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +26,8 @@ public class OrderController {
     private AccountAuthenticationService accountAuthenticationService;
     @Autowired
     private PermissionChecker permissionChecker;
+    @Autowired
+    private PermissionUtil permissionUtil;
     @GetMapping(path = "/{orderId}")
     public OrderDTO get(@PathVariable("orderId") Long orderId) throws Exception {
         if(!permissionChecker.checkAuthenticated()) {
@@ -44,10 +44,13 @@ public class OrderController {
     public Long add(@RequestBody
         int point, @RequestBody List<PaymentMethod> methods, @RequestBody
         Map<Long, Optional<Long>> gameCouponIdMap) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AccountDTO accountDTO = accountAuthenticationService.get(authentication.getName());
 
-        return orderService.createOrder(accountDTO.getId(), point, methods, gameCouponIdMap);
+        if(!permissionChecker.checkAuthenticated()) {
+            throw new SecurityException("접근 권한 없음");
+        }
+        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
+
+        return orderService.createOrder(accountId, point, methods, gameCouponIdMap);
     }
 
 }

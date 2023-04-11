@@ -18,12 +18,12 @@ import jakarta.validation.constraints.NotNull;
 @AttributeOverride(name = "id", column = @Column(name = "coupons_categories_id"))
 public class CouponsCategories extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "coupon_id")
+    @JoinColumn(name = "coupons_id")
     @NotNull
     private Coupon coupon;
 
     @ManyToOne
-    @JoinColumn(name = "game_category_id")
+    @JoinColumn(name = "game_categories_id")
     @NotNull
     private GameCategory gameCategory;
 }

@@ -1,4 +1,4 @@
-package com.teemo.shopping.coupon;
+package com.teemo.shopping;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
