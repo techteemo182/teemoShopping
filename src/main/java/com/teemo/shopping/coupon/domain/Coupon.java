@@ -40,7 +40,6 @@ public class Coupon extends BaseEntity {
     private String name;
 
     @Column
-    @NotNull
     private String description;
 
     @Column

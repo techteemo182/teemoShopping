@@ -1,14 +1,14 @@
 package com.teemo.shopping.external_api.kakao.controller;
 
-import com.teemo.shopping.Order.domain.KakaopayPayment;
-import com.teemo.shopping.Order.domain.Order;
-import com.teemo.shopping.Order.domain.enums.PaymentMethod;
-import com.teemo.shopping.Order.dto.KakaopayRedirectParameter;
-import com.teemo.shopping.Order.dto.KakaopayRedirectParameter.KakaopayRedirectType;
-import com.teemo.shopping.Order.repository.KakaopayPaymentRepository;
-import com.teemo.shopping.Order.repository.OrderRepository;
-import com.teemo.shopping.Order.service.KakaopayPaymentService;
-import com.teemo.shopping.Order.service.OrderService;
+import com.teemo.shopping.order.domain.KakaopayPayment;
+import com.teemo.shopping.order.domain.Order;
+import com.teemo.shopping.order.enums.PaymentMethod;
+import com.teemo.shopping.order.dto.KakaopayRedirectParameter;
+import com.teemo.shopping.order.dto.KakaopayRedirectParameter.KakaopayRedirectType;
+import com.teemo.shopping.order.repository.KakaopayPaymentRepository;
+import com.teemo.shopping.order.repository.OrderRepository;
+import com.teemo.shopping.order.service.KakaopayPaymentService;
+import com.teemo.shopping.order.service.OrderService;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsCoupons;
 import com.teemo.shopping.account.repository.AccountRepository;
@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Persistent;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -109,7 +107,7 @@ public class KakaoController {
             .build();
         accountRepository.save(account);
 
-        Map<@Valid Game, @Valid Optional<Coupon>> gameCouponMap = new HashMap<>();
+        Map<@Valid Long, @Valid Optional<Long>> gameCouponIdMap = new HashMap<>();
         Game game1 = Game.builder()
             .price(3000)
             .name("ZAO")
@@ -139,8 +137,8 @@ public class KakaoController {
             .coupon(coupon)
             .amount(1)
             .build());
-        gameCouponMap.put(game1, Optional.empty());
-        gameCouponMap.put(game2, Optional.of(coupon));
+        gameCouponIdMap.put(game1.getId(), Optional.empty());
+        gameCouponIdMap.put(game2.getId(), Optional.of(coupon.getId()));
 
         List<PaymentMethod> methods = new ArrayList<>();
         methods.add(PaymentMethod.COUPON);
@@ -148,7 +146,10 @@ public class KakaoController {
         methods.add(PaymentMethod.KAKAOPAY);
 
         int point = 500;
-        var result = orderService.createOrder(account, gameCouponMap, methods, point);
+        var result = orderService.createOrder(account.getId(),
+            point,
+            methods,
+            gameCouponIdMap);
         Order order = orderRepository.findById(result).get();
         KakaopayPayment kakaopayPayment = kakaopayPaymentRepository.findByOrder(order).get();
         return new RedirectView(kakaopayPayment.getNextRedirectPcUrl());

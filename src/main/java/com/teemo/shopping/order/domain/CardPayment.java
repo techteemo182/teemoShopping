@@ -1,0 +1,27 @@
+package com.teemo.shopping.order.domain;
+
+
+import com.teemo.shopping.order.enums.PaymentMethod;
+import com.teemo.shopping.order.enums.PaymentMethod.Values;
+import com.teemo.shopping.order.enums.PaymentStatus;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(
+    name = "card_payments"
+)
+@DiscriminatorValue(Values.KAKAOPAY)
+public class CardPayment extends AllProductPayment {
+    @Builder
+    public CardPayment(int amount, PaymentStatus status, Order order) {
+        super(amount, status, order, PaymentMethod.CARD);
+    }
+}

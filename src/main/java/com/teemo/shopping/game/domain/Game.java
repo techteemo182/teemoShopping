@@ -34,12 +34,6 @@ public class Game extends BaseEntity {
         this.ratingCount = ratingCount;
         this.discountPercent = discountPercent;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        Game target = (Game)obj;
-        return target.getId() == this.getId();
-    }
     @Column
     @NotNull
     /**
@@ -79,4 +73,28 @@ public class Game extends BaseEntity {
     @Range(min = 0, max = 100)
     @Column
     private double discountPercent;
+
+    @Override
+    public boolean equals(Object obj) {
+        Game target = (Game)obj;
+        return target.getId() == this.getId();
+    }
+    public void addRating(double rating) {
+        double ratingSum = ratingAvg * ratingCount + rating;
+        ratingAvg = ratingSum / (ratingCount + 1);
+        ratingCount += 1;
+    }
+    public void removeRating(double rating) throws IllegalStateException {
+        if(ratingCount == 0) {
+            throw new IllegalStateException("ratingCount 가 0 임");
+        }
+        double ratingSum = Math.max(0, ratingAvg * ratingCount - rating);
+        if(ratingCount == 1) {
+            ratingAvg = 0;
+            ratingCount = 0;
+        } else {
+            ratingAvg = ratingSum / (ratingCount - 1);
+            ratingCount -= 1;
+        }
+    }
 }

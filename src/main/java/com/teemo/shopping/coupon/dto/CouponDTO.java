@@ -30,7 +30,7 @@ public class CouponDTO {
     double amount;
     LocalDateTime expiredAt;
 
-    public CouponDTO from(Coupon coupon) {
+    public static CouponDTO from(Coupon coupon) {
         return CouponDTO.builder()
             .id(coupon.getId())
             .name(coupon.getName())
@@ -40,6 +40,17 @@ public class CouponDTO {
             .minFulfillPrice(coupon.getMinFulfillPrice())
             .method(coupon.getMethod())
             .amount(coupon.getAmount())
+            .build();
+    }
+    public Coupon to() {
+        return Coupon.builder()
+            .name(name)
+            .description(description)
+            .maxDiscountPrice(maxDiscountPrice)
+            .minDiscountPrice(minDiscountPrice)
+            .minFulfillPrice(minFulfillPrice)
+            .method(method)
+            .amount(amount)
             .build();
     }
 }

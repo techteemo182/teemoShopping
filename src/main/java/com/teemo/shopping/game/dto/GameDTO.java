@@ -9,23 +9,33 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class GameDTO {
-    private final Long gameId;
+    private final Long id;
     private final String name;
     private final String description;
     private final double ratingAvg;
     private final int ratingCount;
-    private final double price;
-    private final double discount;
+    private final int price;
+    private final double discountPercent;
 
     public static GameDTO from(Game game) {
         return GameDTO.builder()
-            .gameId(game.getId())
+            .id(game.getId())
             .name(game.getName())
             .description(game.getDescription())
             .ratingAvg(game.getRatingAvg())
             .ratingCount(game.getRatingCount())
             .price(game.getPrice())
-            .discount(game.getDiscountPercent())
+            .discountPercent(game.getDiscountPercent())
+            .build();
+    }
+    public Game to() {
+        return Game.builder()
+            .name(name)
+            .description(description)
+            .ratingAvg(ratingAvg)
+            .ratingCount(ratingCount)
+            .price(price)
+            .discountPercent(discountPercent)
             .build();
     }
 }

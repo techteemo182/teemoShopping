@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.account.repository.AccountRepository;
 import com.teemo.shopping.util.DelegatingServletInputStream;
 import com.teemo.shopping.Main;
 import com.teemo.shopping.account.exception.AccountAlreadyExist;
-import com.teemo.shopping.account.service.AccountService;
+import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.security.filter.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,10 +23,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 class AccountTest {
 
     @Autowired
-    private AccountService accountService;
+    private AccountAuthenticationService accountAuthenticationService;
     @Autowired
     private LoginFilter filter;
-
+    @Autowired
+    private AccountRepository accountRepository;
     @Test
     @DisplayName("Login in test")
     void loginTest() throws Exception {
@@ -32,12 +35,16 @@ class AccountTest {
         //Given
         String username = "chickenWorld1231";
         String password = "123j-12dkspfjgb-hjgr";
+        String adminUsername = "adminChicken";
+        String adminPassword = "12319djvsdvsdokqKDSKSd120";
         String rawJSON = "{username:\"" + username + "\", password:\"" + password + "\"}";
-        try {
-            accountService.register(username, password);    //<- 이것도 mocking 해야하나
-        } catch (AccountAlreadyExist e) {
 
-        }
+        accountAuthenticationService.register(username, password);
+        Long adminUserAccountId = accountAuthenticationService.register(adminUsername, adminPassword);
+        Account adminAccount = accountRepository.findById(adminUserAccountId).get();
+        adminAccount.updateIsAdmin(true);   // 어드민 유저로 업데이트
+
+
         HttpServletRequest mockedHttpServletRequest = mock(HttpServletRequest.class);
         when(mockedHttpServletRequest.getMethod()).thenReturn("POST");
         when(mockedHttpServletRequest.getInputStream()).thenReturn(
@@ -69,13 +76,13 @@ class AccountTest {
         boolean isSuccessRegister = true;
         boolean isOverrapedRegister = false;
         try {
-            accountService.register(username, password);
+            accountAuthenticationService.register(username, password);
         } catch (AccountAlreadyExist e) {
             isSuccessRegister = false;
         }
 
         try {
-            accountService.register(username, password);
+            accountAuthenticationService.register(username, password);
             isOverrapedRegister = true;
         } catch (AccountAlreadyExist e) {
 

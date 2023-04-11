@@ -27,6 +27,7 @@ public class Account extends BaseEntity {
         this.username = username;
         this.password = password;
         this.point = point;
+        this.isAdmin = false;
     }
 
     @Column
@@ -43,7 +44,14 @@ public class Account extends BaseEntity {
     @Range(min = 0)
     private int point; // 포인트
 
+    @Column
+    @NotNull
+    private boolean isAdmin;
+
     public void updatePoint(int point) {
         this.point = point;
+    }
+    public void updateIsAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }

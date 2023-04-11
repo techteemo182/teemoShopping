@@ -24,6 +24,7 @@ public class CouponTest {
         Coupon normalCoupon1 = Coupon.builder()
             .minFulfillPrice(1000)
             .amount(3000)
+            .name("특전 3000")
             .method(CouponMethod.STATIC)
             .build();
 
@@ -31,6 +32,7 @@ public class CouponTest {
             .maxDiscountPrice(1000)
             .minDiscountPrice(0)
             .minFulfillPrice(1000)
+            .name("특전 3000")
             .amount(50)
             .method(CouponMethod.PERCENT)
             .build();
@@ -40,6 +42,7 @@ public class CouponTest {
             .maxDiscountPrice(1000)
             .minDiscountPrice(5000)
             .minFulfillPrice(1000)
+            .name("특전 3000")
             .amount(50)
             .method(CouponMethod.PERCENT)
             .build();
@@ -49,13 +52,14 @@ public class CouponTest {
             .maxDiscountPrice(1000)
             .minDiscountPrice(0)
             .minFulfillPrice(1000)
+            .name("특전 3000")
             .amount(120)
             .method(CouponMethod.PERCENT)
             .build();
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-
+        var a = validator.validate(normalCoupon1);
         assertTrue(validator.validate(normalCoupon1).isEmpty());
         assertTrue(validator.validate(normalCoupon2).isEmpty());
         assertFalse(validator.validate(abnormalCoupon1).isEmpty());

@@ -1,25 +1,20 @@
 package com.teemo.shopping.account.service;
 
-import com.teemo.shopping.account.domain.AccountsGames;
-import com.teemo.shopping.account.dto.DeleteGameFromAccountParameter;
-import com.teemo.shopping.account.dto.OwnGameParameter;
-import com.teemo.shopping.account.exception.AccountAlreadyExist;
-import com.teemo.shopping.account.exception.AccountNotFound;
 import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.account.domain.AccountsFollowGames;
+import com.teemo.shopping.account.domain.AccountsOwnGames;
+import com.teemo.shopping.account.dto.AccountDTO;
 import com.teemo.shopping.account.repository.AccountRepository;
-import com.teemo.shopping.account.repository.AccountsGamesRepository;
+import com.teemo.shopping.account.repository.AccountsFollowGamesRepository;
+import com.teemo.shopping.account.repository.AccountsOwnGamesRepository;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.repository.GameRepository;
-import jakarta.transaction.Transactional;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Validated
 public class AccountService {
 
     @Autowired
@@ -27,52 +22,70 @@ public class AccountService {
     @Autowired
     private GameRepository gameRepository;
     @Autowired
-    private AccountsGamesRepository accountsGamesRepository;
-
+    private AccountsOwnGamesRepository accountsOwnGamesRepository;
     @Autowired
-    @Qualifier("loginFilter")
-    private PasswordEncoder passwordEncoder;
+    private AccountsFollowGamesRepository accountsFollowGamesRepository;
 
     @Transactional
-    public boolean validate(String username, String password) throws AccountNotFound {
-        Optional<Account> accountOptional = accountRepository.findByUsername(username);
-        if (accountOptional.isEmpty()) {
-            throw new AccountNotFound();
+    public void discardGame(Long gameId, Long accountId) throws RuntimeException {
+        Game game = gameRepository.findById(gameId).get();
+        Account account = accountRepository.findById(accountId).get();
+        AccountsOwnGames accountsOwnGames = accountsOwnGamesRepository.findByAccountAndGame(account,
+            game).get();
+        try {
+            accountsOwnGames = accountsOwnGamesRepository.findByAccountAndGame(account, game).get();
+        } catch (NoSuchElementException e) {
+            throw new IllegalStateException("게정이 게임을 소유 하고 있지 않음");
         }
-        Account account = accountOptional.get();
-
-        return passwordEncoder.matches(account.getPassword(), password);
-    }
-
-    public boolean checkUsername(String username) {
-        return !accountRepository.findByUsername(username).isEmpty();
+        accountsOwnGamesRepository.delete(accountsOwnGames);
     }
 
     @Transactional
-    public void register(String username, String password) throws AccountAlreadyExist {
-        if (accountRepository.findByUsername(username).isPresent()) {
-            throw new AccountAlreadyExist();
+    public void ownGame(Long accountId, Long gameId) {
+        Game game = gameRepository.findById(gameId).get();
+        Account account = accountRepository.findById(accountId).get();
+        if (accountsOwnGamesRepository.findByAccountAndGame(account, game)
+            .isPresent()) {   // 게임 소유 중복
+            throw new IllegalStateException("게정이 이미 게임을 소유하고 있음");
         }
-        accountRepository.save(
-            Account.builder().username(username).password(passwordEncoder.encode(password))
-                .build());
+        AccountsOwnGames accountsOwnGames = AccountsOwnGames.builder().account(account).game(game)
+            .build();
+        accountsOwnGamesRepository.save(accountsOwnGames);
     }
 
     @Transactional
-    public void ownGame(OwnGameParameter parameter) throws RuntimeException{
-        Game game = gameRepository.findById(parameter.getGameId()).get();   // throw RuntimeException
-        Account account = accountRepository.findById(parameter.getAccountId()).get();   // throw RuntimeException
-        if(accountsGamesRepository.findByAccountAndGame(account, game).isPresent()) {   // 게임 소유 중복
-            throw new RuntimeException();
+    public void followGame(Long accountId, Long gameId) {
+        Game game = gameRepository.findById(gameId).get();
+        Account account = accountRepository.findById(accountId).get();
+        if (accountsFollowGamesRepository.findByAccountAndGame(account, game).isPresent()) {
+            throw new IllegalStateException("게정이 이미 게임을 팔로우하고 있음");
         }
-        accountsGamesRepository.save(AccountsGames.builder().game(game).account(account).build());
+        AccountsFollowGames accountsFollowGames = AccountsFollowGames.builder().account(account)
+            .game(game).build();
+        accountsFollowGamesRepository.save(accountsFollowGames);
     }
 
     @Transactional
-    public void deleteGameFromAccount(DeleteGameFromAccountParameter parameter) throws  RuntimeException {
-        Game game = gameRepository.findById(parameter.getGameId()).get();   // throw RuntimeException
-        Account account = accountRepository.findById(parameter.getAccountId()).get();   // throw RuntimeException
-        AccountsGames accountsGames = accountsGamesRepository.findByAccountAndGame(account, game).get(); // throw RuntimeException
-        accountsGamesRepository.delete(accountsGames);
+    public void unfollowGame(Long accountId, Long gameId) {
+        Game game = gameRepository.findById(gameId).get();
+        Account account = accountRepository.findById(accountId).get();
+        AccountsFollowGames accountsFollowGames;
+        try {
+            accountsFollowGames = accountsFollowGamesRepository.findByAccountAndGame(account, game)
+                .get();
+        } catch (NoSuchElementException e) {
+            throw new IllegalStateException("게정이 게임을 팔로우 하고 있지 않음");
+        }
+        accountsFollowGamesRepository.save(accountsFollowGames);
+    }
+
+    @Transactional(readOnly = true)
+    public AccountDTO get(String username) {
+        return AccountDTO.from(accountRepository.findByUsername(username).get());
+    }
+
+    @Transactional(readOnly = true)
+    public AccountDTO get(Long accountId) {
+        return AccountDTO.from(accountRepository.findById(accountId).get());
     }
 }
