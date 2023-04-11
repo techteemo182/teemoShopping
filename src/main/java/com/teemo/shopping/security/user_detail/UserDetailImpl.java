@@ -1,8 +1,11 @@
 package com.teemo.shopping.security.user_detail;
 
+import com.teemo.shopping.security.enums.Role;
 import java.util.Collection;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @AllArgsConstructor(staticName = "of")
@@ -10,9 +13,14 @@ public class UserDetailImpl implements UserDetails {
 
     private String username;
     private String password;
+    private boolean isAdmin;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        if(isAdmin) {
+            return List.of(Role.ADMIN.getAuthority());
+        } else {
+            return null;
+        }
     }
 
     @Override
