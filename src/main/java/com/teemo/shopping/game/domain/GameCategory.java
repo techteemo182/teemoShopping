@@ -25,6 +25,11 @@ public class GameCategory extends BaseEntity {
     protected GameCategory(String name) {
         this.name = name;
     }
+    @Override
+    public boolean equals(Object obj) {
+        GameCategoriesGames target = (GameCategoriesGames)obj;
+        return target.getId().equals(this.getId());
+    }
     @Column
     @NotNull
     private String name;

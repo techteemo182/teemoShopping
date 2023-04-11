@@ -6,6 +6,7 @@ import com.teemo.shopping.order.service.OrderService;
 import com.teemo.shopping.account.dto.AccountDTO;
 import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.security.PermissionChecker;
+import com.teemo.shopping.security.PermissionUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +29,8 @@ public class OrderController {
     private AccountAuthenticationService accountAuthenticationService;
     @Autowired
     private PermissionChecker permissionChecker;
+    @Autowired
+    private PermissionUtil permissionUtil;
     @GetMapping(path = "/{orderId}")
     public OrderDTO get(@PathVariable("orderId") Long orderId) throws Exception {
         if(!permissionChecker.checkAuthenticated()) {
@@ -44,10 +47,12 @@ public class OrderController {
     public Long add(@RequestBody
         int point, @RequestBody List<PaymentMethod> methods, @RequestBody
         Map<Long, Optional<Long>> gameCouponIdMap) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AccountDTO accountDTO = accountAuthenticationService.get(authentication.getName());
+        if(!permissionChecker.checkAuthenticated()) {
+            throw new SecurityException("접근 권한 없음");
+        }
+        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
 
-        return orderService.createOrder(accountDTO.getId(), point, methods, gameCouponIdMap);
+        return orderService.createOrder(accountId, point, methods, gameCouponIdMap);
     }
 
 }

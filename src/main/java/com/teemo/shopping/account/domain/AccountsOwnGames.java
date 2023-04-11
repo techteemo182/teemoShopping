@@ -23,7 +23,12 @@ public class AccountsOwnGames extends BaseEntity {
         this.account = account;
         this.game = game;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        AccountsOwnGames target = (AccountsOwnGames)obj;
+        return target.getAccount().getId().equals(getAccount().getId())
+            && target.getGame().getId().equals(getGame().getId());
+    }
     @ManyToOne
     @JoinColumn(name = "accounts_id")
     @NotNull

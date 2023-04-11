@@ -31,7 +31,12 @@ public class GameCategoriesGames extends BaseEntity {
         this.gameCategory = gameCategory;
         this.game = game;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        GameCategoriesGames target = (GameCategoriesGames)obj;
+        return target.getGameCategory().getId().equals(gameCategory.getId())
+            && target.getGame().getId().equals(game.getId());
+    }
 
     @ManyToOne
     @JoinColumn(name = "game_categories_id")

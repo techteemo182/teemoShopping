@@ -28,7 +28,12 @@ public class AccountsFollowGames extends BaseEntity {
         this.account = account;
         this.game = game;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        AccountsFollowGames target = (AccountsFollowGames)obj;
+        return target.getAccount().getId().equals(getAccount().getId())
+            && target.getGame().getId().equals(getGame().getId());
+    }
     /**
      * 게정
      */

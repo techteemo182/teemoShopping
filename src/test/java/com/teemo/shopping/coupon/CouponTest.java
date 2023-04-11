@@ -16,10 +16,8 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @SpringBootTest(classes = Main.class)
 public class CouponTest {
-    @Autowired
-    private LocalValidatorFactoryBean localValidatorFactoryBean;
     @Test
-    void couponValidationTest() {
+    void couponTest() {
 
         Coupon normalCoupon1 = Coupon.builder()
             .minFulfillPrice(1000)
@@ -27,7 +25,6 @@ public class CouponTest {
             .name("특전 3000")
             .method(CouponMethod.STATIC)
             .build();
-
         Coupon normalCoupon2 = Coupon.builder()
             .maxDiscountPrice(1000)
             .minDiscountPrice(0)
@@ -36,7 +33,6 @@ public class CouponTest {
             .amount(50)
             .method(CouponMethod.PERCENT)
             .build();
-
         //최대 세일 금액이 최소 세일 금액보다 작음
         Coupon abnormalCoupon1 = Coupon.builder()
             .maxDiscountPrice(1000)
@@ -59,7 +55,6 @@ public class CouponTest {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        var a = validator.validate(normalCoupon1);
         assertTrue(validator.validate(normalCoupon1).isEmpty());
         assertTrue(validator.validate(normalCoupon2).isEmpty());
         assertFalse(validator.validate(abnormalCoupon1).isEmpty());

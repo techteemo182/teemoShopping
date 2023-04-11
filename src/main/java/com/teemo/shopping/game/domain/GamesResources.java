@@ -24,6 +24,11 @@ import lombok.NoArgsConstructor;
 )
 @AttributeOverride(name = "id", column = @Column(name = "games_resources_id"))
 public class GamesResources extends BaseEntity {
+    public boolean equals(Object obj) {
+        GamesResources target = (GamesResources)obj;
+        return target.getGame().getId().equals(getGame().getId()) &&
+            target.getResource().getId().equals(getResource().getId());
+    }
     @ManyToOne
     @JoinColumn(name = "games_id")
     @NotNull

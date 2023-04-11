@@ -30,7 +30,11 @@ public class Order extends BaseEntity {
         this.totalPrice = totalPrice;
         this.status = status;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        Order target = (Order)obj;
+        return target.getId().equals(getId());
+    }
 
     @ManyToOne
     @NotNull

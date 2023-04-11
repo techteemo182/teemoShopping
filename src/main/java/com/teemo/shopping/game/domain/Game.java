@@ -77,7 +77,7 @@ public class Game extends BaseEntity {
     @Override
     public boolean equals(Object obj) {
         Game target = (Game)obj;
-        return target.getId() == this.getId();
+        return target.getId().equals(this.getId());
     }
     public void addRating(double rating) {
         double ratingSum = ratingAvg * ratingCount + rating;

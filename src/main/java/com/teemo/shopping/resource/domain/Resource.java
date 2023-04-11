@@ -1,6 +1,7 @@
 package com.teemo.shopping.resource.domain;
 
 import com.teemo.shopping.core.entity.BaseEntity;
+import com.teemo.shopping.order.domain.Payment;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,7 +25,11 @@ public class Resource extends BaseEntity {
         this.path = path;
         this.type = type;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        Resource target = (Resource)obj;
+        return target.getId().equals(getId());
+    }
     @Column
     private String path;
 

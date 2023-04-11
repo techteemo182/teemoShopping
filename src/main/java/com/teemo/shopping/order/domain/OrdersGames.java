@@ -29,7 +29,12 @@ public class OrdersGames extends BaseEntity {
         this.game = game;
         this.status = status;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        OrdersGames target = (OrdersGames)obj;
+        return target.getGame().getId().equals(getGame().getId()) &&
+            target.getOrder().getId().equals(getOrder().getId());
+    }
     @ManyToOne
     @JoinColumn(name = "orders_id")
     @NotNull

@@ -1,6 +1,7 @@
 package com.teemo.shopping.account.domain;
 
 import com.teemo.shopping.core.entity.BaseEntity;
+import com.teemo.shopping.coupon.domain.CouponsGames;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,7 +30,11 @@ public class Account extends BaseEntity {
         this.point = point;
         this.isAdmin = false;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        Account target = (Account)obj;
+        return target.getId().equals(getId());
+    }
     @Column
     @NotNull
     @Size(max = 30)

@@ -60,24 +60,6 @@ public class OrderTest {
     private EntityManager em;
     @Autowired
     PlatformTransactionManager platformTransactionManager;
-
-    @Test
-    void test() {
-        var kakao = KakaopayAPIApproveRequest.builder()
-            .tid("123")
-            .cid("213")
-            .partnerOrderId("12451")
-            .pgToken("1d21j0")
-            .partnerUserId("123User")
-            .totalAmount(10000)
-            .build();
-        var c = ConverterToMultiValueMap.convertToFormData(kakao);
-    }
-
-
-    void CouponPaymentService() {
-
-    }
     @Test
     void order() {
         Session session = em.unwrap(Session.class);
@@ -156,12 +138,6 @@ public class OrderTest {
             .getGame());
         assertEquals(game3, accountsOwnGamesRepository.findByAccountAndGame(account, game3).get()
             .getGame());
-
-        orderService.refundOrder(order.getId());
-        accountsCoupons = accountsCouponsRepository.findByAccountAndCoupon(account, coupon).get();
-        order = orderRepository.findById(order.getId()).get();
-        payments = paymentRepository.findAllByOrder(order);
-        ordersGames = ordersGamesRepository.findAllByOrder(order);
     }
 
 }

@@ -4,19 +4,32 @@ import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @Table(
     indexes = {
-        @Index(columnList = "coupon_id, game_id")
+        @Index(columnList = "coupons_id, games_id")
     }
 )
 @AttributeOverride(name = "id", column = @Column(name = "coupons_games_id"))
+@Entity
 public class CouponsGames extends BaseEntity {
+    @Override
+    public boolean equals(Object obj) {
+        CouponsGames target = (CouponsGames)obj;
+        return target.getCoupon().getId().equals(getCoupon().getId())
+            && target.getGame().getId().equals(getGame().getId());
+    }
     @ManyToOne
     @JoinColumn(name = "coupons_id")
     @NotNull

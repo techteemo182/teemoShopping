@@ -1,5 +1,6 @@
 package com.teemo.shopping.order.domain;
 
+import com.teemo.shopping.game.domain.Review;
 import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.enums.PaymentStatus;
 import com.teemo.shopping.core.entity.BaseEntity;
@@ -42,7 +43,11 @@ public class Payment extends BaseEntity {
         this.order = order;
         this.method = method;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        Payment target = (Payment)obj;
+        return target.getId().equals(getId());
+    }
     @Column
     /**
      *  결제의 양 또는 환불의 양

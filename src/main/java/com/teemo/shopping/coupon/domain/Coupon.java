@@ -3,6 +3,7 @@ package com.teemo.shopping.coupon.domain;
 import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.validator.CouponConstraint;
+import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +35,11 @@ public class Coupon extends BaseEntity {
             this.amount = amount;
             this.expiredAt = expiredAt;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        Coupon target = (Coupon)obj;
+        return target.getId().equals(this.getId());
+    }
     @Column
     @NotNull
     private String name;

@@ -30,7 +30,11 @@ public class Review extends BaseEntity {
         this.account = account;
         this.game = game;
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        Review target = (Review)obj;
+        return target.getId().equals(getId());
+    }
     @Column
     private String content;
 

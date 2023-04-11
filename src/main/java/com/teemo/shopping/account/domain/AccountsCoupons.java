@@ -2,6 +2,7 @@ package com.teemo.shopping.account.domain;
 
 import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.coupon.domain.Coupon;
+import com.teemo.shopping.game.domain.GameCategoriesGames;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,6 +26,12 @@ public class AccountsCoupons extends BaseEntity {
         this.account = account;
         this.coupon = coupon;
         this.amount = amount;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        AccountsCoupons target = (AccountsCoupons)obj;
+        return target.getAccount().getId().equals(getAccount().getId())
+            && target.getCoupon().getId().equals(getCoupon().getId());
     }
 
     @ManyToOne
