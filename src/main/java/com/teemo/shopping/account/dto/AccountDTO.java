@@ -18,7 +18,10 @@ public class AccountDTO {
     private String username;
 
     @Column
-    @NotNull
+    private String password;
+    @Column
+    private boolean isAdmin;
+    @Column
     private int point;
 
     public static AccountDTO from(Account account) {
@@ -26,6 +29,7 @@ public class AccountDTO {
             .id(account.getId())
             .point(account.getPoint())
             .username(account.getUsername())
+            .isAdmin(account.isAdmin())
             .build();
     }
 }

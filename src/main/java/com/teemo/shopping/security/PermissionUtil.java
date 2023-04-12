@@ -17,7 +17,6 @@ public class PermissionUtil {
             return Optional.empty();
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Account account = accountRepository.findByUsername(authentication.getName()).get();
-        return Optional.of(account.getId());
+        return Optional.of((Long)authentication.getPrincipal());
     }
 }

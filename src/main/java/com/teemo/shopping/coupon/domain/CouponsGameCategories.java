@@ -1,7 +1,6 @@
 package com.teemo.shopping.coupon.domain;
 
 import com.teemo.shopping.core.entity.BaseEntity;
-import com.teemo.shopping.game.domain.GameCategoriesGames;
 import com.teemo.shopping.game.domain.GameCategory;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -25,20 +24,20 @@ import lombok.NoArgsConstructor;
 )
 @AttributeOverride(name = "id", column = @Column(name = "coupons_categories_id"))
 @Entity
-public class CouponsCategories extends BaseEntity {
+public class CouponsGameCategories extends BaseEntity {
     @Override
     public boolean equals(Object obj) {
-        CouponsCategories target = (CouponsCategories)obj;
+        CouponsGameCategories target = (CouponsGameCategories)obj;
         return target.getCoupon().getId().equals(getCoupon().getId())
             && target.getGameCategory().getId().equals(getGameCategory().getId());
     }
     @ManyToOne
-    @JoinColumn(name = "coupon_id")
+    @JoinColumn(name = "coupons_id")
     @NotNull
     private Coupon coupon;
 
     @ManyToOne
-    @JoinColumn(name = "game_category_id")
+    @JoinColumn(name = "game_categories_id")
     @NotNull
     private GameCategory gameCategory;
 }

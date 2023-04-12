@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,7 +26,7 @@ public class Coupon extends BaseEntity {
 
     @Builder
     protected Coupon(String name, String description, int maxDiscountPrice, int minDiscountPrice, int minFulfillPrice,
-        CouponMethod method, double amount, LocalTime expiredAt) {
+        CouponMethod method, boolean canApplyToAll,  double amount, LocalDateTime expiredAt) {
             this.name = name;
             this.description = description;
             this.maxDiscountPrice = maxDiscountPrice;
@@ -33,6 +34,7 @@ public class Coupon extends BaseEntity {
             this.minFulfillPrice = minFulfillPrice;
             this.method = method;
             this.amount = amount;
+            this.canApplyToAll = canApplyToAll;
             this.expiredAt = expiredAt;
     }
     @Override
@@ -69,7 +71,9 @@ public class Coupon extends BaseEntity {
     private double amount;
 
     @Column
-    private LocalTime expiredAt;
+    private boolean canApplyToAll;
+    @Column
+    private LocalDateTime expiredAt;
 
 }
 
