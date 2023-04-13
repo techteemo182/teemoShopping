@@ -3,7 +3,7 @@
 #ENV
 
 #Description
-요약: 게임 구매 사이트입니다.
+요약: 게임 구매 사이트를 위한 API 제공 Backend
 
 #Feature
 - 로그인/ 회원가입
