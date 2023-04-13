@@ -25,6 +25,6 @@
 2. H2
 3. MYSQL
 4. Util
-  4.1 Lombok
-  4.2 Jwt
-  4.3 Gson
+  - Lombok
+  - Jwt
+  - Gson
