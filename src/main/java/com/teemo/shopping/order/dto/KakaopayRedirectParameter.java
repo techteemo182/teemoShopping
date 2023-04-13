@@ -15,5 +15,4 @@ public class KakaopayRedirectParameter {
     private String pgToken;
     private String partnerOrderId;
     private String partnerUserId;
-    // 직접 payment 안주는 이유 의존성 없애려고
 }

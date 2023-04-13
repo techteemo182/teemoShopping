@@ -5,6 +5,7 @@ import com.teemo.shopping.coupon.domain.CouponIssuePolicy;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
+import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Builder
@@ -12,6 +13,7 @@ public class CouponIssuePolicyDTO {
 
     private final Long id;
     private final Long couponId;
+    @Range(min = 1)
     private final Integer amount; //발급 수량
     private final boolean isNewAccount;  // 새로운 유저
     private final boolean isFirstCome;    // 선착순

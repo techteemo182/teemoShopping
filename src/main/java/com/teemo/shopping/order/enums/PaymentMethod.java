@@ -1,17 +1,23 @@
 package com.teemo.shopping.order.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum PaymentMethod {
     CARD(Values.CARD),
     KAKAOPAY(Values.KAKAOPAY), // 예시로 하나만
     COUPON(Values.COUPON),  // 쿠폰 할인
     POINT(Values.POINT),
     DISCOUNT(Values.DISCOUNT);
+    PaymentMethod(String method) {
+        this.method = method;
+    }
+    @JsonValue
+    public String getMethod() {
+        return this.method;
+    }
     private String method;
     public class Values {
         public static final String CARD = "CARD";

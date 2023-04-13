@@ -1,5 +1,8 @@
 package com.teemo.shopping.coupon.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import jakarta.persistence.Column;
@@ -14,26 +17,25 @@ import org.hibernate.validator.constraints.Range;
 // 옳은 아키텍쳐는 복사 붙여넣기를 하면 안되는것을
 @Getter
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CouponDTO {
-    @NotNull
-    private Long id;
-    private String name;
-    private String description;
+    private final Long id;
+    private final String name;
+    private final String description;
     @Range(min = 0)
-    int maxDiscountPrice;
+    private final int maxDiscountPrice;
     @Range(min = 0)
-    int minDiscountPrice;
+    private final int minDiscountPrice;
     @Range(min = 0)
-    int minFulfillPrice;
-    @Enumerated
-    CouponMethod method;
+    private final int minFulfillPrice;
+    @JsonDeserialize
+    private final CouponMethod method;
 
-    @Column
-    private boolean canApplyToAll;
+    private final boolean canApplyToAll;
     @Range(min = 0)
-    double amount;
+    private final double amount;
 
-    LocalDateTime expiredAt;
+    private final LocalDateTime expiredAt;
 
     public static CouponDTO from(Coupon coupon) {
         return CouponDTO.builder()
