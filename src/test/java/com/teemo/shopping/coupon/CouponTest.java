@@ -4,11 +4,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.teemo.shopping.Main;
+import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.account.repository.AccountsCouponsRepository;
+import com.teemo.shopping.account.service.AccountAuthenticationService;
+import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.coupon.domain.Coupon;
+import com.teemo.shopping.coupon.domain.CouponIssuePolicy;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
+import com.teemo.shopping.coupon.dto.CouponDTO;
+import com.teemo.shopping.coupon.dto.CouponIssuePolicyDTO;
+import com.teemo.shopping.coupon.repository.CouponIssuePolicyRepository;
+import com.teemo.shopping.coupon.service.CouponIssuePolicyService;
+import com.teemo.shopping.coupon.service.CouponService;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,6 +70,41 @@ public class CouponTest {
         assertTrue(validator.validate(normalCoupon2).isEmpty());
         assertFalse(validator.validate(abnormalCoupon1).isEmpty());
         assertFalse(validator.validate(abnormalCoupon2).isEmpty());
+
+    }
+
+    @Autowired
+    private CouponService couponService;
+    @Autowired
+    private CouponIssuePolicyService couponIssuePolicyService;
+    @Autowired
+    private AccountAuthenticationService accountAuthenticationService;
+    @Autowired
+    private AccountService accountService;
+    @Test
+    void couponIssue() throws Exception {
+
+        Long accountId = accountAuthenticationService.register("teemo", "teemo");
+        Long couponId = couponService.add(CouponDTO.builder()
+                .name("마인크래프트 출시기념")
+                .canApplyToAll(true)
+                .method(CouponMethod.STATIC)
+                .minFulfillPrice(10000)
+                .amount(3000)
+                .build());
+        Long couponIssuePolicyId = couponIssuePolicyService.add(CouponIssuePolicyDTO.builder()
+                .amount(1)
+                .couponId(couponId)
+                .startAt(LocalDateTime.now())
+                .endAt((LocalDateTime.MAX))
+                .isFirstCome(false)
+                .isNewAccount(false)
+            .build());
+        couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId);
+
+
+        var a= accountService.getCoupons(accountId);
+
 
     }
 }

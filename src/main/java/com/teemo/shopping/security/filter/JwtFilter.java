@@ -31,19 +31,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     @Qualifier("jwt")
-    private Algorithm jwtAlgorithm;
+    private JWTVerifier verifier;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
         final String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (token.isEmpty()) {
+        if (token == null || token.isEmpty()) { // Header 가 비어있으면 넘어가기
             filterChain.doFilter(request, response);
+            return;
         }
 
-        JWTVerifier verifier = JWT.require(jwtAlgorithm)    //Bean 으로 등록
-            .withIssuer("teemo_shopping")
-            .build();
         DecodedJWT decodedJWT = verifier.verify(token);
         GsonJsonParser gsonJsonParser = new GsonJsonParser();   //Bean으로 등록
         Map<String, Object> payload = gsonJsonParser.parseMap(
@@ -58,6 +56,6 @@ public class JwtFilter extends OncePerRequestFilter {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(new JwtAuthentication(accountId, grantedAuthorities));
         SecurityContextHolder.setContext(context);
-
+        filterChain.doFilter(request, response);
     }
 }

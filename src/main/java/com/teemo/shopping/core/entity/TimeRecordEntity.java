@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,9 +20,9 @@ public class TimeRecordEntity implements Serializable {
 
     @Column(columnDefinition = "timestamp")
     @LastModifiedDate
-    private LocalTime updatedAt;
+    private LocalDateTime updatedAt;
 
-    @Column(columnDefinition = "timestamp") // 2038년 까지 이지만 아직 쓸만할듯
+    @Column(columnDefinition = "timestamp")
     @CreatedDate
-    private LocalTime createdAt;
+    private LocalDateTime createdAt;
 }

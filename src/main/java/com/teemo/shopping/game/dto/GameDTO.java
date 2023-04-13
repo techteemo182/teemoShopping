@@ -12,10 +12,10 @@ public class GameDTO {
     private final Long id;
     private final String name;
     private final String description;
-    private final double ratingAvg;
-    private final int ratingCount;
-    private final int price;
-    private final double discountPercent;
+    private final Double ratingAvg;
+    private final Integer ratingCount;
+    private final Integer price;
+    private final Double discountPercent;
 
     public static GameDTO from(Game game) {
         return GameDTO.builder()

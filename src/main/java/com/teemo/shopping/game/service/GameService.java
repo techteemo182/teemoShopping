@@ -7,6 +7,7 @@ import com.teemo.shopping.game.repository.GameRepository;
 import com.teemo.shopping.security.PermissionChecker;
 import com.teemo.shopping.security.enums.Role;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +29,7 @@ public class GameService implements ServiceLayer {
 
     @Transactional
     public void remove(Long gameId) throws Exception {
+        Game game = gameRepository.findById(gameId).orElseThrow(NoSuchElementException::new);
         gameRepository.deleteById(gameId);
     }
 

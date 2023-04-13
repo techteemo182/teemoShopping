@@ -9,6 +9,7 @@ import com.teemo.shopping.account.dto.AccountDTO;
 import com.teemo.shopping.account.exception.AccountAlreadyExist;
 import com.teemo.shopping.account.exception.AccountNotFound;
 import com.teemo.shopping.account.repository.AccountRepository;
+import com.teemo.shopping.security.enums.Role;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -92,5 +93,11 @@ public class AccountAuthenticationService {
             .build();
         account = accountRepository.save(account);
         return account.getId();
+    }
+
+    @Transactional
+    public void updateAdmin(Long accountId, boolean isAdmin) {
+        Account account = accountRepository.findById(accountId).get();
+        account.updateIsAdmin(isAdmin);
     }
 }

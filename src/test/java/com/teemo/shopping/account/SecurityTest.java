@@ -66,7 +66,7 @@ class SecurityTest {
     @Test
     void register() {
         //Given
-        String username = "dassaodj";
+        String username = "e121d21";
         String password = "g2g23fd3";
 
         //when

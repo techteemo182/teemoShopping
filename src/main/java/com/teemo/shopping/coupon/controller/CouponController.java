@@ -1,8 +1,10 @@
 package com.teemo.shopping.coupon.controller;
 
+import com.teemo.shopping.coupon.domain.CouponIssuePolicy;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.service.CouponService;
 import com.teemo.shopping.security.PermissionChecker;
+import com.teemo.shopping.security.PermissionUtil;
 import com.teemo.shopping.security.enums.Role;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class CouponController {
     private CouponService couponService;
     @Autowired
     private PermissionChecker permissionChecker;
+    @Autowired
+    private PermissionUtil permissionUtil;
+
     @GetMapping(path = "/{couponId}")
     public CouponDTO get(@PathVariable("couponId") Long couponId) throws Exception {
         return couponService.get(couponId);
@@ -49,4 +54,5 @@ public class CouponController {
     public List<CouponDTO> list() {
         return couponService.list();
     }
+
 }

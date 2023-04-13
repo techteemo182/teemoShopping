@@ -2,6 +2,7 @@ package com.teemo.shopping.coupon.dto;
 
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
+import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -26,6 +27,9 @@ public class CouponDTO {
     int minFulfillPrice;
     @Enumerated
     CouponMethod method;
+
+    @Column
+    private boolean canApplyToAll;
     @Range(min = 0)
     double amount;
     LocalDateTime expiredAt;
@@ -40,6 +44,7 @@ public class CouponDTO {
             .minFulfillPrice(coupon.getMinFulfillPrice())
             .method(coupon.getMethod())
             .amount(coupon.getAmount())
+            .canApplyToAll(coupon.isCanApplyToAll())
             .build();
     }
     public Coupon to() {
@@ -51,6 +56,7 @@ public class CouponDTO {
             .minFulfillPrice(minFulfillPrice)
             .method(method)
             .amount(amount)
+            .canApplyToAll(canApplyToAll)
             .build();
     }
 }

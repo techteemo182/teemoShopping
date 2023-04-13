@@ -1,5 +1,7 @@
 package com.teemo.shopping.security.filter;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -48,5 +50,13 @@ public class AuthenticatoinConfiguration {
             privateKeySpec);
         Algorithm algorithm = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
         return algorithm;
+    }
+
+    @Bean
+    @Qualifier("jwt")
+    JWTVerifier jwtVerifier (Algorithm jwtAlgorithm) {
+        return JWT.require(jwtAlgorithm)    //Bean 으로 등록
+            .withIssuer("teemo_shopping")
+            .build();
     }
 }
