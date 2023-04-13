@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/game_categories")
+@RequestMapping(path = "/game-categories")
 public class GameCategoryController {
     @Autowired
     private GameCategoryService gameCategoryService;

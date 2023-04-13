@@ -1,6 +1,7 @@
 package com.teemo.shopping.coupon;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.teemo.shopping.Main;
@@ -19,6 +20,7 @@ import com.teemo.shopping.coupon.service.CouponService;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import jakarta.validation.constraints.AssertTrue;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +85,6 @@ public class CouponTest {
     private AccountService accountService;
     @Test
     void couponIssue() throws Exception {
-
         Long accountId = accountAuthenticationService.register("teemo", "teemo");
         Long couponId = couponService.add(CouponDTO.builder()
                 .name("마인크래프트 출시기념")
@@ -101,10 +102,53 @@ public class CouponTest {
                 .isNewAccount(false)
             .build());
         couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId);
-
-
-        var a= accountService.getCoupons(accountId);
-
-
+        assertTrue(!accountService.getCoupons(accountId).isEmpty());
+        assertThrows(IllegalStateException.class, () -> couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId));
+    }
+    @Test
+    void couponNewAccountIssue() throws Exception {
+        Long accountId = accountAuthenticationService.register("teemo1", "teemo1");
+        Long couponId = couponService.add(CouponDTO.builder()
+            .name("마인크래프트 출시기념2")
+            .canApplyToAll(true)
+            .method(CouponMethod.STATIC)
+            .minFulfillPrice(10000)
+            .amount(3000)
+            .build());
+        Long couponIssuePolicyId = couponIssuePolicyService.add(CouponIssuePolicyDTO.builder()
+            .amount(1)
+            .couponId(couponId)
+            .startAt(LocalDateTime.now())
+            .endAt((LocalDateTime.MAX))
+            .isFirstCome(false)
+            .isNewAccount(true)
+            .build());
+        couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId);
+        assertTrue(!accountService.getCoupons(accountId).isEmpty());
+    }
+    @Test
+    void couponFirstComeIssue() throws Exception {
+        Long accountId = accountAuthenticationService.register("teemo2", "teemo2");
+        Long accountId2 = accountAuthenticationService.register("teemo3", "teemo");
+        Long couponId = couponService.add(CouponDTO.builder()
+            .name("마인크래프트 출시기념3")
+            .canApplyToAll(true)
+            .method(CouponMethod.STATIC)
+            .minFulfillPrice(10000)
+            .amount(3000)
+            .build());
+        Long couponIssuePolicyId = couponIssuePolicyService.add(CouponIssuePolicyDTO.builder()
+            .amount(1)
+            .couponId(couponId)
+            .startAt(LocalDateTime.now())
+            .endAt((LocalDateTime.MAX))
+            .isFirstCome(true)
+            .remainAmount(1)
+            .isNewAccount(false)
+            .build());
+        couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId);
+        assertThrows(IllegalStateException.class, () -> couponIssuePolicyService.issueCoupon(accountId2, couponIssuePolicyId));
+        assertTrue(!accountService.getCoupons(accountId).isEmpty());
     }
 }
+

@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,13 @@ import lombok.NoArgsConstructor;
 @AttributeOverride(name = "id", column = @Column(name = "coupons_categories_id"))
 @Entity
 public class CouponsGameCategories extends BaseEntity {
+
+    @Builder
+    public CouponsGameCategories(Coupon coupon, GameCategory gameCategory) {
+        this.coupon = coupon;
+        this.gameCategory = gameCategory;
+    }
+
     @Override
     public boolean equals(Object obj) {
         CouponsGameCategories target = (CouponsGameCategories)obj;

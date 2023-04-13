@@ -92,7 +92,7 @@ public class CouponIssuePolicyService {
                 throw new IllegalStateException("쿠폰이 전부 소진되었습니다.");
             }
             amount = Math.min(couponIssuePolicy.getRemainAmount(), couponIssuePolicy.getAmount());
-            couponIssuePolicy.updateRemainAmount(amount);
+            couponIssuePolicy.updateRemainAmount(couponIssuePolicy.getRemainAmount() - amount);
         }
 
         Coupon coupon = couponIssuePolicy.getCoupon();

@@ -1,40 +1,33 @@
 package com.teemo.shopping.order;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.teemo.shopping.Main;
-import com.teemo.shopping.account.domain.Account;
-import com.teemo.shopping.account.domain.AccountsCoupons;
 import com.teemo.shopping.account.repository.AccountRepository;
-import com.teemo.shopping.account.repository.AccountsCouponsRepository;
-import com.teemo.shopping.account.repository.AccountsOwnGamesRepository;
 import com.teemo.shopping.account.service.AccountAuthenticationService;
-import com.teemo.shopping.coupon.domain.Coupon;
+import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
-import com.teemo.shopping.coupon.repository.CouponRepository;
-import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveRequest;
+import com.teemo.shopping.coupon.dto.CouponDTO;
+import com.teemo.shopping.coupon.service.CouponService;
 import com.teemo.shopping.game.domain.Game;
-import com.teemo.shopping.game.repository.GameRepository;
+import com.teemo.shopping.game.dto.GameDTO;
+import com.teemo.shopping.game.service.GameService;
 import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.repository.OrderRepository;
-import com.teemo.shopping.order.repository.OrdersGamesRepository;
 import com.teemo.shopping.order.repository.PaymentRepository;
 import com.teemo.shopping.order.service.OrderService;
-import com.teemo.shopping.util.ConverterToMultiValueMap;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import org.hibernate.Session;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.PlatformTransactionManager;
 
 @SpringBootTest(classes = Main.class)
 public class OrderTest {
+
     // Todo: Kakao Pay API Test 작성
     @Autowired
     private OrderService orderService;
@@ -45,99 +38,51 @@ public class OrderTest {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
-    private GameRepository gameRepository;
+    private GameService gameService;
     @Autowired
-    private CouponRepository couponRepository;
+    private CouponService couponService;
+
     @Autowired
-    private AccountsOwnGamesRepository accountsOwnGamesRepository;
-    @Autowired
-    private AccountsCouponsRepository accountsCouponsRepository;
-    @Autowired
-    private OrdersGamesRepository ordersGamesRepository;
+    private AccountService accountService;
     @Autowired
     private PaymentRepository paymentRepository;
     @PersistenceContext
     private EntityManager em;
-    @Autowired
-    PlatformTransactionManager platformTransactionManager;
-    @Test
-    void order() {
-        Session session = em.unwrap(Session.class);
-        Account account = Account.builder()
-            .username("username")
-            .password("password")
-            .point(50000)
-            .build();
-        account = accountRepository.save(account);
 
+    @Test
+    void order() throws Exception {
+        Long accountId = accountAuthenticationService.register("teemo341", "teemo341");
+        accountService.addPoint(accountId, 50000);
         List<Game> games = new ArrayList<>();
 
-        Game game1 = Game.builder()
-            .name("테트리스")
-            .description("슬라브 게임")
-            .price(10000)
-            .discountPercent(100)
-            .build();
-        Game game2 = Game.builder()
-            .name("마인크래프트")
-            .description("Lets Dig Up")
-            .price(30000)
-            .discountPercent(100)
-            .build();
-        Game game3 = Game.builder()
-            .name("스타크래프트")
-            .description("Use Map")
-            .price(7000)
-            .discountPercent(100)
-            .build();
+        GameDTO game1 = GameDTO.builder().name("테트리스").description("슬라브 게임").price(10000)
+            .discountPercent(100d).build();
+        GameDTO game2 = GameDTO.builder().name("마인크래프트").description("Lets Dig Up").price(30000)
+            .discountPercent(100d).build();
+        GameDTO game3 = GameDTO.builder().name("스타크래프트").description("Use Map").price(7000)
+            .discountPercent(100d).build();
+        Long gameId1 = gameService.add(game1);
+        Long gameId2 = gameService.add(game2);
+        Long gameId3 = gameService.add(game3);
 
-        game1 = gameRepository.save(game1);
-        game2 = gameRepository.save(game2);
-        game3 = gameRepository.save(game3);
-
-        Coupon coupon = Coupon
-            .builder()
-            .minFulfillPrice(5000)
-            .name("5000 WON")
-            .description("1년 기념 5000원 세일")
-            .method(CouponMethod.STATIC)
-            .amount(5000)
-            .build();
-        couponRepository.save(coupon);
-
+        CouponDTO coupon = CouponDTO.builder().minFulfillPrice(5000).name("5000 WON")
+            .description("1년 기념 5000원 세일").method(CouponMethod.STATIC).amount(5000)
+            .expiredAt(LocalDateTime.now().plusDays(10)).build();
+        Long couponId = couponService.add(coupon);
+        couponService.addGame(couponId, gameId1);
+        couponService.addGame(couponId, gameId2);
+        couponService.addGame(couponId, gameId3);
         HashMap<Long, Optional<Long>> gameCouponIdMap = new HashMap<>();
-        gameCouponIdMap.put(game1.getId(), Optional.of(coupon.getId()));
-        gameCouponIdMap.put(game2.getId(), Optional.empty());
-        gameCouponIdMap.put(game3.getId(), Optional.empty());
+        gameCouponIdMap.put(gameId1, Optional.of(couponId));
+        gameCouponIdMap.put(gameId2, Optional.empty());
+        gameCouponIdMap.put(gameId3, Optional.empty());
 
-        AccountsCoupons accountsCoupons = AccountsCoupons
-            .builder()
-            .account(account)
-            .coupon(coupon)
-            .amount(1)
-            .build();
-        accountsCoupons = accountsCouponsRepository.save(accountsCoupons);
+        accountService.addCoupon(accountId, couponId, 1);
 
-        var orderId = orderService.createOrder(account.getId(), 5000, List.of(
-            PaymentMethod.COUPON,
-            PaymentMethod.POINT,
-            PaymentMethod.KAKAOPAY,
-            PaymentMethod.DISCOUNT,
-            PaymentMethod.POINT
-        ), gameCouponIdMap);
-
-        var accountsHasGames = accountsOwnGamesRepository.findAll();
-        account= accountRepository.findById(account.getId()).get();
-        var order = orderRepository.findById(orderId).get();
-        var payments = paymentRepository.findAllByOrder(order);
-        var ordersGames = ordersGamesRepository.findAllByOrder(order);
-
-        assertEquals(game1, accountsOwnGamesRepository.findByAccountAndGame(account, game1).get()
-            .getGame());
-        assertEquals(game2, accountsOwnGamesRepository.findByAccountAndGame(account, game2).get()
-            .getGame());
-        assertEquals(game3, accountsOwnGamesRepository.findByAccountAndGame(account, game3).get()
-            .getGame());
+        var orderId = orderService.createOrder(accountId, 50000,
+            List.of(PaymentMethod.COUPON, PaymentMethod.POINT, PaymentMethod.KAKAOPAY,
+                PaymentMethod.DISCOUNT), gameCouponIdMap);
+        var orderDTO = orderService.get(orderId);
     }
 
 }

@@ -18,10 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-/**
- * TODO:
- *
- */
 @RestController
 @RequestMapping(path = "/coupons")
 public class CouponController {
@@ -55,4 +51,18 @@ public class CouponController {
         return couponService.list();
     }
 
+    @PostMapping(path = "/{couponId}/game/{gameId}")
+    public Long addGame(@PathVariable("couponId") Long couponId, @PathVariable("gameId") Long gameId) throws Exception {
+        if(!permissionChecker.checkAdmin()) {
+            throw new SecurityException("접근 권한 없음");
+        }
+        return couponService.addGame(couponId, gameId);
+    }
+    @PostMapping(path = "/{couponId}/game_category/{gameCategoryId}")
+    public Long addGameCategory(@PathVariable("couponId") Long couponId, @PathVariable("gameCategoryId") Long gameCategoryId) throws Exception {
+        if(!permissionChecker.checkAdmin()) {
+            throw new SecurityException("접근 권한 없음");
+        }
+        return couponService.addGameCategory(couponId, gameCategoryId);
+    }
 }

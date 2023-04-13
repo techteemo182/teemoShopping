@@ -32,6 +32,7 @@ public class CouponDTO {
     private boolean canApplyToAll;
     @Range(min = 0)
     double amount;
+
     LocalDateTime expiredAt;
 
     public static CouponDTO from(Coupon coupon) {
@@ -57,6 +58,7 @@ public class CouponDTO {
             .method(method)
             .amount(amount)
             .canApplyToAll(canApplyToAll)
+            .expiredAt(expiredAt)
             .build();
     }
 }

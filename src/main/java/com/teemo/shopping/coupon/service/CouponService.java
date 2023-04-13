@@ -7,10 +7,18 @@ import com.teemo.shopping.account.repository.AccountsCouponsRepository;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.CouponIssuePoliciesAccounts;
 import com.teemo.shopping.coupon.domain.CouponIssuePolicy;
+import com.teemo.shopping.coupon.domain.CouponsGameCategories;
+import com.teemo.shopping.coupon.domain.CouponsGames;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.repository.CouponIssuePoliciesAccountsRepository;
 import com.teemo.shopping.coupon.repository.CouponIssuePolicyRepository;
 import com.teemo.shopping.coupon.repository.CouponRepository;
+import com.teemo.shopping.coupon.repository.CouponsGameCategoriesRepository;
+import com.teemo.shopping.coupon.repository.CouponsGamesRepository;
+import com.teemo.shopping.game.domain.Game;
+import com.teemo.shopping.game.domain.GameCategory;
+import com.teemo.shopping.game.repository.GameCategoryRepository;
+import com.teemo.shopping.game.repository.GameRepository;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +32,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponService {
     @Autowired
     private CouponRepository couponRepository;
+    @Autowired
+    private GameRepository gameRepository;
+    @Autowired
+    private GameCategoryRepository gameCategoryRepository;
+    @Autowired
+    private CouponsGamesRepository couponsGamesRepository;
+    @Autowired
+    private CouponsGameCategoriesRepository couponsGameCategoriesRepository;
     @Transactional
     public Long add(CouponDTO couponDTO) throws Exception { //todo: game, gameCategory 추가 하기
         Coupon coupon = couponDTO.to();
@@ -48,5 +64,32 @@ public class CouponService {
     public List<CouponDTO> list() {
         return couponRepository.findAll().stream()
             .map(coupon -> CouponDTO.from(coupon)).toList();
+    }
+
+    @Transactional
+    public Long addGame(Long couponId, Long gameId) {
+        Coupon coupon = couponRepository.findById(couponId).get();
+        Game game = gameRepository.findById(gameId).get();
+        CouponsGames couponsGames = CouponsGames
+            .builder()
+            .coupon(coupon)
+            .game(game)
+            .build();
+        couponsGames = couponsGamesRepository.save(couponsGames);
+        return couponsGames.getId();
+    }
+
+    @Transactional
+    public Long addGameCategory(Long couponId, Long gameCategoryId) {
+        Coupon coupon = couponRepository.findById(couponId).get();
+        GameCategory gameCategory = gameCategoryRepository.findById(gameCategoryId).get();
+
+        CouponsGameCategories couponsGameCategories = CouponsGameCategories
+            .builder()
+            .coupon(coupon)
+            .gameCategory(gameCategory)
+            .build();
+        couponsGameCategories = couponsGameCategoriesRepository.save(couponsGameCategories);
+        return couponsGameCategories.getId();
     }
 }

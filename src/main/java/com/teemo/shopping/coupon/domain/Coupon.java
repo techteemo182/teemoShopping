@@ -60,6 +60,7 @@ public class Coupon extends BaseEntity {
     private int minFulfillPrice; // For all
 
     @Enumerated
+    @NotNull
     private CouponMethod method;
 
     /**
@@ -73,6 +74,7 @@ public class Coupon extends BaseEntity {
     @Column
     private boolean canApplyToAll;
     @Column
+    @NotNull
     private LocalDateTime expiredAt;
 
 }

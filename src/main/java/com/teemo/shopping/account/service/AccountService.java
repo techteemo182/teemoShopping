@@ -116,7 +116,11 @@ public class AccountService {
         }
         accountsFollowGamesRepository.save(accountsFollowGames);
     }
-
+    @Transactional
+    public void addPoint(Long accountId, Integer point) {
+        Account account = accountRepository.findById(accountId).get();
+        account.updatePoint(account.getPoint() + point);
+    }
     @Transactional(readOnly = true)
     public AccountDTO get(String username) {
         return AccountDTO.from(accountRepository.findByUsername(username).get());
