@@ -12,7 +12,16 @@ spring:
   h2:
     console:
       enabled: true
-  port: 6999
+      settings:
+        web-allow-others: true
   profiles:
     include:
       - secret
+springdoc:
+  version: v1
+  api-docs:
+    path: /api-docs/json
+  swagger-ui:
+    path: /api-docs
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8

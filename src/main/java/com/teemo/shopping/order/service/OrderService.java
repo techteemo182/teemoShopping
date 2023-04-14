@@ -1,27 +1,23 @@
 package com.teemo.shopping.order.service;
 
 import com.teemo.shopping.order.domain.AllProductPayment;
-import com.teemo.shopping.order.domain.CouponPayment;
-import com.teemo.shopping.order.domain.DiscountPayment;
 import com.teemo.shopping.order.domain.GameProductPayment;
-import com.teemo.shopping.order.domain.KakaopayPayment;
 import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.domain.OrdersGames;
 import com.teemo.shopping.order.domain.Payment;
 import com.teemo.shopping.order.domain.PointPayment;
-import com.teemo.shopping.order.dto.payment_create_param.PaymentCreateParamFactory;
 import com.teemo.shopping.order.enums.OrderStatus;
 import com.teemo.shopping.order.enums.OrdersGamesStatus;
 import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.dto.OrderCreateContext;
+import com.teemo.shopping.order.service.context.OrderCreateContext;
 import com.teemo.shopping.order.dto.OrderDTO;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
-import com.teemo.shopping.order.dto.payment_create_param.CouponPaymentCreateParam;
-import com.teemo.shopping.order.dto.payment_create_param.DiscountPaymentCreateParam;
-import com.teemo.shopping.order.dto.payment_create_param.KakaopayPaymentCreateParam;
-import com.teemo.shopping.order.dto.payment_create_param.PaymentCreateParam;
-import com.teemo.shopping.order.dto.payment_create_param.PointPaymentCreateParam;
+import com.teemo.shopping.order.service.factory.CouponPaymentFactory;
+import com.teemo.shopping.order.service.factory.DiscountPaymentFactory;
+import com.teemo.shopping.order.service.factory.KakaopayPaymentFactory;
+import com.teemo.shopping.order.service.factory.PaymentFactory;
+import com.teemo.shopping.order.service.factory.PointPaymentFactory;
+import com.teemo.shopping.order.service.parameter.PaymentRefundParameter;
 import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.order.repository.OrdersGamesRepository;
 import com.teemo.shopping.order.repository.PaymentRepository;
@@ -33,8 +29,10 @@ import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.repository.CouponRepository;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.repository.GameRepository;
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -50,8 +48,8 @@ public class OrderService {
 
     @Autowired
     private List<PaymentService> paymentServices;
-    private List<AllProductPaymentService> allProductPaymentServices = new ArrayList<>();
-    private List<GameProductPaymentService> gameProductPaymentServices = new ArrayList<>();
+    private List<PaymentFactory> allProductPaymentFactories = new ArrayList<>();
+    private List<PaymentFactory> gameProductPaymentFactories = new ArrayList<>();
     @Autowired
     private GameRepository gameRepository;
     @Autowired
@@ -66,26 +64,24 @@ public class OrderService {
     private AccountRepository accountRepository;
     @Autowired
     private CouponRepository couponRepository;
-
-    private PaymentCreateParamFactory paymentCreateParamFactory = new PaymentCreateParamFactory();
     @Autowired
-    OrderService(DiscountPaymentService discountPaymentService,
-        CouponPaymentService couponPaymentService, PointPaymentService pointPaymentService,
-        KakaopayPaymentService kakaopayPaymentService) {
+    private List<PaymentFactory> paymentFactories;
+    @Autowired
+    OrderService(DiscountPaymentFactory discountPaymentFactory,
+        CouponPaymentFactory couponPaymentFactory, PointPaymentFactory pointPaymentFactory,
+        KakaopayPaymentFactory kakaopayPaymentFactory) {
+
         // 이 순서대로 결제 실행
-        gameProductPaymentServices.add(discountPaymentService);
-        gameProductPaymentServices.add(couponPaymentService);
-        allProductPaymentServices.add(pointPaymentService);
-        allProductPaymentServices.add(kakaopayPaymentService);
+        gameProductPaymentFactories.add(discountPaymentFactory);
+        gameProductPaymentFactories.add(couponPaymentFactory);
+        allProductPaymentFactories.add(pointPaymentFactory);
+        allProductPaymentFactories.add(kakaopayPaymentFactory);
     }
-    /**
-     * 주문을 생성하는 서비스입니다. 다양한 결제 수단을 사용할 수 있습니다. 할인, 쿠폰, 포인트등을 주문에 적용합니다. 가격의 적용은 (할인, 쿠폰, 포인트, 카카오페이)
-     * 순으로 진행됩니다. 모든 결제수단은 다른 결제수단들이 완료되어야 PaymentStatus.SUCCESS 가 됩니다. 안료되지 않은 경우
-     * PaymentStatus.PENDING 입니다. 카카오페이등 외부 API를 사용하여 구현되는 경우 예) 카카오 페이로 3000원 결제가 필요한 경우 지연이 되므로 외부
-     * API 사용으로 지연되므로 Order.status = OrderStatus.PENDING 사용한 모든 Payment.status = OrderStatus.PENDING
-     * 이 경우 할인 쿠폰 포인트등 내부 API를 사용하여 구현 되는 경우 바로 처리가 가능하므로 예) 100% 할인으로 남은 결제금액 0원인 경우 Order.status =
-     * OrderStatus.SUCCESS 사용한 모든 Payment.status = OrderStatus.SUCCESS
-     */
+    @PostConstruct
+    public void init() {
+
+    }
+
     //Todo: account 가 game을 이미 가지고있으면 Exception 추가
     @Transactional
     public Long createOrder(Long accountId, int point, List<PaymentMethod> methods, List<Long> gameIds,  Map<Long, Long> gameCouponIdMap) {
@@ -97,13 +93,18 @@ public class OrderService {
         List<Game> games = gameRepository.findAllById(gameIds);
         List<Coupon> coupons = couponRepository.findAllById(couponIds);
 
+
+        boolean isAlreadyOwnGame = accountsOwnGamesRepository.findByAccount(account).stream().anyMatch(accountsGamesEntry -> accountsGamesEntry.getGame().equals(games));
+        if(isAlreadyOwnGame) {
+            throw new IllegalStateException("이미 소유하고 있는 게임임.");
+        }
         if(games.size() != gameIds.size()) {
             throw new NoSuchElementException("존재 하지 않는 게임임.");
         }
         if(coupons.size() != couponIds.size()) {
             throw new NoSuchElementException("존재 하지 않는 쿠폰임.");
         }
-        
+
         Map<Long, Game> idGameMap = new HashMap<>();
         Map<Long, Coupon> idCouponMap = new HashMap<>();
         games.forEach((game) -> idGameMap.put(game.getId(), game));
@@ -115,6 +116,16 @@ public class OrderService {
             Optional<Coupon> coupon = gameCouponIdMap.containsKey(game) ? Optional.of(idCouponMap.get(gameCouponIdMap.get(game))) : Optional.empty();
             gameCouponMap.put(game,coupon);
         }
+        Set<Class<? extends Payment>> availablePaymentClasses = new HashSet<>();
+        Map<Class<? extends Payment>, PaymentFactory> classPaymentFactoryMap = new HashMap<>();
+
+        for(var method : methods) {
+            availablePaymentClasses.add(method.getPaymentClass());
+        }
+        for(var paymentFactory : paymentFactories) {
+            classPaymentFactoryMap.put(paymentFactory.getPaymentClass(), paymentFactory);
+        }
+
 
         int totalPrice = games.stream().mapToInt(game -> game.getPrice())
             .reduce(0, (accPrice, v) -> accPrice + v);
@@ -128,58 +139,62 @@ public class OrderService {
         for (var game : games) {    // 게임 개별에 결제 적용
             Optional<Coupon> coupon = gameCouponMap.get(game);
             int gameRemainPrice = game.getPrice();
-            for (var gameProductPaymentService : gameProductPaymentServices) {
+            for (var gameProductPaymentFactory : gameProductPaymentFactories) {
                 if (gameRemainPrice == 0) {    // 남은 금액이 0 이면 끝
                     break;
                 }
                 OrderCreateContext orderCreateContext = OrderCreateContext.builder()  // Context 생성
                     .game(game).coupon(coupon).account(account)
                     .amount(gameRemainPrice).order(order).build();
-                Optional<Long> optionalPaymentId;
-                try {
-                    optionalPaymentId = gameProductPaymentService.create(
-                        paymentCreateParamFactory.create(
-                                gameProductPaymentService.getTargetPaymentClass(), orderCreateContext)
-                            .get());
-                } catch (IllegalStateException e) {
-                    // improve: PaymentExceptionHandler
-                    throw new IllegalStateException("결제 실패");
-                }
-                if (optionalPaymentId.isEmpty()) {
+
+                Class nowPaymentClass = gameProductPaymentFactory.getPaymentClass();
+                // 선택한 결제 수단이 아니면 PASS
+                if(!availablePaymentClasses.contains(nowPaymentClass)) {
                     continue;
                 }
-                Payment payment = (Payment) paymentRepository.findById(optionalPaymentId.get())
-                    .get();
+                Optional<Payment> paymentOptional;
+                try {
+                    paymentOptional = gameProductPaymentFactory.create(orderCreateContext);
+                } catch (IllegalStateException e) {
+                    // improve: PaymentExceptionHandler
+                    throw new IllegalStateException(nowPaymentClass.toString() + " 결제 수단 결제 실패");
+                }
+                // 결제 수단이 생성 되지 않으면 PASS
+                if (paymentOptional.isEmpty()) {
+                    continue;
+                }
+                Payment payment = paymentOptional.get();
                 gameRemainPrice -= payment.getAmount();
                 payments.add(payment);
             }
             totalRemainPrice += gameRemainPrice;
         }
 
-        {
+        {   // 게임 전체에 결제 적용
             String itemName = String.join(",", games.stream().map(game -> game.getName()).toList());
-            for (var allProductPaymentService : allProductPaymentServices) {
+            for (var allProductPaymentFactory : allProductPaymentFactories) {
                 if (totalRemainPrice == 0) {    // 남은 금액이 0 이면 끝
                     break;
                 }
                 OrderCreateContext orderCreateContext = OrderCreateContext.builder() // context 생성
                     .games(games).account(account).point(point).order(order).itemName(itemName)
                     .amount(totalRemainPrice).build();
-                Optional<Long> optionalPaymentId;
-                try {
-                    optionalPaymentId = allProductPaymentService.create(
-                        paymentCreateParamFactory.create(
-                                allProductPaymentService.getTargetPaymentClass(), orderCreateContext)
-                            .get());
-                } catch (IllegalStateException e) {
-                    // improve: PaymentExceptionHandler
-                    throw new IllegalStateException("결제 실패");
-                }
-                if (optionalPaymentId.isEmpty()) {
+                Class nowPaymentClass = allProductPaymentFactory.getPaymentClass();
+                // 선택한 결제 수단이 아니면 PASS
+                if(!availablePaymentClasses.contains(nowPaymentClass)) {
                     continue;
                 }
-                Payment payment = (Payment) paymentRepository.findById(optionalPaymentId.get())
-                    .get();
+                Optional<Payment> paymentOptional;
+                try {
+                    paymentOptional = allProductPaymentFactory.create(orderCreateContext);
+                } catch (IllegalStateException e) {
+                    throw new IllegalStateException(nowPaymentClass.toString() + " 결제 수단 결제 실패");
+                }
+                // 결제 수단이 생성 되지 않으면 PASS
+                if (paymentOptional.isEmpty()) {
+                    continue;
+                }
+                Payment payment = paymentOptional.get();
                 totalRemainPrice -= payment.getAmount();
                 payments.add(payment);
             }
@@ -188,7 +203,7 @@ public class OrderService {
             throw new IllegalStateException("결제 총액이 결제 총액과 맞지 않음");
         }
 
-        for (var game : games) { // 전체 게임에 결제 적용
+        for (var game : games) { // 주문에 결제 연관
             ordersGamesRepository.save(
                 OrdersGames.builder().game(game).order(order).status(OrdersGamesStatus.PENDING)
                     .build());
@@ -288,7 +303,7 @@ public class OrderService {
                 throw new RuntimeException();
             }
             for (var paymentService : paymentServices) { //improve: Hashmap 사용해서 O(1) 가능
-                if (paymentService.getTargetPaymentClass()
+                if (paymentService.getPaymentClass()
                     .equals(payment.getClass())) {
                     paymentService.refund(
                         PaymentRefundParameter.builder().paymentId(payment.getId())
@@ -416,9 +431,9 @@ public class OrderService {
             remainRefundPrice -= nowRefundablePrice;
         }
     }
-    @Transactional(readOnly = true)
+    /*@Transactional(readOnly = true)
     List<Long> getPendingPayments(Long orderId) {
 
-    }
+    }*/
 }
 

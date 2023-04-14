@@ -53,7 +53,7 @@ public class OrderTest {
     void order() throws Exception {
         Long accountId = accountAuthenticationService.register("teemo341", "teemo341");
         accountService.addPoint(accountId, 50000);
-        List<Game> games = new ArrayList<>();
+        List<Long> gameIds = new ArrayList<>();
 
         GameDTO game1 = GameDTO.builder().name("테트리스").description("슬라브 게임").price(10000)
             .discountPercent(100d).build();
@@ -64,24 +64,26 @@ public class OrderTest {
         Long gameId1 = gameService.add(game1);
         Long gameId2 = gameService.add(game2);
         Long gameId3 = gameService.add(game3);
-
+        gameIds.add(gameId1);
+        gameIds.add(gameId2);
+        gameIds.add(gameId3);
         CouponDTO coupon = CouponDTO.builder().minFulfillPrice(5000).name("5000 WON")
             .description("1년 기념 5000원 세일").method(CouponMethod.STATIC).amount(5000)
             .expiredAt(LocalDateTime.now().plusDays(10)).build();
+
         Long couponId = couponService.add(coupon);
         couponService.addGame(couponId, gameId1);
         couponService.addGame(couponId, gameId2);
         couponService.addGame(couponId, gameId3);
-        HashMap<Long, Optional<Long>> gameCouponIdMap = new HashMap<>();
-        gameCouponIdMap.put(gameId1, Optional.of(couponId));
-        gameCouponIdMap.put(gameId2, Optional.empty());
-        gameCouponIdMap.put(gameId3, Optional.empty());
+
+        HashMap<Long, Long> gameCouponIdMap = new HashMap<>();
+        gameCouponIdMap.put(gameId1, couponId);
 
         accountService.addCoupon(accountId, couponId, 1);
 
         var orderId = orderService.createOrder(accountId, 50000,
             List.of(PaymentMethod.COUPON, PaymentMethod.POINT, PaymentMethod.KAKAOPAY,
-                PaymentMethod.DISCOUNT), gameCouponIdMap);
+                PaymentMethod.DISCOUNT), gameIds, gameCouponIdMap);
         var orderDTO = orderService.get(orderId);
     }
 

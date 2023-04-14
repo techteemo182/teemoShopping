@@ -1,21 +1,22 @@
 package com.teemo.shopping.order.service;
 
-import com.teemo.shopping.order.domain.KakaopayPayment;
-import com.teemo.shopping.order.domain.Order;
-import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.dto.KakaopayRedirectParameter;
-import com.teemo.shopping.order.dto.KakaopayRedirectParameter.KakaopayRedirectType;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
-import com.teemo.shopping.order.dto.PaymentStatusUpdateObserverContext;
-import com.teemo.shopping.order.dto.payment_create_param.KakaopayPaymentCreateParam;
-import com.teemo.shopping.order.repository.KakaopayPaymentRepository;
-import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.external_api.kakao.KakaopayService;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveResponse;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIReadyResponse;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayApproveParameter;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayCancelParameter;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayReadyParameter;
+import com.teemo.shopping.order.domain.KakaopayPayment;
+import com.teemo.shopping.order.domain.Order;
+import com.teemo.shopping.order.domain.Payment;
+import com.teemo.shopping.order.enums.PaymentStatus;
+import com.teemo.shopping.order.repository.KakaopayPaymentRepository;
+import com.teemo.shopping.order.repository.OrderRepository;
+import com.teemo.shopping.order.service.context.PaymentStatusUpdateObserverContext;
+import com.teemo.shopping.order.service.parameter.KakaopayPaymentCreateParameter;
+import com.teemo.shopping.order.service.parameter.KakaopayRedirectParameter;
+import com.teemo.shopping.order.service.parameter.KakaopayRedirectParameter.KakaopayRedirectType;
+import com.teemo.shopping.order.service.parameter.PaymentRefundParameter;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class KakaopayPaymentService extends
-    AllProductPaymentService<KakaopayPaymentCreateParam> {    //전략 패턴
+    PaymentService<KakaopayPaymentCreateParameter> {    //전략 패턴
 
     @Autowired
     private KakaopayPaymentRepository kakaopayPaymentRepository;
@@ -35,14 +36,14 @@ public class KakaopayPaymentService extends
 
     @Override
     @Transactional(rollbackOn = RuntimeException.class)
-    public Optional<Long> create(KakaopayPaymentCreateParam param) {
-        int amount = param.getAmount();
-        Order order = orderRepository.findById(param.getOrderId()).get();
+    public Optional<Payment> create(KakaopayPaymentCreateParameter parameter) {
+        int amount = parameter.getAmount();
+        Order order = parameter.getOrder();
         KakaopayPayment kakaopayPayment = KakaopayPayment.builder().status(PaymentStatus.PENDING)
             .amount(amount).order(order).build();
         kakaopayPayment = kakaopayPaymentRepository.save(kakaopayPayment);
 
-        String itemName = param.getItemName();
+        String itemName = parameter.getItemName();
         KakaopayAPIReadyResponse response;
         try {
             KakaopayReadyParameter request = KakaopayReadyParameter.builder().itemName(itemName)
@@ -56,11 +57,11 @@ public class KakaopayPaymentService extends
             response.getNextRedirectMobileUrl(), response.getNextRedirectPcUrl()
             , response.getAndroidAppScheme(), response.getIosAppScheme());
         kakaopayPayment.updateTid(response.getTid());
-        return Optional.of(kakaopayPayment.getId());
+        return Optional.of(kakaopayPayment);
     }
 
     @Override
-    void refund(PaymentRefundParameter parameter) {
+    public void refund(PaymentRefundParameter parameter) {
         KakaopayPayment payment = kakaopayPaymentRepository.findById(parameter.getPaymentId())
             .get();
         if (!(payment.getStatus() == PaymentStatus.PARTIAL_REFUNDED
@@ -121,7 +122,7 @@ public class KakaopayPaymentService extends
     }
 
     @Override
-    public Class<KakaopayPayment> getTargetPaymentClass() {
+    public Class<KakaopayPayment> getPaymentClass() {
         return KakaopayPayment.class;
     }
 

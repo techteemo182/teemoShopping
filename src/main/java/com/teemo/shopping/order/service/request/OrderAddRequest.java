@@ -1,4 +1,4 @@
-package com.teemo.shopping.order.dto;
+package com.teemo.shopping.order.service.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;

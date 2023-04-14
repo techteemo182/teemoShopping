@@ -1,4 +1,4 @@
-package com.teemo.shopping.order.dto;
+package com.teemo.shopping.order.dto.payment;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -8,27 +8,11 @@ import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.enums.PaymentStatus;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-@Getter
-@SuperBuilder
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaoPaymentDTO extends PaymentDTO {
-
-    public static KakaoPaymentDTO from(KakaoPaymentDTO payment) {
-        return KakaoPaymentDTO.builder()
-            .id(payment.getId())
-            .amount(payment.getAmount())
-            .refundableAmount(payment.getRefundableAmount())
-            .refundedAmount(payment.getRefundedAmount())
-            .method(payment.getMethod())
-            .status(payment.getStatus())
-            .build();
-    }
-}
 
 @Getter
 @SuperBuilder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-class PaymentDTO {
+public class PaymentDTO {
     @JsonCreator
     protected PaymentDTO(Long id, int amount, int refundableAmount, int refundedAmount, PaymentMethod method,
         PaymentStatus status, Long orderId) {

@@ -1,6 +1,6 @@
 package com.teemo.shopping.order.domain.observer;
 
-import com.teemo.shopping.order.dto.PaymentStatusUpdateObserverContext;
+import com.teemo.shopping.order.service.context.PaymentStatusUpdateObserverContext;
 import com.teemo.shopping.order.service.OrderService;
 import com.teemo.shopping.core.observer.Observer;
 import com.teemo.shopping.core.observer.Subject;

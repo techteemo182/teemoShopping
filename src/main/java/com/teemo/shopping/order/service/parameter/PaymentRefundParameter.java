@@ -1,4 +1,4 @@
-package com.teemo.shopping.order.dto;
+package com.teemo.shopping.order.service.parameter;
 
 import lombok.Builder;
 import lombok.Getter;

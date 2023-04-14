@@ -1,46 +1,36 @@
 package com.teemo.shopping.order.service;
 
+import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.order.domain.DiscountPayment;
 import com.teemo.shopping.order.domain.Order;
+import com.teemo.shopping.order.domain.Payment;
 import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.dto.PaymentRefundParameter;
-import com.teemo.shopping.order.dto.payment_create_param.DiscountPaymentCreateParam;
-import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.order.repository.PaymentRepository;
-import com.teemo.shopping.account.repository.AccountRepository;
-import com.teemo.shopping.game.domain.Game;
-import com.teemo.shopping.game.repository.GameRepository;
+import com.teemo.shopping.order.service.parameter.DiscountPaymentCreateParameter;
+import com.teemo.shopping.order.service.parameter.PaymentRefundParameter;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DiscountPaymentService extends GameProductPaymentService<DiscountPaymentCreateParam> {    //전략 패턴
+public class DiscountPaymentService extends PaymentService<DiscountPaymentCreateParameter> {    //전략 패턴
 
 
     @Autowired
     private PaymentRepository<DiscountPayment> discountPaymentRepository;
 
-    @Autowired
-    private GameRepository gameRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-    @Autowired
-    private AccountRepository accountRepository;
-
     @Override
-    public Optional<Long> create(DiscountPaymentCreateParam param) {
-        Game game = gameRepository.findById(param.getGameId()).get();
-        Order order = orderRepository.findById(param.getOrderId()).get();
+    public Optional<Payment> create(DiscountPaymentCreateParameter parameter) {
+        Game game = parameter.getGame();
+        Order order = parameter.getOrder();
         double discountPercent = game.getDiscountPercent();
         double discountDecimalPercent = discountPercent / 100d;
-        int amount = param.getAmount();
+        int amount = parameter.getAmount();
         int discountAmount = (int) (amount * discountDecimalPercent);
         DiscountPayment discountPayment = DiscountPayment.builder().game(game).order(order)
             .amount(discountAmount).status(PaymentStatus.SUCCESS).build();
-        discountPaymentRepository.save(discountPayment);
-        return Optional.of(discountPayment.getId());
+        discountPayment = discountPaymentRepository.save(discountPayment);
+        return Optional.of(discountPayment);
     }
 
     @Override
@@ -55,7 +45,7 @@ public class DiscountPaymentService extends GameProductPaymentService<DiscountPa
     }
 
     @Override
-    public Class<DiscountPayment> getTargetPaymentClass() {
+    public Class<DiscountPayment> getPaymentClass() {
         return DiscountPayment.class;
     }
 }
