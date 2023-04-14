@@ -5,7 +5,10 @@ import com.teemo.shopping.game.service.GameService;
 import com.teemo.shopping.security.PermissionChecker;
 import com.teemo.shopping.security.enums.Role;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,8 +27,10 @@ public class GameController {
     @Autowired
     private PermissionChecker permissionChecker;
     @GetMapping(path = "/{gameId}")
-    public GameDTO get(@PathVariable("gameId") Long gameId) throws Exception {
-        return gameService.get(gameId);
+    public ResponseEntity<GameDTO> get(@PathVariable("gameId") Long gameId) throws Exception {
+        return ResponseEntity.ok()
+            .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
+            .body(gameService.get(gameId));
     }
     @PostMapping(path = "/")
     public Long add(@RequestBody GameDTO gameDTO) throws Exception {

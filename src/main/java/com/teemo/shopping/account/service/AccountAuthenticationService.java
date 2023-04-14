@@ -59,7 +59,7 @@ public class AccountAuthenticationService {
         try {
             token = JWT.create()
                 .withIssuer("teemo_shopping")
-                .withExpiresAt(new Date().toInstant().plusSeconds(3600))    // 1시간
+                .withExpiresAt(new Date().toInstant().plusSeconds(36000))    // 10시간
                 .withPayload(Map.of("account_id", account.getId(), "role", role))
                 .sign(jwtAlgorithm);
         } catch (Exception e) {

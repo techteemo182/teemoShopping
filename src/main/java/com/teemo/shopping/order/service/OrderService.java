@@ -9,11 +9,11 @@ import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.domain.OrdersGames;
 import com.teemo.shopping.order.domain.Payment;
 import com.teemo.shopping.order.domain.PointPayment;
+import com.teemo.shopping.order.dto.payment_create_param.PaymentCreateParamFactory;
 import com.teemo.shopping.order.enums.OrderStatus;
 import com.teemo.shopping.order.enums.OrdersGamesStatus;
 import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.dto.CreateOrderReturn;
 import com.teemo.shopping.order.dto.OrderCreateContext;
 import com.teemo.shopping.order.dto.OrderDTO;
 import com.teemo.shopping.order.dto.PaymentRefundParameter;
@@ -88,37 +88,36 @@ public class OrderService {
      */
     //Todo: account 가 game을 이미 가지고있으면 Exception 추가
     @Transactional
-    public Long createOrder(Long accountId, int point, List<PaymentMethod> methods, Map<Long, Optional<Long>> gameCouponIdMap) {
-        var createOrderReturnBuilder = CreateOrderReturn.builder();
+    public Long createOrder(Long accountId, int point, List<PaymentMethod> methods, List<Long> gameIds,  Map<Long, Long> gameCouponIdMap) {
         Account account = accountRepository.findById(accountId).get();
-        List<Long> gameIds = new ArrayList<>();
         List<Long> couponIds = new ArrayList<>();
         for(var gameCouponEntry : gameCouponIdMap.entrySet()) {
-            gameIds.add(gameCouponEntry.getKey());
-            if(gameCouponEntry.getValue().isPresent()) {
-                couponIds.add(gameCouponEntry.getValue().get());
-            }
+            couponIds.add(gameCouponEntry.getValue());
         }
         List<Game> games = gameRepository.findAllById(gameIds);
         List<Coupon> coupons = couponRepository.findAllById(couponIds);
 
+        if(games.size() != gameIds.size()) {
+            throw new NoSuchElementException("존재 하지 않는 게임임.");
+        }
+        if(coupons.size() != couponIds.size()) {
+            throw new NoSuchElementException("존재 하지 않는 쿠폰임.");
+        }
+        
         Map<Long, Game> idGameMap = new HashMap<>();
         Map<Long, Coupon> idCouponMap = new HashMap<>();
         games.forEach((game) -> idGameMap.put(game.getId(), game));
         coupons.forEach((coupon) -> idCouponMap.put(coupon.getId(), coupon));
 
         Map<Game, Optional<Coupon>> gameCouponMap = new HashMap<>();
-        for(var gameCouponIdEntry : gameCouponIdMap.entrySet()) {
-            Long gameId = gameCouponIdEntry.getKey();
+        for(var gameId : gameIds) {
             Game game = idGameMap.get(gameId);
-            Optional<Long> couponId = gameCouponIdEntry.getValue();
-            Optional<Coupon> coupon = couponId.isEmpty() ? Optional.empty() : Optional.of(idCouponMap.get(couponId.get()));
+            Optional<Coupon> coupon = gameCouponIdMap.containsKey(game) ? Optional.of(idCouponMap.get(gameCouponIdMap.get(game))) : Optional.empty();
             gameCouponMap.put(game,coupon);
         }
 
         int totalPrice = games.stream().mapToInt(game -> game.getPrice())
             .reduce(0, (accPrice, v) -> accPrice + v);
-        createOrderReturnBuilder.totalPrice(totalPrice);
 
         Order order = Order.builder().account(account).totalPrice(totalPrice)
             .status(OrderStatus.PENDING).build();
@@ -134,7 +133,7 @@ public class OrderService {
                     break;
                 }
                 OrderCreateContext orderCreateContext = OrderCreateContext.builder()  // Context 생성
-                    .game(game).coupon(coupon == null ? Optional.empty() : coupon).account(account)
+                    .game(game).coupon(coupon).account(account)
                     .amount(gameRemainPrice).order(order).build();
                 Optional<Long> optionalPaymentId;
                 try {
@@ -417,54 +416,9 @@ public class OrderService {
             remainRefundPrice -= nowRefundablePrice;
         }
     }
+    @Transactional(readOnly = true)
+    List<Long> getPendingPayments(Long orderId) {
 
-    protected class PaymentCreateParamFactory {
-        public Optional<PaymentCreateParam> create(Class paymentClass,
-            OrderCreateContext orderCreateContext) {
-            if (paymentClass.equals(CouponPayment.class)) {
-                Coupon coupon = orderCreateContext.getCoupon().orElse(null);
-
-                return Optional.of(
-                    CouponPaymentCreateParam
-                        .builder()
-                        .couponId(coupon == null ? null : coupon.getId())
-                        .gameId(orderCreateContext.getGame().getId())
-                        .amount(orderCreateContext.getAmount())
-                        .orderId(orderCreateContext.getOrder().getId())
-                        .accountId(orderCreateContext.getAccount().getId())
-                        .build()
-                );
-            } else if(paymentClass.equals(DiscountPayment.class)) {
-                return Optional.of(
-                    DiscountPaymentCreateParam
-                        .builder()
-                        .gameId(orderCreateContext.getGame().getId())
-                        .amount(orderCreateContext.getAmount())
-                        .orderId(orderCreateContext.getOrder().getId())
-                        .build()
-                );
-            } else if(paymentClass.equals(KakaopayPayment.class)) {
-                return Optional.of(
-                    KakaopayPaymentCreateParam
-                        .builder()
-                        .amount(orderCreateContext.getAmount())
-                        .orderId(orderCreateContext.getOrder().getId())
-                        .itemName(orderCreateContext.getItemName())
-                        .build()
-                );
-            } else if(paymentClass.equals(PointPayment.class)) {
-                return Optional.of(
-                    PointPaymentCreateParam
-                        .builder()
-                        .amount(orderCreateContext.getAmount())
-                        .availablePoint(orderCreateContext.getPoint())
-                        .orderId(orderCreateContext.getOrder().getId())
-                        .accountId(orderCreateContext.getAccount().getId())
-                        .build()
-                );
-            }
-            return Optional.empty();
-        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.teemo.shopping.coupon.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.CouponIssuePolicy;
 import java.time.LocalDateTime;
@@ -8,8 +9,20 @@ import lombok.Getter;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
-@Builder
 public class CouponIssuePolicyDTO {
+    @JsonCreator
+    @Builder
+    protected CouponIssuePolicyDTO(Long id, Long couponId, Integer amount, boolean isNewAccount,
+        boolean isFirstCome, Integer remainAmount, LocalDateTime startAt, LocalDateTime endAt) {
+        this.id = id;
+        this.couponId = couponId;
+        this.amount = amount;
+        this.isNewAccount = isNewAccount;
+        this.isFirstCome = isFirstCome;
+        this.remainAmount = remainAmount;
+        this.startAt = startAt;
+        this.endAt = endAt;
+    }
 
     private final Long id;
     private final Long couponId;

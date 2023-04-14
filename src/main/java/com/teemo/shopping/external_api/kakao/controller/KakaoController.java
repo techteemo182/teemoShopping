@@ -107,7 +107,8 @@ public class KakaoController {
             .build();
         accountRepository.save(account);
 
-        Map<@Valid Long, @Valid Optional<Long>> gameCouponIdMap = new HashMap<>();
+        Map<Long, Long> gameCouponIdMap = new HashMap<>();
+        List<Long> gameIds = new ArrayList<>();
         Game game1 = Game.builder()
             .price(3000)
             .name("ZAO")
@@ -137,8 +138,9 @@ public class KakaoController {
             .coupon(coupon)
             .amount(1)
             .build());
-        gameCouponIdMap.put(game1.getId(), Optional.empty());
-        gameCouponIdMap.put(game2.getId(), Optional.of(coupon.getId()));
+        gameIds.add(game1.getId());
+        gameIds.add(game2.getId());
+        gameCouponIdMap.put(game2.getId(), coupon.getId());
 
         List<PaymentMethod> methods = new ArrayList<>();
         methods.add(PaymentMethod.COUPON);
@@ -149,6 +151,7 @@ public class KakaoController {
         var result = orderService.createOrder(account.getId(),
             point,
             methods,
+            gameIds,
             gameCouponIdMap);
         Order order = orderRepository.findById(result).get();
         KakaopayPayment kakaopayPayment = kakaopayPaymentRepository.findByOrder(order).get();

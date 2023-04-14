@@ -1,5 +1,6 @@
 package com.teemo.shopping.account.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -13,19 +14,21 @@ import lombok.Getter;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AccountDTO {
-    @Column
-    @NotNull
+    @JsonCreator
+    @Builder
+    protected AccountDTO(Long id, String username, String password, boolean isAdmin, int point) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.isAdmin = isAdmin;
+        this.point = point;
+    }
+
+
     private Long id;
-
-    @Column
-    @NotNull
     private String username;
-
-    @Column
     private String password;
-    @Column
     private boolean isAdmin;
-    @Column
     private int point;
 
     public static AccountDTO from(Account account) {

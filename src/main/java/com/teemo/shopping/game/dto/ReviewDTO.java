@@ -1,4 +1,5 @@
 package com.teemo.shopping.game.dto;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.teemo.shopping.game.domain.Review;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
@@ -8,19 +9,20 @@ import lombok.Getter;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
-@Builder
 public class ReviewDTO {
-    @Column
+    @JsonCreator
+    @Builder
+    protected ReviewDTO(String content, double rating, Long accountId, Long gameId) {
+        this.content = content;
+        this.rating = rating;
+        this.accountId = accountId;
+        this.gameId = gameId;
+    }
+
     private final String content;
-    @Column
     @Range(min = 0, max = 5)
     private final double rating;
-    @ManyToOne
-    @NotNull
     private final Long accountId;
-
-    @ManyToOne
-    @NotNull
     private final Long gameId;
 
     public static ReviewDTO from(Review review) {

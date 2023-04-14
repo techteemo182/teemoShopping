@@ -1,12 +1,19 @@
 package com.teemo.shopping.game.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.teemo.shopping.game.domain.GameCategory;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class GameCategoryDTO {
+    @JsonCreator
+    @Builder
+    protected GameCategoryDTO(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     private final Long id;
     private final String name;
 
