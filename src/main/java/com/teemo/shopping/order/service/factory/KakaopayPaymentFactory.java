@@ -20,6 +20,7 @@ public class KakaopayPaymentFactory implements PaymentFactory {
         return kakaopayPaymentService.create(
             KakaopayPaymentCreateParameter.builder().account(context.getAccount())
                 .order(context.getOrder()).amount(context.getAmount())
+                .redirect(context.getRedirect())
                 .itemName(context.getItemName()).build());
     }
 

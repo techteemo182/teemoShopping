@@ -19,10 +19,10 @@ import lombok.NoArgsConstructor;
 @Table(
     name = "couponsIssuePolicies"
 )
-public class CouponIssuePolicy extends BaseEntity {
+public class CouponIssuer extends BaseEntity {
 
     @Builder
-    public CouponIssuePolicy(Coupon coupon, Integer amount, boolean isNewAccount,
+    public CouponIssuer(Coupon coupon, Integer amount, boolean isNewAccount,
         boolean isFirstCome,
         Integer remainAmount, LocalDateTime startAt, LocalDateTime endAt) {
         this.coupon = coupon;

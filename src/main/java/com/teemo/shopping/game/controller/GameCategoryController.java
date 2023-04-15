@@ -1,6 +1,7 @@
 package com.teemo.shopping.game.controller;
 
 import com.teemo.shopping.game.dto.GameCategoryDTO;
+import com.teemo.shopping.game.dto.GameDTO;
 import com.teemo.shopping.game.service.GameCategoryService;
 import com.teemo.shopping.security.PermissionChecker;
 import com.teemo.shopping.security.enums.Role;
@@ -26,7 +27,7 @@ public class GameCategoryController {
     public GameCategoryDTO get(@PathVariable("gameCategoryId") Long gameCategoryId) throws Exception {
         return gameCategoryService.get(gameCategoryId);
     }
-    @PostMapping(path = "/")
+    @PostMapping(path = "")
     public Long add(GameCategoryDTO gameCategoryDTO) throws Exception {
         if(!permissionChecker.checkAdmin()) {
             throw new SecurityException("접근 권한 없음");
@@ -34,14 +35,19 @@ public class GameCategoryController {
         return gameCategoryService.add(gameCategoryDTO);
     }
     @DeleteMapping(path = "/{gameCategoryId}")
-    public void remove(@PathVariable("gameCategoryId") Long gameId) throws Exception {
+    public void remove(@PathVariable("gameCategoryId") Long gameCategoryId) throws Exception {
         if(!permissionChecker.checkAdmin()) {
             throw new SecurityException("접근 권한 없음");
         }
-        gameCategoryService.remove(gameId);
+        gameCategoryService.remove(gameCategoryId);
     }
     @GetMapping(path = "/")
     public List<GameCategoryDTO> list() {
         return gameCategoryService.list();
+    }
+
+    @GetMapping(path = "/{gameCategoryId}/games/")
+    public List<GameDTO> gameList(@PathVariable("gameCategoryId") Long gameCategoryId) {
+        return gameCategoryService.gameList(gameCategoryId);
     }
 }

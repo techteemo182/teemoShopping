@@ -1,16 +1,14 @@
 package com.teemo.shopping.game.controller;
 
 import com.teemo.shopping.game.dto.GameDTO;
+import com.teemo.shopping.review.dto.ReviewDTO;
 import com.teemo.shopping.game.service.GameService;
 import com.teemo.shopping.security.PermissionChecker;
-import com.teemo.shopping.security.enums.Role;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +30,7 @@ public class GameController {
             .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
             .body(gameService.get(gameId));
     }
-    @PostMapping(path = "/")
+    @PostMapping(path = "")
     public Long add(@RequestBody GameDTO gameDTO) throws Exception {
         if(!permissionChecker.checkAdmin()) {
             throw new SecurityException("접근 권한 없음");
@@ -49,5 +47,9 @@ public class GameController {
     @GetMapping(path = "/")
     public List<GameDTO> list() {
         return gameService.list();
+    }
+    @GetMapping(path = "/{gameId}/reviews/")
+    public List<ReviewDTO> getReviews(@PathVariable("gameId") Long gameId) throws Exception {
+        return gameService.list(gameId);
     }
 }

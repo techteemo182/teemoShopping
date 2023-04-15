@@ -19,16 +19,16 @@ import lombok.NoArgsConstructor;
 @Table(
     name = "CouponIssuePoliciesAccounts"
 )
-public class CouponIssuePoliciesAccounts extends BaseEntity {
+public class CouponIssuerAccounts extends BaseEntity {
 
     @Builder
-    public CouponIssuePoliciesAccounts(CouponIssuePolicy couponIssuePolicy, Account account) {
-        this.couponIssuePolicy = couponIssuePolicy;
+    public CouponIssuerAccounts(CouponIssuer couponIssuer, Account account) {
+        this.couponIssuer = couponIssuer;
         this.account = account;
     }
 
     @ManyToOne
-    private CouponIssuePolicy couponIssuePolicy;
+    private CouponIssuer couponIssuer;
     @ManyToOne
     private Account account;
 }

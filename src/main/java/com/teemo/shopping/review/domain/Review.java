@@ -1,7 +1,8 @@
-package com.teemo.shopping.game.domain;
+package com.teemo.shopping.review.domain;
 
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.core.entity.BaseEntity;
+import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.teemo.shopping.order.service.request;
+package com.teemo.shopping.account.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -11,18 +11,22 @@ import lombok.Getter;
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class OrderAddRequest {
+
     @JsonCreator
-    protected OrderAddRequest(Integer point, List<PaymentMethod> methods, List<Long> gameIds,
-        Map<Long, Long> gameCouponIdMap) {
+    public OrderAddRequest(Integer point, List<PaymentMethod> methods, List<Long> gameIds,
+        Map<Long, Long> gameCouponIdMap, String redirect) {
         this.point = point;
         this.methods = methods;
         this.gameIds = gameIds;
         this.gameCouponIdMap = gameCouponIdMap;
+        this.redirect = redirect;
     }
 
     private final Integer point;
     private final List<PaymentMethod> methods;
     private final List<Long> gameIds;
     private final Map<Long, Long> gameCouponIdMap;
+    // redirect 연동된 order 일 경우 모든 order가 끝나고 redirect 할 위치
+    private final String redirect;
 }
 

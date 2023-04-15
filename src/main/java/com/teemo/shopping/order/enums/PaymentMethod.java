@@ -32,4 +32,5 @@ public enum PaymentMethod {
         public static final String POINT = "POINT";
         public static final String DISCOUNT = "DISCOUNT";
     }
+
 }

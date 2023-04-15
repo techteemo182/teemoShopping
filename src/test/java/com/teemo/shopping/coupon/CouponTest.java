@@ -5,27 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.teemo.shopping.Main;
-import com.teemo.shopping.account.domain.Account;
-import com.teemo.shopping.account.repository.AccountsCouponsRepository;
 import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.coupon.domain.Coupon;
-import com.teemo.shopping.coupon.domain.CouponIssuePolicy;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.dto.CouponIssuePolicyDTO;
-import com.teemo.shopping.coupon.repository.CouponIssuePolicyRepository;
-import com.teemo.shopping.coupon.service.CouponIssuePolicyService;
+import com.teemo.shopping.coupon.service.CouponIssuerService;
 import com.teemo.shopping.coupon.service.CouponService;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import jakarta.validation.constraints.AssertTrue;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @SpringBootTest(classes = Main.class)
 public class CouponTest {
@@ -78,7 +72,7 @@ public class CouponTest {
     @Autowired
     private CouponService couponService;
     @Autowired
-    private CouponIssuePolicyService couponIssuePolicyService;
+    private CouponIssuerService couponIssuerService;
     @Autowired
     private AccountAuthenticationService accountAuthenticationService;
     @Autowired
@@ -93,7 +87,7 @@ public class CouponTest {
                 .minFulfillPrice(10000)
                 .amount(3000)
                 .build());
-        Long couponIssuePolicyId = couponIssuePolicyService.add(CouponIssuePolicyDTO.builder()
+        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuePolicyDTO.builder()
                 .amount(1)
                 .couponId(couponId)
                 .startAt(LocalDateTime.now())
@@ -101,9 +95,9 @@ public class CouponTest {
                 .isFirstCome(false)
                 .isNewAccount(false)
             .build());
-        couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId);
+        couponIssuerService.issueCoupon(accountId, couponIssuePolicyId);
         assertTrue(!accountService.getCoupons(accountId).isEmpty());
-        assertThrows(IllegalStateException.class, () -> couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId));
+        assertThrows(IllegalStateException.class, () -> couponIssuerService.issueCoupon(accountId, couponIssuePolicyId));
     }
     @Test
     void couponNewAccountIssue() throws Exception {
@@ -115,7 +109,7 @@ public class CouponTest {
             .minFulfillPrice(10000)
             .amount(3000)
             .build());
-        Long couponIssuePolicyId = couponIssuePolicyService.add(CouponIssuePolicyDTO.builder()
+        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuePolicyDTO.builder()
             .amount(1)
             .couponId(couponId)
             .startAt(LocalDateTime.now())
@@ -123,7 +117,7 @@ public class CouponTest {
             .isFirstCome(false)
             .isNewAccount(true)
             .build());
-        couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId);
+        couponIssuerService.issueCoupon(accountId, couponIssuePolicyId);
         assertTrue(!accountService.getCoupons(accountId).isEmpty());
     }
     @Test
@@ -137,7 +131,7 @@ public class CouponTest {
             .minFulfillPrice(10000)
             .amount(3000)
             .build());
-        Long couponIssuePolicyId = couponIssuePolicyService.add(CouponIssuePolicyDTO.builder()
+        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuePolicyDTO.builder()
             .amount(1)
             .couponId(couponId)
             .startAt(LocalDateTime.now())
@@ -146,8 +140,8 @@ public class CouponTest {
             .remainAmount(1)
             .isNewAccount(false)
             .build());
-        couponIssuePolicyService.issueCoupon(accountId, couponIssuePolicyId);
-        assertThrows(IllegalStateException.class, () -> couponIssuePolicyService.issueCoupon(accountId2, couponIssuePolicyId));
+        couponIssuerService.issueCoupon(accountId, couponIssuePolicyId);
+        assertThrows(IllegalStateException.class, () -> couponIssuerService.issueCoupon(accountId2, couponIssuePolicyId));
         assertTrue(!accountService.getCoupons(accountId).isEmpty());
     }
 }

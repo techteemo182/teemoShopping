@@ -13,7 +13,11 @@ import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.repository.CouponRepository;
 import com.teemo.shopping.game.domain.Game;
+import com.teemo.shopping.review.domain.Review;
+import com.teemo.shopping.game.dto.GameDTO;
+import com.teemo.shopping.review.dto.ReviewDTO;
 import com.teemo.shopping.game.repository.GameRepository;
+import com.teemo.shopping.review.repository.ReviewRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -142,5 +146,28 @@ public class AccountService {
             }
         }
         return couponDTOs;
+    }
+    @Transactional(readOnly = true)
+    public List<GameDTO> getOwnGames(Long accountId) {
+        Account account = accountRepository.findById(accountId).get();
+        List<AccountsOwnGames> accountsOwnGames = accountsOwnGamesRepository.findAllByAccount(account);
+        List<GameDTO> gameDtos = accountsOwnGames.stream().map(accountGamesEntry -> GameDTO.from(accountGamesEntry.getGame())).toList();
+        return gameDtos;
+    }
+    @Transactional(readOnly = true)
+    public List<GameDTO> getFollowGames(Long accountId) {
+        Account account = accountRepository.findById(accountId).get();
+        List<AccountsFollowGames> accountsOwnGames = accountsFollowGamesRepository.findAllByAccount(account);
+        List<GameDTO> gameDtos = accountsOwnGames.stream().map(accountGamesEntry -> GameDTO.from(accountGamesEntry.getGame())).toList();
+        return gameDtos;
+    }
+    @Autowired
+    ReviewRepository reviewRepository;
+    @Transactional(readOnly = true)
+    public List<ReviewDTO> getReviews(Long accountId) {
+        Account account = accountRepository.findById(accountId).get();
+        List<Review> accountsOwnGames = reviewRepository.findAllByAccount(account);
+        List<ReviewDTO> reviewDtos = accountsOwnGames.stream().map(review -> ReviewDTO.from(review)).toList();
+        return reviewDtos;
     }
 }

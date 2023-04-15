@@ -1,9 +1,6 @@
-package com.teemo.shopping.game.dto;
+package com.teemo.shopping.review.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.teemo.shopping.game.domain.Review;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
+import com.teemo.shopping.review.domain.Review;
 import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Range;

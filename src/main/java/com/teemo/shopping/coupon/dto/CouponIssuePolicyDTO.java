@@ -1,8 +1,7 @@
 package com.teemo.shopping.coupon.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.teemo.shopping.coupon.domain.Coupon;
-import com.teemo.shopping.coupon.domain.CouponIssuePolicy;
+import com.teemo.shopping.coupon.domain.CouponIssuer;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,16 +33,16 @@ public class CouponIssuePolicyDTO {
     private final LocalDateTime startAt;  //시작
     private final LocalDateTime endAt;    //끝
 
-    public static CouponIssuePolicyDTO from(CouponIssuePolicy couponIssuePolicy) {
+    public static CouponIssuePolicyDTO from(CouponIssuer couponIssuer) {
         return CouponIssuePolicyDTO.builder()
-            .id(couponIssuePolicy.getId())
-            .couponId(couponIssuePolicy.getCoupon().getId())
-            .amount(couponIssuePolicy.getAmount())
-            .isNewAccount(couponIssuePolicy.isNewAccount())
-            .isFirstCome(couponIssuePolicy.isFirstCome())
-            .remainAmount(couponIssuePolicy.getRemainAmount())
-            .startAt(couponIssuePolicy.getStartAt())
-            .endAt(couponIssuePolicy.getEndAt())
+            .id(couponIssuer.getId())
+            .couponId(couponIssuer.getCoupon().getId())
+            .amount(couponIssuer.getAmount())
+            .isNewAccount(couponIssuer.isNewAccount())
+            .isFirstCome(couponIssuer.isFirstCome())
+            .remainAmount(couponIssuer.getRemainAmount())
+            .startAt(couponIssuer.getStartAt())
+            .endAt(couponIssuer.getEndAt())
             .build();
     }
 }

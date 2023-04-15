@@ -1,6 +1,6 @@
 package com.teemo.shopping.order.service;
 
-import com.teemo.shopping.external_api.kakao.KakaopayService;
+import com.teemo.shopping.external_api.kakao.service.KakaopayService;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveResponse;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIReadyResponse;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayApproveParameter;
@@ -9,25 +9,26 @@ import com.teemo.shopping.external_api.kakao.dto.KakaopayReadyParameter;
 import com.teemo.shopping.order.domain.KakaopayPayment;
 import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.domain.Payment;
+import com.teemo.shopping.order.dto.payment.KakaopayPaymentDTO;
 import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.repository.KakaopayPaymentRepository;
 import com.teemo.shopping.order.repository.OrderRepository;
+import com.teemo.shopping.order.repository.PaymentRepository;
 import com.teemo.shopping.order.service.context.PaymentStatusUpdateObserverContext;
 import com.teemo.shopping.order.service.parameter.KakaopayPaymentCreateParameter;
 import com.teemo.shopping.order.service.parameter.KakaopayRedirectParameter;
 import com.teemo.shopping.order.service.parameter.KakaopayRedirectParameter.KakaopayRedirectType;
 import com.teemo.shopping.order.service.parameter.PaymentRefundParameter;
-import jakarta.transaction.Transactional;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class KakaopayPaymentService extends
     PaymentService<KakaopayPaymentCreateParameter> {    //전략 패턴
 
     @Autowired
-    private KakaopayPaymentRepository kakaopayPaymentRepository;
+    private PaymentRepository<KakaopayPayment> kakaopayPaymentRepository;
     @Autowired
     private KakaopayService kakaopayService;
     @Autowired
@@ -35,7 +36,7 @@ public class KakaopayPaymentService extends
 
 
     @Override
-    @Transactional(rollbackOn = RuntimeException.class)
+    @Transactional
     public Optional<Payment> create(KakaopayPaymentCreateParameter parameter) {
         int amount = parameter.getAmount();
         Order order = parameter.getOrder();
@@ -47,7 +48,7 @@ public class KakaopayPaymentService extends
         KakaopayAPIReadyResponse response;
         try {
             KakaopayReadyParameter request = KakaopayReadyParameter.builder().itemName(itemName)
-                .partnerOrderId(kakaopayPayment.getId().toString()).amount(amount).build();
+                .partnerOrderId(kakaopayPayment.getId().toString()).amount(amount).redirect(parameter.getRedirect()).build();
             response = kakaopayService.readyKakaopay(request)   // throws RuntimeException
                 .block();
         } catch (Exception e) {
@@ -83,7 +84,7 @@ public class KakaopayPaymentService extends
                 : PaymentStatus.PARTIAL_REFUNDED);
     }
 
-    @Transactional(rollbackOn = RuntimeException.class)
+    @Transactional
     public Optional<KakaopayAPIApproveResponse> onKakaopayRedirectResponse(
         KakaopayRedirectParameter parameter)
         throws RuntimeException {
@@ -94,7 +95,7 @@ public class KakaopayPaymentService extends
         KakaopayPayment kakaopayPayment;
         try {
             kakaopayPayment = kakaopayPaymentRepository.findById(Long.parseLong(partnerOrderId))
-                .get();  // throw NoSuchElementException
+                .get();
         } catch (Exception e) {
             throw new RuntimeException("잘못된 접근");
         }
@@ -121,10 +122,12 @@ public class KakaopayPaymentService extends
         return response;
     }
 
+    public KakaopayPaymentDTO get(Long paymentId) {
+        KakaopayPayment kakaopayPayment = kakaopayPaymentRepository.findById(paymentId).get();
+        return KakaopayPaymentDTO.from(kakaopayPayment);
+    }
     @Override
     public Class<KakaopayPayment> getPaymentClass() {
         return KakaopayPayment.class;
     }
-
 }
-

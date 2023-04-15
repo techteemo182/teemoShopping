@@ -1,15 +1,13 @@
 package com.teemo.shopping.coupon.controller;
 
-import com.teemo.shopping.coupon.domain.CouponIssuePolicy;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.service.CouponService;
+import com.teemo.shopping.game.dto.GameCategoryDTO;
+import com.teemo.shopping.game.dto.GameDTO;
 import com.teemo.shopping.security.PermissionChecker;
 import com.teemo.shopping.security.PermissionUtil;
-import com.teemo.shopping.security.enums.Role;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +30,7 @@ public class CouponController {
     public CouponDTO get(@PathVariable("couponId") Long couponId) throws Exception {
         return couponService.get(couponId);
     }
-    @PostMapping(path = "/")
+    @PostMapping(path = "")
     public Long add(CouponDTO couponDTO) throws Exception {
         if(!permissionChecker.checkAdmin()) {
             throw new SecurityException("접근 권한 없음");
@@ -51,18 +49,41 @@ public class CouponController {
         return couponService.list();
     }
 
-    @PostMapping(path = "/{couponId}/game/{gameId}")
+    @PostMapping(path = "/{couponId}/games/{gameId}")
     public Long addGame(@PathVariable("couponId") Long couponId, @PathVariable("gameId") Long gameId) throws Exception {
         if(!permissionChecker.checkAdmin()) {
             throw new SecurityException("접근 권한 없음");
         }
         return couponService.addGame(couponId, gameId);
     }
-    @PostMapping(path = "/{couponId}/game_category/{gameCategoryId}")
+    @PostMapping(path = "/{couponId}/game_categories/{gameCategoryId}")
     public Long addGameCategory(@PathVariable("couponId") Long couponId, @PathVariable("gameCategoryId") Long gameCategoryId) throws Exception {
         if(!permissionChecker.checkAdmin()) {
             throw new SecurityException("접근 권한 없음");
         }
         return couponService.addGameCategory(couponId, gameCategoryId);
+    }
+    @GetMapping(path = "/{couponId}/games/")
+    public List<GameDTO> gameList(@PathVariable("couponId") Long couponId) {
+        return couponService.gameList(couponId);
+    }
+
+    @GetMapping(path = "/{couponId}/game-categories/")
+    public List<GameCategoryDTO> gameCategoryList(@PathVariable("couponId") Long couponId) {
+        return couponService.gameCategoryList(couponId);
+    }
+    @DeleteMapping(path = "/{couponId}/games/{gameId}")
+    public void removeGame(@PathVariable("couponId") Long couponId, @PathVariable("gameId") Long gameId) {
+        if(!permissionChecker.checkAdmin()) {
+            throw new SecurityException("접근 권한 없음");
+        }
+        couponService.removeGame(couponId, gameId);
+    }
+    @DeleteMapping(path = "/{couponId}/game-categories/{gameCategoryId}")
+    public void removeGameCategory(@PathVariable("couponId") Long couponId, @PathVariable("gameCategoryId") Long gameCategoryId) {
+        if(!permissionChecker.checkAdmin()) {
+            throw new SecurityException("접근 권한 없음");
+        }
+        couponService.removeGameCategory(couponId, gameCategoryId);
     }
 }

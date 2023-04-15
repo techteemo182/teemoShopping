@@ -1,13 +1,13 @@
-package com.teemo.shopping.game.service;
+package com.teemo.shopping.review.service;
 
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.repository.AccountRepository;
 import com.teemo.shopping.account.repository.AccountsOwnGamesRepository;
 import com.teemo.shopping.game.domain.Game;
-import com.teemo.shopping.game.domain.Review;
-import com.teemo.shopping.game.dto.ReviewDTO;
+import com.teemo.shopping.review.domain.Review;
 import com.teemo.shopping.game.repository.GameRepository;
-import com.teemo.shopping.game.repository.ReviewRepository;
+import com.teemo.shopping.review.dto.ReviewDTO;
+import com.teemo.shopping.review.repository.ReviewRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,7 +68,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public List<ReviewDTO> list(Long gameId) {
         Game game = gameRepository.findById(gameId).get();
-        return reviewRepository.findByGame(game).stream()
+        return reviewRepository.findAllByGame(game).stream()
             .map(review -> ReviewDTO.from(review)).toList();
     }
 }

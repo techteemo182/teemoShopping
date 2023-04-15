@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CouponsGameCategoriesRepository extends JpaRepository<CouponsGameCategories, Long> {
     List<CouponsGameCategories> findAllByCoupon(Coupon coupon);
+    void deleteByCouponAndGameCategory(Coupon coupon, GameCategory gameCategory);
 }

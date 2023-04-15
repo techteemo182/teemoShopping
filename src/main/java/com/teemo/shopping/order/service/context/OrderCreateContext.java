@@ -23,6 +23,7 @@ public class OrderCreateContext {
     private final Integer point;
     private final Integer amount;
     private final String itemName;
+    private final String redirect;
 
 }
 

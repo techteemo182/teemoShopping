@@ -1,4 +1,4 @@
-package com.teemo.shopping.external_api.kakao;
+package com.teemo.shopping.external_api.kakao.service;
 
 import com.teemo.shopping.core.layer.ServiceLayer;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveRequest;
@@ -30,6 +30,7 @@ public class KakaopayService implements ServiceLayer {
         KakaopayReadyParameter kakaopayReadyParameter) { // Parameter DTO로 변경
         String partnerOrderId = kakaopayReadyParameter.getPartnerOrderId();
 
+        String additionalRedirectInfo = "partner_order_id=" + partnerOrderId + "&partner_user_id=" + partnerUserId + "&redirect=" + kakaopayReadyParameter.getRedirect();
         KakaopayAPIReadyRequest request = KakaopayAPIReadyRequest.builder()
             .cid(cid)
             .partnerOrderId(partnerOrderId)
@@ -38,9 +39,9 @@ public class KakaopayService implements ServiceLayer {
             .quantity(1)
             .totalAmount(kakaopayReadyParameter.getAmount())
             .taxFreeAmount(0)
-            .approvalUrl("http://teemohouse.techteemo.store:8080/kakao/success?partner_order_id=" + partnerOrderId + "&partner_user_id=" + partnerUserId)       // URL SSL 암호화 못믿으면 JWT 토큰 사용
-            .cancelUrl("http://teemohouse.techteemo.store:8080/kakao/cancle?partner_order_id=" + partnerOrderId + "&partner_user_id=" + partnerUserId)
-            .failUrl("http://teemohouse.techteemo.store:8080/kakao/fail?partner_order_id=" + partnerOrderId + "&partner_user_id=" + partnerUserId)
+            .approvalUrl("http://teemohouse.techteemo.store:8080/kakao/success?partner_order_id="+additionalRedirectInfo)       // URL SSL 암호화 못믿으면 JWT 토큰 사용
+            .cancelUrl("http://teemohouse.techteemo.store:8080/kakao/cancle?partner_order_id="+additionalRedirectInfo)
+            .failUrl("http://teemohouse.techteemo.store:8080/kakao/fail?partner_order_id="+additionalRedirectInfo)
             .build();
         return WebClient.create(
                 "https://kapi.kakao.com/v1/payment/ready")

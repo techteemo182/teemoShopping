@@ -3,7 +3,10 @@ package com.teemo.shopping.game.service;
 import com.teemo.shopping.core.layer.ServiceLayer;
 import com.teemo.shopping.game.domain.GameCategory;
 import com.teemo.shopping.game.dto.GameCategoryDTO;
+import com.teemo.shopping.game.dto.GameDTO;
+import com.teemo.shopping.game.repository.GameCategoriesGamesRepository;
 import com.teemo.shopping.game.repository.GameCategoryRepository;
+import com.teemo.shopping.game.repository.GameRepository;
 import com.teemo.shopping.security.enums.Role;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,7 +21,10 @@ public class GameCategoryService implements ServiceLayer {
 
     @Autowired
     GameCategoryRepository gameCategoryRepository;
-
+    @Autowired
+    GameCategoriesGamesRepository gameCategoriesGamesRepository;
+    @Autowired
+    GameRepository gameRepository;
     @Transactional
     public Long add(GameCategoryDTO gameCategoryDTO) throws
         IllegalArgumentException {
@@ -48,6 +54,13 @@ public class GameCategoryService implements ServiceLayer {
     public List<GameCategoryDTO> list() {
         return gameCategoryRepository.findAll().stream()
             .map(gameCategory -> GameCategoryDTO.from(gameCategory)).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<GameDTO> gameList(Long gameCategoryId) {
+        GameCategory gameCategory = gameCategoryRepository.findById(gameCategoryId).get();
+        return gameCategoriesGamesRepository.findAllByGameCategory(gameCategory)
+            .stream().map(gameCategoriesGamesEntry -> GameDTO.from(gameCategoriesGamesEntry.getGame())).toList();
     }
 }
 

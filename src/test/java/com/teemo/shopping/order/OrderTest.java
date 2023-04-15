@@ -7,7 +7,6 @@ import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.service.CouponService;
-import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.dto.GameDTO;
 import com.teemo.shopping.game.service.GameService;
 import com.teemo.shopping.order.enums.PaymentMethod;
@@ -20,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -81,9 +79,9 @@ public class OrderTest {
 
         accountService.addCoupon(accountId, couponId, 1);
 
-        var orderId = orderService.createOrder(accountId, 50000,
+        var orderId = orderService.addOrder(accountId, 50000,
             List.of(PaymentMethod.COUPON, PaymentMethod.POINT, PaymentMethod.KAKAOPAY,
-                PaymentMethod.DISCOUNT), gameIds, gameCouponIdMap);
+                PaymentMethod.DISCOUNT), gameIds, gameCouponIdMap, "naver.com");
         var orderDTO = orderService.get(orderId);
     }
 

@@ -8,6 +8,7 @@ public class KakaoRedirectParameter {
     private final String pg_token;
     private final String partner_order_id;
     private final String partner_user_id;
+    private final String redirect;
 
     public String getPgToken() {
         return pg_token;
@@ -20,5 +21,7 @@ public class KakaoRedirectParameter {
     public String getPartnerUserId() {
         return partner_user_id;
     }
-
+    public String getRedirect() {
+        return redirect;
+    }
 }

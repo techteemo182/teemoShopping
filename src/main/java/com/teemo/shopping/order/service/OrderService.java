@@ -1,26 +1,6 @@
 package com.teemo.shopping.order.service;
 
-import com.teemo.shopping.order.domain.AllProductPayment;
-import com.teemo.shopping.order.domain.GameProductPayment;
-import com.teemo.shopping.order.domain.Order;
-import com.teemo.shopping.order.domain.OrdersGames;
-import com.teemo.shopping.order.domain.Payment;
-import com.teemo.shopping.order.domain.PointPayment;
-import com.teemo.shopping.order.enums.OrderStatus;
-import com.teemo.shopping.order.enums.OrdersGamesStatus;
-import com.teemo.shopping.order.enums.PaymentMethod;
-import com.teemo.shopping.order.enums.PaymentStatus;
-import com.teemo.shopping.order.service.context.OrderCreateContext;
-import com.teemo.shopping.order.dto.OrderDTO;
-import com.teemo.shopping.order.service.factory.CouponPaymentFactory;
-import com.teemo.shopping.order.service.factory.DiscountPaymentFactory;
-import com.teemo.shopping.order.service.factory.KakaopayPaymentFactory;
-import com.teemo.shopping.order.service.factory.PaymentFactory;
-import com.teemo.shopping.order.service.factory.PointPaymentFactory;
-import com.teemo.shopping.order.service.parameter.PaymentRefundParameter;
-import com.teemo.shopping.order.repository.OrderRepository;
-import com.teemo.shopping.order.repository.OrdersGamesRepository;
-import com.teemo.shopping.order.repository.PaymentRepository;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.domain.AccountsOwnGames;
 import com.teemo.shopping.account.repository.AccountRepository;
@@ -29,6 +9,28 @@ import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.repository.CouponRepository;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.repository.GameRepository;
+import com.teemo.shopping.order.domain.AllProductPayment;
+import com.teemo.shopping.order.domain.GameProductPayment;
+import com.teemo.shopping.order.domain.Order;
+import com.teemo.shopping.order.domain.OrdersGames;
+import com.teemo.shopping.order.domain.Payment;
+import com.teemo.shopping.order.domain.PointPayment;
+import com.teemo.shopping.order.dto.OrderDTO;
+import com.teemo.shopping.order.dto.payment.PaymentDTO;
+import com.teemo.shopping.order.enums.OrderStatus;
+import com.teemo.shopping.order.enums.OrdersGamesStatus;
+import com.teemo.shopping.order.enums.PaymentMethod;
+import com.teemo.shopping.order.enums.PaymentStatus;
+import com.teemo.shopping.order.repository.OrderRepository;
+import com.teemo.shopping.order.repository.OrdersGamesRepository;
+import com.teemo.shopping.order.repository.PaymentRepository;
+import com.teemo.shopping.order.service.context.OrderCreateContext;
+import com.teemo.shopping.order.service.factory.CouponPaymentFactory;
+import com.teemo.shopping.order.service.factory.DiscountPaymentFactory;
+import com.teemo.shopping.order.service.factory.KakaopayPaymentFactory;
+import com.teemo.shopping.order.service.factory.PaymentFactory;
+import com.teemo.shopping.order.service.factory.PointPaymentFactory;
+import com.teemo.shopping.order.service.parameter.PaymentRefundParameter;
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.jaxb.SpringDataJaxb.OrderDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,24 +62,23 @@ public class OrderService {
     @Autowired
     private AccountsOwnGamesRepository accountsOwnGamesRepository;
     @Autowired
-    private PaymentRepository paymentRepository;
+    private PaymentRepository<Payment> paymentRepository;
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
     private CouponRepository couponRepository;
-    @Autowired
-    private List<PaymentFactory> paymentFactories;
+
     @Autowired
     OrderService(DiscountPaymentFactory discountPaymentFactory,
         CouponPaymentFactory couponPaymentFactory, PointPaymentFactory pointPaymentFactory,
         KakaopayPaymentFactory kakaopayPaymentFactory) {
-
         // 이 순서대로 결제 실행
         gameProductPaymentFactories.add(discountPaymentFactory);
         gameProductPaymentFactories.add(couponPaymentFactory);
         allProductPaymentFactories.add(pointPaymentFactory);
         allProductPaymentFactories.add(kakaopayPaymentFactory);
     }
+
     @PostConstruct
     public void init() {
 
@@ -84,24 +86,25 @@ public class OrderService {
 
     //Todo: account 가 game을 이미 가지고있으면 Exception 추가
     @Transactional
-    public Long createOrder(Long accountId, int point, List<PaymentMethod> methods, List<Long> gameIds,  Map<Long, Long> gameCouponIdMap) {
+    public Long addOrder(Long accountId, int point, List<PaymentMethod> methods,
+        List<Long> gameIds, Map<Long, Long> gameCouponIdMap, String redirect) {
         Account account = accountRepository.findById(accountId).get();
         List<Long> couponIds = new ArrayList<>();
-        for(var gameCouponEntry : gameCouponIdMap.entrySet()) {
+        for (var gameCouponEntry : gameCouponIdMap.entrySet()) {
             couponIds.add(gameCouponEntry.getValue());
         }
         List<Game> games = gameRepository.findAllById(gameIds);
         List<Coupon> coupons = couponRepository.findAllById(couponIds);
 
-
-        boolean isAlreadyOwnGame = accountsOwnGamesRepository.findByAccount(account).stream().anyMatch(accountsGamesEntry -> accountsGamesEntry.getGame().equals(games));
-        if(isAlreadyOwnGame) {
+        boolean isAlreadyOwnGame = accountsOwnGamesRepository.findAllByAccount(account).stream()
+            .anyMatch(accountsGamesEntry -> accountsGamesEntry.getGame().equals(games));
+        if (isAlreadyOwnGame) {
             throw new IllegalStateException("이미 소유하고 있는 게임임.");
         }
-        if(games.size() != gameIds.size()) {
+        if (games.size() != gameIds.size()) {
             throw new NoSuchElementException("존재 하지 않는 게임임.");
         }
-        if(coupons.size() != couponIds.size()) {
+        if (coupons.size() != couponIds.size()) {
             throw new NoSuchElementException("존재 하지 않는 쿠폰임.");
         }
 
@@ -111,21 +114,17 @@ public class OrderService {
         coupons.forEach((coupon) -> idCouponMap.put(coupon.getId(), coupon));
 
         Map<Game, Optional<Coupon>> gameCouponMap = new HashMap<>();
-        for(var gameId : gameIds) {
+        for (var gameId : gameIds) {
             Game game = idGameMap.get(gameId);
-            Optional<Coupon> coupon = gameCouponIdMap.containsKey(game) ? Optional.of(idCouponMap.get(gameCouponIdMap.get(game))) : Optional.empty();
-            gameCouponMap.put(game,coupon);
+            Optional<Coupon> coupon = gameCouponIdMap.containsKey(game) ? Optional.of(
+                idCouponMap.get(gameCouponIdMap.get(game))) : Optional.empty();
+            gameCouponMap.put(game, coupon);
         }
         Set<Class<? extends Payment>> availablePaymentClasses = new HashSet<>();
-        Map<Class<? extends Payment>, PaymentFactory> classPaymentFactoryMap = new HashMap<>();
-
-        for(var method : methods) {
+        ;
+        for (var method : methods) {
             availablePaymentClasses.add(method.getPaymentClass());
         }
-        for(var paymentFactory : paymentFactories) {
-            classPaymentFactoryMap.put(paymentFactory.getPaymentClass(), paymentFactory);
-        }
-
 
         int totalPrice = games.stream().mapToInt(game -> game.getPrice())
             .reduce(0, (accPrice, v) -> accPrice + v);
@@ -144,12 +143,13 @@ public class OrderService {
                     break;
                 }
                 OrderCreateContext orderCreateContext = OrderCreateContext.builder()  // Context 생성
-                    .game(game).coupon(coupon).account(account)
-                    .amount(gameRemainPrice).order(order).build();
+                    .game(game).coupon(coupon).account(account).amount(gameRemainPrice).order(order)
+                    .redirect(redirect)
+                    .build();
 
                 Class nowPaymentClass = gameProductPaymentFactory.getPaymentClass();
                 // 선택한 결제 수단이 아니면 PASS
-                if(!availablePaymentClasses.contains(nowPaymentClass)) {
+                if (!availablePaymentClasses.contains(nowPaymentClass)) {
                     continue;
                 }
                 Optional<Payment> paymentOptional;
@@ -178,10 +178,10 @@ public class OrderService {
                 }
                 OrderCreateContext orderCreateContext = OrderCreateContext.builder() // context 생성
                     .games(games).account(account).point(point).order(order).itemName(itemName)
-                    .amount(totalRemainPrice).build();
+                    .amount(totalRemainPrice).redirect(redirect).build();
                 Class nowPaymentClass = allProductPaymentFactory.getPaymentClass();
                 // 선택한 결제 수단이 아니면 PASS
-                if(!availablePaymentClasses.contains(nowPaymentClass)) {
+                if (!availablePaymentClasses.contains(nowPaymentClass)) {
                     continue;
                 }
                 Optional<Payment> paymentOptional;
@@ -200,7 +200,7 @@ public class OrderService {
             }
         }
         if (totalRemainPrice != 0) {
-            throw new IllegalStateException("결제 총액이 결제 총액과 맞지 않음");
+            throw new IllegalStateException("결제액이 부족합니다.");
         }
 
         for (var game : games) { // 주문에 결제 연관
@@ -228,7 +228,6 @@ public class OrderService {
     }
 
     /**
-     *
      * @param accountId
      * @return account가 소유하는 orders 반환
      */
@@ -240,8 +239,8 @@ public class OrderService {
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException("accountId를 가지고있는 Account 없음");
         }
-        return orderRepository.findAllByAccount(account)
-            .stream().map(order -> OrderDTO.from(order)).toList();
+        return orderRepository.findAllByAccount(account).stream().map(order -> OrderDTO.from(order))
+            .toList();
     }
 
     /**
@@ -303,8 +302,7 @@ public class OrderService {
                 throw new RuntimeException();
             }
             for (var paymentService : paymentServices) { //improve: Hashmap 사용해서 O(1) 가능
-                if (paymentService.getPaymentClass()
-                    .equals(payment.getClass())) {
+                if (paymentService.getPaymentClass().equals(payment.getClass())) {
                     paymentService.refund(
                         PaymentRefundParameter.builder().paymentId(payment.getId())
                             .refundPrice(payment.getRefundedAmount() + refundPrice)
@@ -346,7 +344,8 @@ public class OrderService {
         List<OrdersGames> ordersGames = ordersGamesRepository.findAllByOrder(order);
         ordersGames.forEach((ordersGamesEntry) -> {
             if (ordersGamesEntry.getStatus().equals(OrdersGamesStatus.PURCHASE)) {
-                accountsOwnGamesRepository.findByAccountAndGame(account, ordersGamesEntry.getGame());
+                accountsOwnGamesRepository.findByAccountAndGame(account,
+                    ordersGamesEntry.getGame());
                 ordersGamesEntry.updateStatus(OrdersGamesStatus.REFUND);
             }
         });
@@ -363,8 +362,8 @@ public class OrderService {
         ordersGames.updateStatus(OrdersGamesStatus.REFUND);
 
         //계정에서 게임 제거
-        AccountsOwnGames accountsOwnGames = accountsOwnGamesRepository.findByAccountAndGame(account, game)
-            .get();
+        AccountsOwnGames accountsOwnGames = accountsOwnGamesRepository.findByAccountAndGame(account,
+            game).get();
         accountsOwnGamesRepository.delete(accountsOwnGames);
 
         /**
@@ -431,9 +430,24 @@ public class OrderService {
             remainRefundPrice -= nowRefundablePrice;
         }
     }
-    /*@Transactional(readOnly = true)
-    List<Long> getPendingPayments(Long orderId) {
 
-    }*/
+    @Transactional(readOnly = true)
+    public List<PaymentDTO> getPaymentsByStatus(Long orderId, PaymentStatus paymentStatus) {
+        Order order = orderRepository.findById(orderId).get();
+        return paymentRepository.findAllByOrderAndStatus(order, paymentStatus).stream()
+            .map(payment -> PaymentDTO.from(payment)).toList();
+    }
+    @Transactional(readOnly = true)
+    public List<PaymentDTO> getPayments(Long orderId) {
+        Order order = orderRepository.findById(orderId).get();
+        return paymentRepository.findAllByOrder(order).stream()
+            .map(payment -> PaymentDTO.from(payment)).toList();
+    }
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getOrdersByAccount(Long accountId) {
+        Account account = accountRepository.findById(accountId).get();
+        List<Order> orders = orderRepository.findAllByAccount(account);
+        return orders.stream().map(order -> OrderDTO.from(order)).toList();
+    }
 }
 

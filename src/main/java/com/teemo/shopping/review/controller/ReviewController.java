@@ -1,20 +1,18 @@
-package com.teemo.shopping.game.controller;
+package com.teemo.shopping.review.controller;
 
-import com.teemo.shopping.game.dto.ReviewDTO;
-import com.teemo.shopping.game.repository.ReviewRepository;
-import com.teemo.shopping.game.service.ReviewService;
+import com.teemo.shopping.review.service.ReviewService;
+import com.teemo.shopping.review.dto.ReviewDTO;
 import com.teemo.shopping.security.PermissionChecker;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/game/{gameId}/review")
+@RequestMapping(path = "/review")
 public class ReviewController {
 
     @Autowired
@@ -25,15 +23,6 @@ public class ReviewController {
     @GetMapping(path = "/{reviewId}")
     public ReviewDTO get(@PathVariable("reviewId") Long reviewId) throws Exception {
         return reviewService.get(reviewId);
-    }
-
-    @PostMapping(path = "/")
-    public Long add(ReviewDTO reviewDTO) throws Exception {
-        if (!permissionChecker.checkAuthenticated() || (!permissionChecker.checkAdmin()
-            && !permissionChecker.checkResourceOwner(reviewDTO.getAccountId()))) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        return reviewService.add(reviewDTO);
     }
 
     @DeleteMapping(path = "/{reviewId}")

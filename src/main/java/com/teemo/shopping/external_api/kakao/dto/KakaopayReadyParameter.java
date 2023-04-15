@@ -17,4 +17,6 @@ public class KakaopayReadyParameter {
     @NotNull
     @Range(min = 1)
     private Integer amount;
+    @NotNull
+    private String redirect;
 }

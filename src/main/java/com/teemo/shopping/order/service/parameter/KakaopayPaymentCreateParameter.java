@@ -11,10 +11,12 @@ public class KakaopayPaymentCreateParameter extends PaymentCreateParameter {
 
     @Builder
     protected KakaopayPaymentCreateParameter(Account account, Order order, Integer amount,
-        String itemName) {
+        String itemName, String redirect) {
         super(account, order, amount);
         this.itemName = itemName;
+        this.redirect = redirect;
     }
 
     private final String itemName;
+    private final String redirect;
 }

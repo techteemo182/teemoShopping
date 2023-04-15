@@ -1,6 +1,5 @@
 package com.teemo.shopping.order.domain;
 
-import com.teemo.shopping.game.domain.Review;
 import com.teemo.shopping.order.enums.PaymentMethod;
 import com.teemo.shopping.order.enums.PaymentStatus;
 import com.teemo.shopping.core.entity.BaseEntity;
