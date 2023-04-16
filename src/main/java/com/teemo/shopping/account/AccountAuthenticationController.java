@@ -23,6 +23,6 @@ public class AccountAuthenticationController {
     @ResponseBody
     public String register(@RequestBody AccountDTO accountDTO) {
         accountAuthenticationService.register(accountDTO.getUsername(), accountDTO.getPassword());
-        return "Register Success";
+        return "success";
     }
 }

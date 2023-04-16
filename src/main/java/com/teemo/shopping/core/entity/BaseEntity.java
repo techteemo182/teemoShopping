@@ -12,7 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@MappedSuperclass   // Entity 화 방지
+@MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity extends TimeRecordEntity {
     @Id

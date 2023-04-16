@@ -13,14 +13,12 @@ import org.springframework.web.bind.annotation.InitBinder;
 public class ExceptionAdvice {
     @ExceptionHandler
     public ResponseEntity<String> exception(Exception e) {
-        String message = "";
         if(e instanceof NoSuchElementException) {
-            message = "올바른 parameter 인지 다시 확인해 주세요.";
-        } else message = e.getMessage();
-        return ResponseEntity.status(400).body(message);
-    }
-    @InitBinder
-    public void initBinder(WebDataBinder webDataBinder) {
-
+            return ResponseEntity.status(400).body("유효 하지 않은 Parameter 입니다.");
+        } else if(e instanceof SecurityException) {
+            return ResponseEntity.status(401).body("접근 가능한 권한이 없습니다.");
+        } else {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 }

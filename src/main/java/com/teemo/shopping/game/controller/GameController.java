@@ -1,6 +1,7 @@
 package com.teemo.shopping.game.controller;
 
 import com.teemo.shopping.game.dto.GameDTO;
+import com.teemo.shopping.resource.dto.ResourceDTO;
 import com.teemo.shopping.review.dto.ReviewDTO;
 import com.teemo.shopping.game.service.GameService;
 import com.teemo.shopping.security.PermissionChecker;
@@ -32,16 +33,12 @@ public class GameController {
     }
     @PostMapping(path = "")
     public Long add(@RequestBody GameDTO gameDTO) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         return gameService.add(gameDTO);
     }
     @DeleteMapping(path = "/{gameId}")
     public void remove(@PathVariable("gameId") Long gameId) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         gameService.remove(gameId);
     }
     @GetMapping(path = "/")
@@ -50,6 +47,16 @@ public class GameController {
     }
     @GetMapping(path = "/{gameId}/reviews/")
     public List<ReviewDTO> getReviews(@PathVariable("gameId") Long gameId) throws Exception {
-        return gameService.list(gameId);
+        return gameService.reviewList(gameId);
+    }
+    @GetMapping(path = "/{gameId}/resources/")
+    public List<ResourceDTO> getResources(@PathVariable("gameId") Long gameId) throws Exception {
+        return gameService.resourceList(gameId);
+    }
+    @PostMapping(path = "/{gameId}/resources/{resourcesId}")
+    public String addResource(@PathVariable("gameId") Long gameId, @PathVariable("resourcesId") Long resourcesId) throws Exception {
+        permissionChecker.checkAdminAndThrow();
+        gameService.addResource(gameId, resourcesId);
+        return "success";
     }
 }

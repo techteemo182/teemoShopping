@@ -25,7 +25,7 @@ import org.hibernate.validator.constraints.Range;
 public class Order extends BaseEntity {
 
     @Builder
-    public Order(Account account, int totalPrice, OrderStatus status) {
+    protected Order(Account account, int totalPrice, OrderStatus status) {
         this.account = account;
         this.totalPrice = totalPrice;
         this.status = status;

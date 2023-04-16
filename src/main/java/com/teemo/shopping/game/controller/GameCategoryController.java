@@ -29,16 +29,12 @@ public class GameCategoryController {
     }
     @PostMapping(path = "")
     public Long add(GameCategoryDTO gameCategoryDTO) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         return gameCategoryService.add(gameCategoryDTO);
     }
     @DeleteMapping(path = "/{gameCategoryId}")
     public void remove(@PathVariable("gameCategoryId") Long gameCategoryId) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         gameCategoryService.remove(gameCategoryId);
     }
     @GetMapping(path = "/")

@@ -23,7 +23,7 @@ import org.hibernate.validator.constraints.Length;
 public class KakaopayPayment extends AllProductPayment {
 
     @Builder
-    public KakaopayPayment(int amount, PaymentStatus status, Order order,
+    protected KakaopayPayment(int amount, PaymentStatus status, Order order,
         String tid, String cid) {
         super(amount, status, order, PaymentMethod.KAKAOPAY);
         this.tid = tid;

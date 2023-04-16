@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class DiscountPaymentFactory implements PaymentFactory {
 
     @Autowired
-    DiscountPaymentService discountPaymentService;
+    private DiscountPaymentService discountPaymentService;
 
     @Override
     public Optional<Payment> create(OrderCreateContext context) {

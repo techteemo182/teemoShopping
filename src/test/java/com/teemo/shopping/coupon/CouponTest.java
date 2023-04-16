@@ -10,7 +10,7 @@ import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.dto.CouponDTO;
-import com.teemo.shopping.coupon.dto.CouponIssuePolicyDTO;
+import com.teemo.shopping.coupon.dto.CouponIssuerDTO;
 import com.teemo.shopping.coupon.service.CouponIssuerService;
 import com.teemo.shopping.coupon.service.CouponService;
 import jakarta.validation.Validation;
@@ -87,7 +87,7 @@ public class CouponTest {
                 .minFulfillPrice(10000)
                 .amount(3000)
                 .build());
-        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuePolicyDTO.builder()
+        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuerDTO.builder()
                 .amount(1)
                 .couponId(couponId)
                 .startAt(LocalDateTime.now())
@@ -109,7 +109,7 @@ public class CouponTest {
             .minFulfillPrice(10000)
             .amount(3000)
             .build());
-        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuePolicyDTO.builder()
+        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuerDTO.builder()
             .amount(1)
             .couponId(couponId)
             .startAt(LocalDateTime.now())
@@ -131,7 +131,7 @@ public class CouponTest {
             .minFulfillPrice(10000)
             .amount(3000)
             .build());
-        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuePolicyDTO.builder()
+        Long couponIssuePolicyId = couponIssuerService.add(CouponIssuerDTO.builder()
             .amount(1)
             .couponId(couponId)
             .startAt(LocalDateTime.now())

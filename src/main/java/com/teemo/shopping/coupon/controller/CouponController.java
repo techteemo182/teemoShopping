@@ -23,8 +23,6 @@ public class CouponController {
     private CouponService couponService;
     @Autowired
     private PermissionChecker permissionChecker;
-    @Autowired
-    private PermissionUtil permissionUtil;
 
     @GetMapping(path = "/{couponId}")
     public CouponDTO get(@PathVariable("couponId") Long couponId) throws Exception {
@@ -32,16 +30,12 @@ public class CouponController {
     }
     @PostMapping(path = "")
     public Long add(CouponDTO couponDTO) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         return couponService.add(couponDTO);
     }
     @DeleteMapping(path = "/{couponId}")
     public void remove(@PathVariable("couponId") Long couponId) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         couponService.remove(couponId);
     }
     @GetMapping(path = "/")
@@ -51,16 +45,12 @@ public class CouponController {
 
     @PostMapping(path = "/{couponId}/games/{gameId}")
     public Long addGame(@PathVariable("couponId") Long couponId, @PathVariable("gameId") Long gameId) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         return couponService.addGame(couponId, gameId);
     }
     @PostMapping(path = "/{couponId}/game_categories/{gameCategoryId}")
     public Long addGameCategory(@PathVariable("couponId") Long couponId, @PathVariable("gameCategoryId") Long gameCategoryId) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         return couponService.addGameCategory(couponId, gameCategoryId);
     }
     @GetMapping(path = "/{couponId}/games/")
@@ -74,16 +64,12 @@ public class CouponController {
     }
     @DeleteMapping(path = "/{couponId}/games/{gameId}")
     public void removeGame(@PathVariable("couponId") Long couponId, @PathVariable("gameId") Long gameId) {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         couponService.removeGame(couponId, gameId);
     }
     @DeleteMapping(path = "/{couponId}/game-categories/{gameCategoryId}")
     public void removeGameCategory(@PathVariable("couponId") Long couponId, @PathVariable("gameCategoryId") Long gameCategoryId) {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         couponService.removeGameCategory(couponId, gameCategoryId);
     }
 }

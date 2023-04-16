@@ -1,6 +1,6 @@
 package com.teemo.shopping.coupon.controller;
 
-import com.teemo.shopping.coupon.dto.CouponIssuePolicyDTO;
+import com.teemo.shopping.coupon.dto.CouponIssuerDTO;
 import com.teemo.shopping.coupon.service.CouponIssuerService;
 import com.teemo.shopping.security.PermissionChecker;
 import com.teemo.shopping.security.PermissionUtil;
@@ -25,38 +25,29 @@ public class CouponIssuerController {
     private CouponIssuerService couponIssuerService;
     @Autowired
     private PermissionChecker permissionChecker;
-    @Autowired
-    private PermissionUtil permissionUtil;
 
     @GetMapping(path = "/{couponIssuerId}")
-    public CouponIssuePolicyDTO get(@PathVariable("couponIssuerId") Long couponIssuerId) throws Exception {
+    public CouponIssuerDTO get(@PathVariable("couponIssuerId") Long couponIssuerId) throws Exception {
         return couponIssuerService.get(couponIssuerId);
     }
     @PostMapping(path = "")
-    public Long add(CouponIssuePolicyDTO couponIssuePolicyDTO) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        return couponIssuerService.add(couponIssuePolicyDTO);
+    public Long add(CouponIssuerDTO couponIssuerDTO) throws Exception {
+        permissionChecker.checkAdminAndThrow();
+        return couponIssuerService.add(couponIssuerDTO);
     }
     @DeleteMapping(path = "/{couponIssuerId}")
     public void remove(@PathVariable("couponIssuerId") Long couponIssuerId) throws Exception {
-        if(!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAdminAndThrow();
         couponIssuerService.remove(couponIssuerId);
     }
     @GetMapping(path = "/")
-    public List<CouponIssuePolicyDTO> list() {
+    public List<CouponIssuerDTO> list() {
         return couponIssuerService.list();
     }
 
     @PostMapping(path = "/{couponIssuerId}/issue/accounts")
     public String Issue(@PathVariable("couponId") Long couponIssuerId) {
-        if(!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
+        Long accountId = permissionChecker.getAccountIdElseThrow();
         couponIssuerService.issueCoupon(accountId, couponIssuerId);
         return "success";
     }

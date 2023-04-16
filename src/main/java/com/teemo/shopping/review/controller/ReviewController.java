@@ -27,9 +27,7 @@ public class ReviewController {
 
     @DeleteMapping(path = "/{reviewId}")
     public void remove(@PathVariable("reviewId") Long reviewId) throws Exception {
-        if(!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAuthenticatedAndThrow();
         ReviewDTO reviewDTO = reviewService.get(reviewId);
         if (!permissionChecker.checkAdmin() && !permissionChecker.checkResourceOwner(reviewDTO.getAccountId())) {
             throw new SecurityException("접근 권한 없음");
@@ -38,7 +36,7 @@ public class ReviewController {
     }
 
     @GetMapping(path = "/")
-    public List<ReviewDTO> list(@PathVariable("gameId") Long gameId) {
+    public List<ReviewDTO> list(@PathVariable("gameId") Long gameId) throws Exception {
         return reviewService.list(gameId);
     }
 }

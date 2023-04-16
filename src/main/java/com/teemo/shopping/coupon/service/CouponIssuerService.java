@@ -7,7 +7,7 @@ import com.teemo.shopping.account.repository.AccountsCouponsRepository;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.CouponIssuerAccounts;
 import com.teemo.shopping.coupon.domain.CouponIssuer;
-import com.teemo.shopping.coupon.dto.CouponIssuePolicyDTO;
+import com.teemo.shopping.coupon.dto.CouponIssuerDTO;
 import com.teemo.shopping.coupon.repository.CouponIssuerAccountsRepository;
 import com.teemo.shopping.coupon.repository.CouponIssuerRepository;
 import com.teemo.shopping.coupon.repository.CouponRepository;
@@ -35,15 +35,15 @@ public class CouponIssuerService {
     @Autowired
     CouponService couponService;
     @Transactional
-    public Long add(CouponIssuePolicyDTO couponIssuePolicyDTO)
+    public Long add(CouponIssuerDTO couponIssuerDTO)
         throws Exception { //todo: game, gameCategory 추가 하기
-        Coupon coupon = couponRepository.findById(couponIssuePolicyDTO.getCouponId()).get();
+        Coupon coupon = couponRepository.findById(couponIssuerDTO.getCouponId()).get();
         CouponIssuer couponIssuer = CouponIssuer.builder().coupon(coupon)
-            .amount(couponIssuePolicyDTO.getAmount())
-            .isNewAccount(couponIssuePolicyDTO.isNewAccount())
-            .isFirstCome(couponIssuePolicyDTO.isFirstCome())
-            .remainAmount(couponIssuePolicyDTO.getRemainAmount())
-            .startAt(couponIssuePolicyDTO.getStartAt()).endAt(couponIssuePolicyDTO.getEndAt())
+            .amount(couponIssuerDTO.getAmount())
+            .isNewAccount(couponIssuerDTO.isNewAccount())
+            .isFirstCome(couponIssuerDTO.isFirstCome())
+            .remainAmount(couponIssuerDTO.getRemainAmount())
+            .startAt(couponIssuerDTO.getStartAt()).endAt(couponIssuerDTO.getEndAt())
             .build();
         couponIssuer = couponIssuerRepository.save(couponIssuer);
         return couponIssuer.getId();
@@ -58,13 +58,13 @@ public class CouponIssuerService {
     }
 
     @Transactional(readOnly = true)
-    public CouponIssuePolicyDTO get(Long couponIssuePolicyId) throws Exception {
-        return CouponIssuePolicyDTO.from(couponIssuerRepository.findById(couponIssuePolicyId).get());
+    public CouponIssuerDTO get(Long couponIssuePolicyId) throws Exception {
+        return CouponIssuerDTO.from(couponIssuerRepository.findById(couponIssuePolicyId).get());
     }
 
     @Transactional(readOnly = true)
-    public List<CouponIssuePolicyDTO> list() {
-        return couponIssuerRepository.findAll().stream().map(couponIssuePolicy -> CouponIssuePolicyDTO.from(couponIssuePolicy)).toList();
+    public List<CouponIssuerDTO> list() {
+        return couponIssuerRepository.findAll().stream().map(couponIssuePolicy -> CouponIssuerDTO.from(couponIssuePolicy)).toList();
     }
 
     @Transactional

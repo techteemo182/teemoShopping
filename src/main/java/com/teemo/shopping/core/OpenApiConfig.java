@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OpenApiConfig {
-
     @Bean
     public OpenAPI openAPI(@Value("${springdoc.version}") String springdocVersion) {
         Info info = new Info()

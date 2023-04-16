@@ -8,10 +8,10 @@ import lombok.Getter;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
-public class CouponIssuePolicyDTO {
+public class CouponIssuerDTO {
     @JsonCreator
     @Builder
-    protected CouponIssuePolicyDTO(Long id, Long couponId, Integer amount, boolean isNewAccount,
+    protected CouponIssuerDTO(Long id, Long couponId, Integer amount, boolean isNewAccount,
         boolean isFirstCome, Integer remainAmount, LocalDateTime startAt, LocalDateTime endAt) {
         this.id = id;
         this.couponId = couponId;
@@ -33,8 +33,8 @@ public class CouponIssuePolicyDTO {
     private final LocalDateTime startAt;  //시작
     private final LocalDateTime endAt;    //끝
 
-    public static CouponIssuePolicyDTO from(CouponIssuer couponIssuer) {
-        return CouponIssuePolicyDTO.builder()
+    public static CouponIssuerDTO from(CouponIssuer couponIssuer) {
+        return CouponIssuerDTO.builder()
             .id(couponIssuer.getId())
             .couponId(couponIssuer.getCoupon().getId())
             .amount(couponIssuer.getAmount())

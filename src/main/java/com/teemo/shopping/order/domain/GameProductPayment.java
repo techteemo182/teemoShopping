@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @MappedSuperclass
 public class GameProductPayment extends Payment {
 
-    public GameProductPayment(int amount, PaymentStatus status,
+    protected GameProductPayment(int amount, PaymentStatus status,
         Order order, PaymentMethod method, Game game) {
         super(amount, status, order, method);
         this.game = game;

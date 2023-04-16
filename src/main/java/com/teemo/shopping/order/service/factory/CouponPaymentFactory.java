@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class CouponPaymentFactory implements PaymentFactory {
 
     @Autowired
-    CouponPaymentService couponPaymentService;
+    private CouponPaymentService couponPaymentService;
 
     @Override
     public Optional<Payment> create(OrderCreateContext context) {

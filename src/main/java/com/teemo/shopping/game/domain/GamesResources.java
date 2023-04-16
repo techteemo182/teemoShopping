@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,7 +24,14 @@ import lombok.NoArgsConstructor;
     }
 )
 @AttributeOverride(name = "id", column = @Column(name = "games_resources_id"))
-public class GamesResources extends BaseEntity {
+public class GamesResources extends BaseEntity {\
+
+    @Builder
+    protected GamesResources(Game game, Resource resource) {
+        this.game = game;
+        this.resource = resource;
+    }
+
     public boolean equals(Object obj) {
         GamesResources target = (GamesResources)obj;
         return target.getGame().getId().equals(getGame().getId()) &&

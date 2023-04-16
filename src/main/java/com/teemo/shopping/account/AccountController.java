@@ -32,8 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
     @Autowired
-    private PermissionUtil permissionUtil;
-    @Autowired
     private PermissionChecker permissionChecker;
     @Autowired
     private AccountService accountService;
@@ -44,67 +42,49 @@ public class AccountController {
     @Autowired
     private KakaopayPaymentService kakaopayPaymentService;
 
-    @PostMapping(path = "/follow/{gameId}")
+    @PostMapping(path = "/follow/games/{gameId}")
     public String followGame(@PathVariable Long gameId) {
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
+        Long accountId = permissionChecker.getAccountIdElseThrow();
         accountService.followGame(accountId, gameId);
         return "success";
     }
 
-    @DeleteMapping(path = "/unfollow/{gameId}")
+    @DeleteMapping(path = "/unfollow/games/{gameId}")
     public String unfollowGame(@PathVariable Long gameId) {
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
+        Long accountId = permissionChecker.getAccountIdElseThrow();
         accountService.unfollowGame(accountId, gameId);
         return "success";
     }
 
     @PostMapping(path = "/coupons/{couponId}")
     public String addCoupon(@PathVariable Long couponId) {
-        if (!permissionChecker.checkAdmin()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
+        Long accountId = permissionChecker.getAccountIdElseThrow();
         accountService.addCoupon(accountId, couponId, 1);
         return "success";
     }
 
     @GetMapping(path = "/own/games/")
     public List<GameDTO> ownGameList() {
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        return accountService.getOwnGames(permissionUtil.getAuthenticatedAccountId().get());
+        Long accountId = permissionChecker.getAccountIdElseThrow();
+        return accountService.getOwnGames(accountId);
     }
 
     @GetMapping(path = "/follow/games/")
     public List<GameDTO> followGameList() {
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        return accountService.getFollowGames(permissionUtil.getAuthenticatedAccountId().get());
+        Long accountId = permissionChecker.getAccountIdElseThrow();
+        return accountService.getFollowGames(accountId);
     }
 
     @GetMapping(path = "/reviews/")
     public List<ReviewDTO> reviewList() {
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        return accountService.getReviews(permissionUtil.getAuthenticatedAccountId().get());
+        Long accountId = permissionChecker.getAccountIdElseThrow();
+        return accountService.getReviews(accountId);
     }
 
-    @PostMapping(path = "/{gamesId}/reviews")
-    public Long addReview(@PathVariable Long gameId, @RequestBody ReviewDTO reviewDTO)
+    @PostMapping(path = "/games/{gameId}/reviews")
+    public Long addReview(@PathVariable("gameId") Long gameId, @RequestBody ReviewDTO reviewDTO)
         throws Exception {
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
+        Long accountId = permissionChecker.getAccountIdElseThrow();
         return reviewService.add(
             ReviewDTO.builder().accountId(accountId).gameId(gameId).content(reviewDTO.getContent())
                 .rating(reviewDTO.getRating()).build());
@@ -112,13 +92,8 @@ public class AccountController {
     @PostMapping(path = "/orders")
     public OrderAddResponse add(@RequestHeader("user-agent") String userAgent,
         @RequestBody OrderAddRequest orderAddRequest) throws Exception {
-
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-
         //improve: useragent 에 따른 redirect 변화
-        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
+        Long accountId = permissionChecker.getAccountIdElseThrow();
         Long orderId = orderService.addOrder(accountId, orderAddRequest.getPoint(),
             orderAddRequest.getMethods(), orderAddRequest.getGameIds(),
             orderAddRequest.getGameCouponIdMap(), orderAddRequest.getRedirect());
@@ -140,11 +115,9 @@ public class AccountController {
         responseBuilder.pendingPaymentIds(pendingPaymentIds);
         return responseBuilder.build();
     }
-    @GetMapping(path = "/{orderId}")
+    @GetMapping(path = "/orders/{orderId}")
     public OrderDTO get(@PathVariable("orderId") Long orderId) throws Exception {
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
+        permissionChecker.checkAuthenticatedAndThrow();
         OrderDTO orderDTO = orderService.get(orderId);
         if (!permissionChecker.checkAdmin() && !permissionChecker.checkResourceOwner(
             orderDTO.getAccountId())) {
@@ -155,10 +128,7 @@ public class AccountController {
 
     @GetMapping("/orders/")
     public List<OrderDTO> getOrders() {
-        if (!permissionChecker.checkAuthenticated()) {
-            throw new SecurityException("접근 권한 없음");
-        }
-        Long accountId = permissionUtil.getAuthenticatedAccountId().get();
+        Long accountId = permissionChecker.getAccountIdElseThrow();
         return orderService.getOrdersByAccount(accountId);
     }
 }

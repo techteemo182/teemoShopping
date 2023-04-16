@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class KakaopayPaymentFactory implements PaymentFactory {
 
     @Autowired
-    KakaopayPaymentService kakaopayPaymentService;
+    private KakaopayPaymentService kakaopayPaymentService;
 
     @Override
     public Optional<Payment> create(OrderCreateContext context) {

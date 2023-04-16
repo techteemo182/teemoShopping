@@ -51,7 +51,7 @@ public class KakaoController {
                     .partnerOrderId(kakaoRedirectParameter.getPartnerOrderId())
                     .partnerUserId(kakaoRedirectParameter.getPartnerUserId()).build());
         } catch (Exception e) {
-            System.out.println("[Wrong]");
+
         }
         return new RedirectView(kakaoRedirectParameter.getRedirect());
     }
@@ -64,7 +64,7 @@ public class KakaoController {
                     .partnerOrderId(kakaoRedirectParameter.getPartnerOrderId())
                     .partnerUserId(kakaoRedirectParameter.getPartnerUserId()).build());
         } catch (Exception e) {
-            System.out.println("[Wrong]");
+
         }
         return new RedirectView(kakaoRedirectParameter.getRedirect());
     }
@@ -77,7 +77,7 @@ public class KakaoController {
                     .partnerOrderId(kakaoRedirectParameter.getPartnerOrderId())
                     .partnerUserId(kakaoRedirectParameter.getPartnerUserId()).build());
         } catch (Exception e) {
-            System.out.println("[Wrong]");
+
         }
         return new RedirectView(kakaoRedirectParameter.getRedirect());
     }
