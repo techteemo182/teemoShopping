@@ -3,7 +3,7 @@
 #ENV
 
 #Description
-요약: 게임 구매 사이트를 위한 API 제공 Backend
+요약: 게임 구매 사이트를 위한 Rest API 제공 Backend
 
 #Feature
 - 로그인/ 회원가입
@@ -28,3 +28,5 @@
   - Lombok
   - Jwt
   - Gson
+
+ERD: https://www.erdcloud.com/d/dg3RDn7rvmosF5Txz
