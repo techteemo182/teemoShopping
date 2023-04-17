@@ -26,7 +26,6 @@ public class OrderAddRequest {
     private final List<PaymentMethod> methods;
     private final List<Long> gameIds;
     private final Map<Long, Long> gameCouponIdMap;
-    // redirect 연동된 order 일 경우 모든 order가 끝나고 redirect 할 위치
     private final String redirect;
 }
 

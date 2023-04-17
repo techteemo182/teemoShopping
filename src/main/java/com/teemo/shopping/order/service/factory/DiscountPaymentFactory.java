@@ -17,7 +17,7 @@ public class DiscountPaymentFactory implements PaymentFactory {
 
     @Override
     public Optional<Payment> create(OrderCreateContext context) {
-        return discountPaymentService.create(
+        return discountPaymentService.add(
             DiscountPaymentCreateParameter.builder().account(context.getAccount())
                 .order(context.getOrder()).amount(context.getAmount()).game(context.getGame())
                 .build());

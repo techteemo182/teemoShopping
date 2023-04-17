@@ -37,7 +37,7 @@ public class KakaopayPaymentService extends
 
     @Override
     @Transactional
-    public Optional<Payment> create(KakaopayPaymentCreateParameter parameter) {
+    public Optional<Payment> add(KakaopayPaymentCreateParameter parameter) {
         int amount = parameter.getAmount();
         Order order = parameter.getOrder();
         KakaopayPayment kakaopayPayment = KakaopayPayment.builder().status(PaymentStatus.PENDING)

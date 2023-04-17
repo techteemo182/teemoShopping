@@ -3,6 +3,7 @@ package com.teemo.shopping.coupon.service;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.CouponsGameCategories;
 import com.teemo.shopping.coupon.domain.CouponsGames;
+import com.teemo.shopping.coupon.dto.AddCouponRequest;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.repository.CouponRepository;
 import com.teemo.shopping.coupon.repository.CouponsGameCategoriesRepository;
@@ -33,8 +34,18 @@ public class CouponService {
     private CouponsGameCategoriesRepository couponsGameCategoriesRepository;
 
     @Transactional
-    public Long add(CouponDTO couponDTO) throws Exception { //todo: game, gameCategory 추가 하기
-        Coupon coupon = couponDTO.to();
+    public Long add(AddCouponRequest addCouponRequest) throws Exception {
+        Coupon coupon = Coupon.builder()
+            .name(addCouponRequest.getName())
+            .description(addCouponRequest.getDescription())
+            .maxDiscountPrice(addCouponRequest.getMaxDiscountPrice())
+            .minDiscountPrice(addCouponRequest.getMinDiscountPrice())
+            .minFulfillPrice(addCouponRequest.getMinFulfillPrice())
+            .method(addCouponRequest.getMethod())
+            .canApplyToAll(addCouponRequest.getCanApplyToAll())
+            .expiredAt(addCouponRequest.getExpiredAt())
+            .amount(addCouponRequest.getAmount())
+            .build();
         coupon = couponRepository.save(coupon);
         return coupon.getId();
     }

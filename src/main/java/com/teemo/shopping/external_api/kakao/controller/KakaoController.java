@@ -21,6 +21,7 @@ import com.teemo.shopping.external_api.kakao.dto.KakaoRedirectParameter;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveResponse;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.repository.GameRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ import org.springframework.web.servlet.view.RedirectView;
 public class KakaoController {
     @Autowired
     private KakaopayPaymentService kakaopayPaymentService;
-
+    @Operation(operationId = "카카오페이 리다이렉트 성공", summary = "카카오페이 리다이렉트 성공", tags = {"카카오 리다이렉트"})
     @GetMapping("/success")
     public RedirectView success(KakaoRedirectParameter kakaoRedirectParameter) {
 
@@ -56,6 +57,7 @@ public class KakaoController {
         return new RedirectView(kakaoRedirectParameter.getRedirect());
     }
 
+    @Operation(operationId = "카카오페이 리다이렉트 취소", summary = "카카오페이 리다이렉트 취소", tags = {"카카오 리다이렉트"})
     @GetMapping("/cancel")
     public RedirectView cancel(KakaoRedirectParameter kakaoRedirectParameter) {
         try {
@@ -68,7 +70,7 @@ public class KakaoController {
         }
         return new RedirectView(kakaoRedirectParameter.getRedirect());
     }
-
+    @Operation(operationId = "카카오페이 리다이렉트 실패", summary = "카카오페이 리다이렉트 실패", tags = {"카카오 리다이렉트"})
     @GetMapping("/fail")
     public RedirectView fail(KakaoRedirectParameter kakaoRedirectParameter) {
         try {

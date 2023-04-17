@@ -39,3 +39,6 @@ out/
 
 ### SECRET ###
 **/resources/application-secret.yaml
+
+### FILE ###
+/files

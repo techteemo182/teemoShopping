@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
     }
 )
 @AttributeOverride(name = "id", column = @Column(name = "games_resources_id"))
-public class GamesResources extends BaseEntity {\
+public class GamesResources extends BaseEntity {
 
     @Builder
     protected GamesResources(Game game, Resource resource) {

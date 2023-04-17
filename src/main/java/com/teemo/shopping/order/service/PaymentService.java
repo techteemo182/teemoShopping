@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public abstract class PaymentService<T extends PaymentCreateParameter> implements ServiceLayer, Subject<PaymentStatusUpdateObserverContext, Observer<PaymentStatusUpdateObserverContext>> {
-    public abstract Optional<Payment> create(T parameter);    // 지불
+    public abstract Optional<Payment> add(T parameter);    // 지불
     public abstract void refund(PaymentRefundParameter parameter);    // 환불
     public abstract Class<? extends Payment> getPaymentClass();
     private ArrayList<Observer<PaymentStatusUpdateObserverContext>> observers = new ArrayList<>();  // 옵저버

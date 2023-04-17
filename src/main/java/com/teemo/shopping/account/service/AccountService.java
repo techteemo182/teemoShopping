@@ -13,6 +13,9 @@ import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.repository.CouponRepository;
 import com.teemo.shopping.game.domain.Game;
+import com.teemo.shopping.order.domain.Order;
+import com.teemo.shopping.order.dto.OrderDTO;
+import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.review.domain.Review;
 import com.teemo.shopping.game.dto.GameDTO;
 import com.teemo.shopping.review.dto.ReviewDTO;
@@ -42,6 +45,8 @@ public class AccountService {
     private CouponRepository couponRepository;
     @Autowired
     private AccountsCouponsRepository accountsCouponsRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Transactional
     public void addCoupon(Long accountId, Long couponId, int amount) throws RuntimeException {
@@ -164,10 +169,16 @@ public class AccountService {
     @Autowired
     ReviewRepository reviewRepository;
     @Transactional(readOnly = true)
-    public List<ReviewDTO> getReviews(Long accountId) {
+    public List<ReviewDTO> reviewList(Long accountId) {
         Account account = accountRepository.findById(accountId).get();
         List<Review> accountsOwnGames = reviewRepository.findAllByAccount(account);
         List<ReviewDTO> reviewDtos = accountsOwnGames.stream().map(review -> ReviewDTO.from(review)).toList();
         return reviewDtos;
+    }
+    @Transactional(readOnly = true)
+    public List<OrderDTO> orderList(Long accountId) {
+        Account account = accountRepository.findById(accountId).get();
+        List<Order> orders = orderRepository.findAllByAccount(account);
+        return orders.stream().map(order -> OrderDTO.from(order)).toList();
     }
 }

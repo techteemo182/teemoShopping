@@ -17,7 +17,7 @@ public class CouponPaymentFactory implements PaymentFactory {
 
     @Override
     public Optional<Payment> create(OrderCreateContext context) {
-        return couponPaymentService.create(
+        return couponPaymentService.add(
             CouponPaymentCreateParameter.builder().coupon(context.getCoupon())
                 .game(context.getGame()).account(context.getAccount()).order(context.getOrder())
                 .amount(context.getAmount()).build());

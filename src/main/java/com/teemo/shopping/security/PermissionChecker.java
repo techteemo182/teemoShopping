@@ -18,7 +18,7 @@ public class PermissionChecker {
 
     public boolean checkAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext()
-            .getAuthentication();     //todo: Aspect로 만들어 보기
+            .getAuthentication();
         if (!authentication.isAuthenticated()) {
             return false;
         }
@@ -27,7 +27,7 @@ public class PermissionChecker {
 
     public boolean checkAdmin() {
         Authentication authentication = SecurityContextHolder.getContext()
-            .getAuthentication();     //todo: Aspect로 만들어 보기
+            .getAuthentication();
         boolean isAuthenticated = authentication.isAuthenticated();
         if (!isAuthenticated) {
             return false;

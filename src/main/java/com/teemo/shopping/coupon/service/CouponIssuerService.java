@@ -36,7 +36,7 @@ public class CouponIssuerService {
     CouponService couponService;
     @Transactional
     public Long add(CouponIssuerDTO couponIssuerDTO)
-        throws Exception { //todo: game, gameCategory 추가 하기
+        throws Exception {
         Coupon coupon = couponRepository.findById(couponIssuerDTO.getCouponId()).get();
         CouponIssuer couponIssuer = CouponIssuer.builder().coupon(coupon)
             .amount(couponIssuerDTO.getAmount())

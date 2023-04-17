@@ -20,7 +20,7 @@ public class DiscountPaymentService extends PaymentService<DiscountPaymentCreate
     private PaymentRepository<DiscountPayment> discountPaymentRepository;
 
     @Override
-    public Optional<Payment> create(DiscountPaymentCreateParameter parameter) {
+    public Optional<Payment> add(DiscountPaymentCreateParameter parameter) {
         Game game = parameter.getGame();
         Order order = parameter.getOrder();
         double discountPercent = game.getDiscountPercent();

@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver

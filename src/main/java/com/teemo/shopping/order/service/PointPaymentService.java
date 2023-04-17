@@ -33,7 +33,7 @@ public class PointPaymentService extends
 
     @Override
     @Transactional
-    public Optional<Payment> create(PointPaymentCreateParameter parameter) {
+    public Optional<Payment> add(PointPaymentCreateParameter parameter) {
         int amount = parameter.getAmount();
         Order order = parameter.getOrder();
         Account account = parameter.getAccount();

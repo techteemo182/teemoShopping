@@ -26,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = Main.class)
 public class OrderTest {
 
-    // Todo: Kakao Pay API Test 작성
     @Autowired
     private OrderService orderService;
     @Autowired

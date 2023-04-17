@@ -17,7 +17,7 @@ public class KakaopayPaymentFactory implements PaymentFactory {
 
     @Override
     public Optional<Payment> create(OrderCreateContext context) {
-        return kakaopayPaymentService.create(
+        return kakaopayPaymentService.add(
             KakaopayPaymentCreateParameter.builder().account(context.getAccount())
                 .order(context.getOrder()).amount(context.getAmount())
                 .redirect(context.getRedirect())

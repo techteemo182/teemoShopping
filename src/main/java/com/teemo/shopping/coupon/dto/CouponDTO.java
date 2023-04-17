@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,17 +42,18 @@ public class CouponDTO {
     private final String name;
     private final String description;
     @Range(min = 0)
-    private final int maxDiscountPrice;
+    @Nullable
+    private final Integer maxDiscountPrice;
     @Range(min = 0)
-    private final int minDiscountPrice;
+    @Nullable
+    private final Integer minDiscountPrice;
     @Range(min = 0)
-    private final int minFulfillPrice;
-    @JsonDeserialize
+    private final Integer minFulfillPrice;
     private final CouponMethod method;
 
-    private final boolean canApplyToAll;
+    private final Boolean canApplyToAll;
     @Range(min = 0)
-    private final double amount;
+    private final Double amount;
 
     private final LocalDateTime expiredAt;
 

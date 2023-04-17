@@ -38,7 +38,7 @@ public class CouponPaymentService extends PaymentService<CouponPaymentCreatePara
     private GameCategoriesGamesRepository gameCategoriesGamesRepository;
 
     @Override
-    public Optional<Payment> create(CouponPaymentCreateParameter parameter) throws IllegalStateException {
+    public Optional<Payment> add(CouponPaymentCreateParameter parameter) throws IllegalStateException {
         Game game = parameter.getGame();
         List<GameCategory> gameCategories = gameCategoriesGamesRepository.findAllByGame(game).stream().map(gameCategoriesGames -> gameCategoriesGames.getGameCategory()).toList();
         Optional<Coupon> couponOptional = parameter.getCoupon();

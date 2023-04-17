@@ -79,12 +79,6 @@ public class OrderService {
         allProductPaymentFactories.add(kakaopayPaymentFactory);
     }
 
-    @PostConstruct
-    public void init() {
-
-    }
-
-    //Todo: account 가 game을 이미 가지고있으면 Exception 추가
     @Transactional
     public Long addOrder(Long accountId, int point, List<PaymentMethod> methods,
         List<Long> gameIds, Map<Long, Long> gameCouponIdMap, String redirect) {
@@ -442,12 +436,6 @@ public class OrderService {
         Order order = orderRepository.findById(orderId).get();
         return paymentRepository.findAllByOrder(order).stream()
             .map(payment -> PaymentDTO.from(payment)).toList();
-    }
-    @Transactional(readOnly = true)
-    public List<OrderDTO> getOrdersByAccount(Long accountId) {
-        Account account = accountRepository.findById(accountId).get();
-        List<Order> orders = orderRepository.findAllByAccount(account);
-        return orders.stream().map(order -> OrderDTO.from(order)).toList();
     }
 }
 

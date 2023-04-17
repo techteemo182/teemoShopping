@@ -17,7 +17,7 @@ public class PointPaymentFactory implements PaymentFactory {
 
     @Override
     public Optional<Payment> create(OrderCreateContext context) {
-        return pointPaymentService.create(
+        return pointPaymentService.add(
             PointPaymentCreateParameter.builder().account(context.getAccount())
                 .order(context.getOrder()).amount(context.getAmount())
                 .availablePoint(context.getPoint()).build());
