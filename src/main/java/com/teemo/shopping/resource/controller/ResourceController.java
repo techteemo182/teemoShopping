@@ -38,7 +38,7 @@ public class ResourceController {
     @PostMapping(value = "", consumes = "application/x-www-form-urlencoded")
     public String add(@RequestParam("file") MultipartFile file) throws Exception {
         permissionChecker.checkAdminAndThrow();
-        //todo: file 저장한곳 연결 static-location
+        //todo: 아마존 S3 연동
         UUID uuid = UUID.randomUUID();
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         String oldFileName = file.getOriginalFilename();
