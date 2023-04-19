@@ -9,7 +9,7 @@ import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
-import com.teemo.shopping.coupon.dto.CouponDTO;
+import com.teemo.shopping.coupon.dto.AddCouponRequest;
 import com.teemo.shopping.coupon.dto.CouponIssuerDTO;
 import com.teemo.shopping.coupon.service.CouponIssuerService;
 import com.teemo.shopping.coupon.service.CouponService;
@@ -20,25 +20,38 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(classes = Main.class)
 public class CouponTest {
+
+    @Autowired
+    private CouponService couponService;
+    @Autowired
+    private CouponIssuerService couponIssuerService;
+    @Autowired
+    private AccountAuthenticationService accountAuthenticationService;
+    @Autowired
+    private AccountService accountService;
+
     @Test
     void couponTest() {
 
         Coupon normalCoupon1 = Coupon.builder()
             .minFulfillPrice(1000)
-            .amount(3000)
+            .amount(3000d)
             .name("특전 3000")
             .method(CouponMethod.STATIC)
+            .expiredAt(LocalDateTime.now().plusDays(10))
             .build();
         Coupon normalCoupon2 = Coupon.builder()
             .maxDiscountPrice(1000)
             .minDiscountPrice(0)
             .minFulfillPrice(1000)
             .name("특전 3000")
-            .amount(50)
+            .amount(50d)
             .method(CouponMethod.PERCENT)
+            .expiredAt(LocalDateTime.now().plusDays(10))
             .build();
         //최대 세일 금액이 최소 세일 금액보다 작음
         Coupon abnormalCoupon1 = Coupon.builder()
@@ -46,8 +59,9 @@ public class CouponTest {
             .minDiscountPrice(5000)
             .minFulfillPrice(1000)
             .name("특전 3000")
-            .amount(50)
+            .amount(50d)
             .method(CouponMethod.PERCENT)
+            .expiredAt(LocalDateTime.now().plusDays(10))
             .build();
 
         //120% 세일
@@ -56,8 +70,9 @@ public class CouponTest {
             .minDiscountPrice(0)
             .minFulfillPrice(1000)
             .name("특전 3000")
-            .amount(120)
+            .amount(120d)
             .method(CouponMethod.PERCENT)
+            .expiredAt(LocalDateTime.now().plusDays(10))
             .build();
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -69,45 +84,43 @@ public class CouponTest {
 
     }
 
-    @Autowired
-    private CouponService couponService;
-    @Autowired
-    private CouponIssuerService couponIssuerService;
-    @Autowired
-    private AccountAuthenticationService accountAuthenticationService;
-    @Autowired
-    private AccountService accountService;
     @Test
+    @Transactional
     void couponIssue() throws Exception {
-        Long accountId = accountAuthenticationService.register("teemo", "teemo");
-        Long couponId = couponService.add(CouponDTO.builder()
-                .name("마인크래프트 출시기념")
-                .canApplyToAll(true)
-                .method(CouponMethod.STATIC)
-                .minFulfillPrice(10000)
-                .amount(3000)
-                .build());
+        Long accountId = accountAuthenticationService.register("teemo125", "teemo");
+        Long couponId = couponService.add(AddCouponRequest.builder()
+            .name("마인크래프트 출시기념")
+            .canApplyToAll(true)
+            .method(CouponMethod.STATIC)
+            .minFulfillPrice(10000)
+            .amount(3000d)
+            .expiredAt(LocalDateTime.now().plusDays(10))
+            .build());
         Long couponIssuePolicyId = couponIssuerService.add(CouponIssuerDTO.builder()
-                .amount(1)
-                .couponId(couponId)
-                .startAt(LocalDateTime.now())
-                .endAt((LocalDateTime.MAX))
-                .isFirstCome(false)
-                .isNewAccount(false)
+            .amount(1)
+            .couponId(couponId)
+            .startAt(LocalDateTime.now())
+            .endAt((LocalDateTime.MAX))
+            .isFirstCome(false)
+            .isNewAccount(false)
             .build());
         couponIssuerService.issueCoupon(accountId, couponIssuePolicyId);
         assertTrue(!accountService.getCoupons(accountId).isEmpty());
-        assertThrows(IllegalStateException.class, () -> couponIssuerService.issueCoupon(accountId, couponIssuePolicyId));
+        assertThrows(IllegalStateException.class,
+            () -> couponIssuerService.issueCoupon(accountId, couponIssuePolicyId));
     }
+
     @Test
+    @Transactional
     void couponNewAccountIssue() throws Exception {
         Long accountId = accountAuthenticationService.register("teemo1", "teemo1");
-        Long couponId = couponService.add(CouponDTO.builder()
+        Long couponId = couponService.add(AddCouponRequest.builder()
             .name("마인크래프트 출시기념2")
             .canApplyToAll(true)
             .method(CouponMethod.STATIC)
             .minFulfillPrice(10000)
-            .amount(3000)
+            .amount(3000d)
+            .expiredAt(LocalDateTime.now().plusDays(10))
             .build());
         Long couponIssuePolicyId = couponIssuerService.add(CouponIssuerDTO.builder()
             .amount(1)
@@ -120,16 +133,19 @@ public class CouponTest {
         couponIssuerService.issueCoupon(accountId, couponIssuePolicyId);
         assertTrue(!accountService.getCoupons(accountId).isEmpty());
     }
+
     @Test
+    @Transactional
     void couponFirstComeIssue() throws Exception {
         Long accountId = accountAuthenticationService.register("teemo2", "teemo2");
         Long accountId2 = accountAuthenticationService.register("teemo3", "teemo");
-        Long couponId = couponService.add(CouponDTO.builder()
+        Long couponId = couponService.add(AddCouponRequest.builder()
             .name("마인크래프트 출시기념3")
             .canApplyToAll(true)
             .method(CouponMethod.STATIC)
             .minFulfillPrice(10000)
-            .amount(3000)
+            .amount(3000d)
+            .expiredAt(LocalDateTime.now().plusDays(10))
             .build());
         Long couponIssuePolicyId = couponIssuerService.add(CouponIssuerDTO.builder()
             .amount(1)
@@ -141,7 +157,8 @@ public class CouponTest {
             .isNewAccount(false)
             .build());
         couponIssuerService.issueCoupon(accountId, couponIssuePolicyId);
-        assertThrows(IllegalStateException.class, () -> couponIssuerService.issueCoupon(accountId2, couponIssuePolicyId));
+        assertThrows(IllegalStateException.class,
+            () -> couponIssuerService.issueCoupon(accountId2, couponIssuePolicyId));
         assertTrue(!accountService.getCoupons(accountId).isEmpty());
     }
 }

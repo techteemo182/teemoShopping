@@ -31,38 +31,12 @@ public class ResourceController {
     private ResourceService resourceService;
     @Autowired
     private PermissionChecker permissionChecker;
-    @Value("${file.path}")
-    private String filePath;
 
     @Operation(operationId = "리소스 추가(파일)", summary = "리소스 추가", tags = {"리소스"})
-    @PostMapping(value = "", consumes = "application/x-www-form-urlencoded")
+    @PostMapping(value = "", consumes = "multipart/form-data")
     public String add(@RequestParam("file") MultipartFile file) throws Exception {
         permissionChecker.checkAdminAndThrow();
-        //todo: 아마존 S3 연동
-        UUID uuid = UUID.randomUUID();
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        String oldFileName = file.getOriginalFilename();
-        var extensionMatcher = Pattern.compile(".*\\.(.*)$").matcher(oldFileName);
-        String extension = null;
-        if (extensionMatcher.find()) {
-            extension = extensionMatcher.group(1);
-        }
-        byte[] oldFileNameBytes = digest.digest(oldFileName.getBytes(StandardCharsets.UTF_8));
-        String hashedFileName = StringUtils.join(
-            Arrays.stream(ArrayUtils.toObject(oldFileNameBytes))
-                .map(b -> Integer.toHexString(b & 0xff)).toArray());
-        String newFileName = uuid + hashedFileName;
-        if (extension != null) {
-            newFileName += "." + extension;
-        }
-        String newFilePath = filePath + newFileName;    // UUID + HASH(fileName) + .extension
-        String type = file.getContentType();
-        try {
-            file.transferTo(new File(newFilePath));
-        } catch (Exception e) {
-            throw new IOException("파일 생성 실패");
-        }
-        resourceService.add(ResourceDTO.builder().path(newFilePath).type(type).build());
+        resourceService.add(file);
         return "success";
     }
 

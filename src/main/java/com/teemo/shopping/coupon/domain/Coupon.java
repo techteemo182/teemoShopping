@@ -25,8 +25,8 @@ import org.hibernate.validator.constraints.Range;
 public class Coupon extends BaseEntity {
 
     @Builder
-    protected Coupon(String name, String description, int maxDiscountPrice, int minDiscountPrice, int minFulfillPrice,
-        CouponMethod method, boolean canApplyToAll,  double amount, LocalDateTime expiredAt) {
+    protected Coupon(String name, String description, Integer maxDiscountPrice, Integer minDiscountPrice, Integer minFulfillPrice,
+        CouponMethod method, boolean canApplyToAll,  Double amount, LocalDateTime expiredAt) {
             this.name = name;
             this.description = description;
             this.maxDiscountPrice = maxDiscountPrice;
@@ -50,14 +50,14 @@ public class Coupon extends BaseEntity {
     private String description;
 
     @Column
-    private int maxDiscountPrice; // For Percent
+    private Integer maxDiscountPrice; // For Percent
 
     @Column
-    private int minDiscountPrice; // For Percent
+    private Integer minDiscountPrice; // For Percent
 
     @Column
     @Range(min = 0)
-    private int minFulfillPrice; // For all
+    private Integer minFulfillPrice; // For all
 
     @Enumerated
     @NotNull
@@ -69,7 +69,7 @@ public class Coupon extends BaseEntity {
      */
     @Column
     @Range(min = 0)
-    private double amount;
+    private Double amount;
 
     @Column
     private boolean canApplyToAll;

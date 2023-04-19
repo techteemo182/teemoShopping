@@ -5,6 +5,7 @@ import com.teemo.shopping.account.repository.AccountRepository;
 import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
+import com.teemo.shopping.coupon.dto.AddCouponRequest;
 import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.service.CouponService;
 import com.teemo.shopping.game.dto.GameDTO;
@@ -64,11 +65,11 @@ public class OrderTest {
         gameIds.add(gameId1);
         gameIds.add(gameId2);
         gameIds.add(gameId3);
-        CouponDTO coupon = CouponDTO.builder().minFulfillPrice(5000).name("5000 WON")
-            .description("1년 기념 5000원 세일").method(CouponMethod.STATIC).amount(5000)
-            .expiredAt(LocalDateTime.now().plusDays(10)).build();
+        AddCouponRequest couponRequest = AddCouponRequest.builder().minFulfillPrice(5000).name("5000 WON")
+            .description("1년 기념 5000원 세일").method(CouponMethod.STATIC).amount(5000d)
+            .expiredAt(LocalDateTime.now().plusDays(10)).canApplyToAll(false).build();
 
-        Long couponId = couponService.add(coupon);
+        Long couponId = couponService.add(couponRequest);
         couponService.addGame(couponId, gameId1);
         couponService.addGame(couponId, gameId2);
         couponService.addGame(couponId, gameId3);

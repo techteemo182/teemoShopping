@@ -23,9 +23,9 @@ import org.hibernate.validator.constraints.Range;
 public class CouponDTO {
     @JsonCreator
     @Builder
-    protected CouponDTO(Long id, String name, String description, int maxDiscountPrice,
-        int minDiscountPrice, int minFulfillPrice, CouponMethod method, boolean canApplyToAll,
-        double amount, LocalDateTime expiredAt) {
+    protected CouponDTO(Long id, String name, String description, Integer maxDiscountPrice,
+        Integer minDiscountPrice, Integer minFulfillPrice, CouponMethod method, boolean canApplyToAll,
+        Double amount, LocalDateTime expiredAt) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -51,6 +51,7 @@ public class CouponDTO {
     private final Integer minFulfillPrice;
     private final CouponMethod method;
 
+    @NotNull
     private final Boolean canApplyToAll;
     @Range(min = 0)
     private final Double amount;

@@ -21,9 +21,10 @@ import lombok.NoArgsConstructor;
 public class Resource extends BaseEntity {
 
     @Builder
-    protected Resource(String path, String type) {
+    protected Resource(String path, String type, String origin) {
         this.path = path;
         this.type = type;
+        this.origin = origin;
     }
     @Override
     public boolean equals(Object obj) {
@@ -35,4 +36,7 @@ public class Resource extends BaseEntity {
 
     @Column
     private String type;
+
+    @Column
+    private String origin;
 }

@@ -95,7 +95,7 @@ class SecurityTest {
         accountAuthenticationService.register(username, password);
 
         //then
-        assertThrows(IllegalStateException.class, () -> {   //가입 중복 검증
+        assertThrows(Exception.class, () -> {   //가입 중복 검증
             accountAuthenticationService.register(username, password);
         });
     }

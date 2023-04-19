@@ -5,11 +5,13 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class AddCouponRequest {
     @NotNull
     private final String name;

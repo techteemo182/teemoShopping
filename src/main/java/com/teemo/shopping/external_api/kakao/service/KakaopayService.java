@@ -19,11 +19,11 @@ import reactor.core.publisher.Mono;
 @Service
 public class KakaopayService implements ServiceLayer {
 
-    @Value("${key.kakao.admin-key}")
+    @Value("${kakao.admin-key}")
     private String KAKAO_ADMIN_KEY;
-    @Value("${key.kakao.cid}")
+    @Value("${kakao.cid}")
     private String cid;
-    @Value("${key.kakao.partner-user-id}")
+    @Value("${kakao.partner-user-id}")
     private String partnerUserId;
     //Todo: 테스트 작성
     public Mono<KakaopayAPIReadyResponse> readyKakaopay(
