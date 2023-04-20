@@ -31,4 +31,8 @@
   - Jwt
   - Gson
 
+아직 구현되지 않은 내용
+1. MySQL
+2. Index
+3. Test
 ERD: https://www.erdcloud.com/d/dg3RDn7rvmosF5Txz
