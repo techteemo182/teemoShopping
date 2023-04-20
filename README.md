@@ -38,3 +38,4 @@
 
 
 ERD: https://www.erdcloud.com/d/dg3RDn7rvmosF5Txz
+API: http://teemohouse.techteemo.store:8080/api-docs
