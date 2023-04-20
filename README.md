@@ -1,11 +1,12 @@
-# teemoShopping
 
-#ENV
+teemoShopping
+===
+설명 
+--
+게임 구매 사이트를 위한 Rest API 제공 Backend
 
-#Description
-요약: 게임 구매 사이트를 위한 Rest API 제공 Backend
-
-#Feature
+기능 
+--
 - 로그인/ 회원가입
 - JWTtoken 기반 Stateless 인증 구현
 - RestAPI 를 통한 API 구현
@@ -18,7 +19,8 @@
 - 게임 리뷰 구현
 - 쿠폰 발급 구현
 
-#TechStack
+기술 스택
+--
 1. Spring
   - SpringBoot
   - SpringSecurity
@@ -31,11 +33,7 @@
   - Jwt
   - Gson
 
-아직 구현되지 않은 내용
-1. MySQL
-2. Index
-3. Test
-
-
 ERD: https://www.erdcloud.com/d/dg3RDn7rvmosF5Txz
+
+
 API: http://teemohouse.techteemo.store:8080/api-docs
