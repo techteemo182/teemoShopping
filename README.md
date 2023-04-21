@@ -119,17 +119,14 @@ GET https://teemoshopping.techteemo.store/games/
 응답 
 200
 {
-    "order_id": 2,
-    "redirect": "https://online-pay.kakao.com/mockup/v1/1e7decf7b36d7977598b84e7ee5710df9ea5f5982fb7593c8c9927f8c5152b3b/info",
+    "order_id": 1,
+    "redirect": "https://online-pay.kakao.com/mockup/v1/46fcb98ec2bb60e5617c607d71e4a05317929ee3c549c37c41e9e56d2d0b7243/info",
     "payment_ids": [
-        3,
-        4,
-        5,
-        6
+        1,
+        2
     ],
     "pending_payment_ids": [
-        6
+        2
     ]
 }
-
 ```
