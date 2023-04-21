@@ -36,4 +36,4 @@ teemoShopping
 ERD: https://www.erdcloud.com/d/dg3RDn7rvmosF5Txz
 
 
-API: http://teemoshopping.techteemo.store:8080/api-doc
+API: http://teemoshopping.techteemo.store:8080/swagger-ui/index.html
