@@ -5,6 +5,10 @@ teemoShopping
 --
 게임 구매 사이트를 위한 Rest API 제공 Backend
 
+기간
+--
+2023.03.28 ~
+
 기능 
 --
 - 로그인/ 회원가입
