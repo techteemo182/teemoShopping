@@ -44,10 +44,10 @@ API: https://teemoshopping.techteemo.store/swagger-ui/index.html
 
 보완점 / 추가할 점
 --
-MySQL 연결 
-CI/CD 추가
-Redirect 를 Payment 의 컬럼으로 추가
-내부 로직 기술명세 만들기
+- MySQL 연결 
+- CI/CD 추가
+- Redirect 를 Payment 의 컬럼으로 추가
+- 내부 로직 기술명세 만들기
 
 Example
 ====
