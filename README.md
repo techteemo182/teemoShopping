@@ -37,3 +37,99 @@ ERD: https://www.erdcloud.com/d/dg3RDn7rvmosF5Txz
 
 
 API: https://teemoshopping.techteemo.store/swagger-ui/index.html
+
+
+
+Example
+====
+회원가입 
+---
+```
+요청 
+POST https://teemoshopping.techteemo.store/accounts/register
+body
+{
+  "username": "cdjsak232",
+  "password": "asd12k2"
+}
+응답 
+200 success
+```
+
+로그인
+---
+```
+요청 
+POST https://teemoshopping.techteemo.store/accounts/register
+body
+{
+  "username": "cdjsak232",
+  "password": "asd12k2"
+}
+응답 
+200 eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZWVtb19zaG9wcGluZyIsImV4cCI6MTY4MjEzMjM5NSwicm9sZSI6IiIsImFjY291bnRfaWQiOjN9.toeBFhQTdJL2vRxDhb1M7lsJvrlhINOhnAvZg9DIJlwcRsow1anKPdx5IgfC5v45XzXJKo8Q4-tKy72Jm59h5bnOshBiz9y5pM00Mry0IOi9Lq1MhMclnrLX73H1KuIkqacoXuJ8asmS75FxdhC6uCDLT6J71eb57tpIHlzpO6bc6JDMTorAq52J-3iCp-YoZgkKzuzMDa1FoBTSACve_Dc7Marq_xyWc4ef43-IiOc3BBWTePDyrpoi1Ac3Kh_kdOMKoiFH5gMkKBSPZhkfzTOp4c6npGjeu0dAaGHCNY3Kt5NJbOFealZ3tIkQxC3LKmZrpAlAtlYO8Sk0M_BQsA
+```
+
+게임 조회
+---
+```
+요청 
+GET https://teemoshopping.techteemo.store/games/
+응답 
+200 
+[
+  {
+  "id": 1,
+  "name": "티모어드벤쳐",
+  "description": "티모와 게임을",
+  "ratingAvg": 0.0,
+  "ratingCount": 0,
+  "price": 10300,
+  "discountPercent": 0.0
+  },
+  {
+  "id": 2,
+  "name": "리그오브치킨",
+  "description": "최고의 치킨이 되자",
+  "ratingAvg": 0.0,
+  "ratingCount": 0,
+  "price": 20000,
+  "discountPercent": 0.0
+  }
+]
+```
+주문 생성
+===
+```
+요청
+{
+  "point": 5000,
+  "methods": [
+    "DISCOUNT",
+  	"POINT",
+    "KAKAOPAY"
+  ],
+  "game_ids": [
+    1, 2
+  ],
+  "game_coupon_id_map": {
+  },
+  "redirect": "naver.com"
+}
+응답 
+200
+{
+    "order_id": 2,
+    "redirect": "https://online-pay.kakao.com/mockup/v1/1e7decf7b36d7977598b84e7ee5710df9ea5f5982fb7593c8c9927f8c5152b3b/info",
+    "payment_ids": [
+        3,
+        4,
+        5,
+        6
+    ],
+    "pending_payment_ids": [
+        6
+    ]
+}
+
+```
