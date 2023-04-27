@@ -59,7 +59,7 @@ KakaoPayment 결제 로직
 
 
 Payment 상태 로직
-![image](https://user-images.githubusercontent.com/59180460/234910846-15965094-40a9-405b-a028-7868c24f75df.png)
+![image](https://user-images.githubusercontent.com/59180460/234911007-f493f3db-5730-41aa-836e-c40d31729f0f.png)
 
 
 
