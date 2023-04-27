@@ -49,7 +49,24 @@ API: https://teemoshopping.techteemo.store/swagger-ui/index.html
 - 내부 로직 기술명세 만들기
 - KakaopayPaymentService 에서 kakaoAPI 분리 트랜잭션 최소화 하기
 
-Example
+
+
+대표 로직
+--
+
+KakaoPayment 결제 로직
+![image](https://user-images.githubusercontent.com/59180460/234909500-f8cab0ba-ac15-41cc-a763-d806c7172652.png)
+
+
+Payment 상태 로직
+![image](https://user-images.githubusercontent.com/59180460/234909700-2a27961e-eceb-4fb7-a3db-5ecc2ba03692.png)
+
+
+
+
+
+
+API Example
 ====
 회원가입 
 ---
