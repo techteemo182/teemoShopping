@@ -46,10 +46,6 @@ API: https://teemoshopping.techteemo.store/swagger-ui/index.html
 --
 - MySQL 연결 
 - CI/CD 추가
-- 내부 로직 기술명세 만들기
-- KakaopayPaymentService 에서 kakaoAPI 분리 트랜잭션 최소화 하기
-
-
 
 대표 로직
 --
