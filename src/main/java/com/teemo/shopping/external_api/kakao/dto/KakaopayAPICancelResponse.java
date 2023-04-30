@@ -1,5 +1,8 @@
 package com.teemo.shopping.external_api.kakao.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -12,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaopayAPICancelResponse {
     private String aid;
@@ -28,7 +30,7 @@ public class KakaopayAPICancelResponse {
     private KakaopayAPICancelResponseAmount cancelAvailableAmount;
     private String itemName;
     private String itemCode;
-    private int quantity;
+    private Integer quantity;
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
     private LocalDateTime canceledAt;

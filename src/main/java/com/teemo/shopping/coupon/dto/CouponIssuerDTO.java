@@ -1,6 +1,8 @@
 package com.teemo.shopping.coupon.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teemo.shopping.coupon.domain.CouponIssuer;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -8,9 +10,9 @@ import lombok.Getter;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
+@Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CouponIssuerDTO {
-    @JsonCreator
-    @Builder
     protected CouponIssuerDTO(Long id, Long couponId, Integer amount, boolean isNewAccount,
         boolean isFirstCome, Integer remainAmount, LocalDateTime startAt, LocalDateTime endAt) {
         this.id = id;
@@ -23,15 +25,15 @@ public class CouponIssuerDTO {
         this.endAt = endAt;
     }
 
-    private final Long id;
-    private final Long couponId;
+    private Long id;
+    private Long couponId;
     @Range(min = 1)
-    private final Integer amount; //발급 수량
-    private final boolean isNewAccount;  // 새로운 유저
-    private final boolean isFirstCome;    // 선착순
-    private final Integer remainAmount;   //선착순 일때 남은 수량
-    private final LocalDateTime startAt;  //시작
-    private final LocalDateTime endAt;    //끝
+    private Integer amount; //발급 수량
+    private boolean isNewAccount;  // 새로운 유저
+    private boolean isFirstCome;    // 선착순
+    private Integer remainAmount;   //선착순 일때 남은 수량
+    private LocalDateTime startAt;  //시작
+    private LocalDateTime endAt;    //끝
 
     public static CouponIssuerDTO from(CouponIssuer couponIssuer) {
         return CouponIssuerDTO.builder()

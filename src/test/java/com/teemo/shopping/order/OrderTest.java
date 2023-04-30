@@ -6,11 +6,10 @@ import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.dto.AddCouponRequest;
-import com.teemo.shopping.coupon.dto.CouponDTO;
 import com.teemo.shopping.coupon.service.CouponService;
 import com.teemo.shopping.game.dto.GameDTO;
 import com.teemo.shopping.game.service.GameService;
-import com.teemo.shopping.order.enums.PaymentMethod;
+import com.teemo.shopping.order.enums.PaymentMethods;
 import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.order.repository.PaymentRepository;
 import com.teemo.shopping.order.service.OrderService;
@@ -80,9 +79,11 @@ public class OrderTest {
         accountService.addCoupon(accountId, couponId, 1);
 
         var orderId = orderService.addOrder(accountId, 50000,
-            List.of(PaymentMethod.COUPON, PaymentMethod.POINT, PaymentMethod.KAKAOPAY,
-                PaymentMethod.DISCOUNT), gameIds, gameCouponIdMap, "naver.com");
+            List.of(PaymentMethods.COUPON, PaymentMethods.POINT, PaymentMethods.KAKAOPAY,
+                PaymentMethods.DISCOUNT), gameIds, gameCouponIdMap, "naver.com");
         var orderDTO = orderService.get(orderId);
+
+
     }
 
 }

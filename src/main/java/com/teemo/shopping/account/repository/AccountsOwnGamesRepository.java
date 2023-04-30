@@ -12,5 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface AccountsOwnGamesRepository extends JpaRepository<AccountsOwnGames, Long> {
     Optional<AccountsOwnGames> findByAccountAndGame(Account account, Game game);
     List<AccountsOwnGames> findAllByAccount(Account account);
+    void deleteByAccountAndGame(Account account, Game game);
 }
 

@@ -1,11 +1,10 @@
 package com.teemo.shopping.order.dto.payment;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teemo.shopping.order.domain.Payment;
-import com.teemo.shopping.order.enums.PaymentMethod;
-import com.teemo.shopping.order.enums.PaymentStatus;
+import com.teemo.shopping.order.enums.PaymentMethods;
+import com.teemo.shopping.order.enums.PaymentStates;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -13,33 +12,19 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PaymentDTO {
-    @JsonCreator
-    protected PaymentDTO(Long id, int amount, int refundableAmount, int refundedAmount, PaymentMethod method,
-        PaymentStatus status, Long orderId) {
-        this.id = id;
-        this.amount = amount;
-        this.refundableAmount = refundableAmount;
-        this.refundedAmount = refundedAmount;
-        this.method = method;
-        this.status = status;
-        this.orderId = orderId;
-    }
-    private final Long id;
-    private final int amount;
-    private final int refundableAmount;
-    private final int refundedAmount;
-    private final PaymentMethod method;
-    private final PaymentStatus status;
-    private final Long orderId;
+
+    private Long id;
+    private Integer amount;
+    private Integer refundableAmount;
+    private Integer refundedAmount;
+    private PaymentMethods method;
+    private PaymentStates status;
+    private Long orderId;
 
     public static PaymentDTO from(Payment payment) {
-        return PaymentDTO.builder()
-            .id(payment.getId())
-            .amount(payment.getAmount())
+        return PaymentDTO.builder().id(payment.getId()).amount(payment.getAmount())
             .refundableAmount(payment.getRefundableAmount())
-            .refundedAmount(payment.getRefundedAmount())
-            .method(payment.getMethod())
-            .status(payment.getStatus())
-            .build();
+            .refundedAmount(payment.getRefundedAmount()).method(payment.getMethod())
+            .status(payment.getState()).build();
     }
 }

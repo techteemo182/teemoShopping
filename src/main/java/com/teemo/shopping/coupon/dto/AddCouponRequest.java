@@ -1,5 +1,7 @@
 package com.teemo.shopping.coupon.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
@@ -9,29 +11,31 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Range;
+
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AddCouponRequest {
+
     @NotNull
-    private final String name;
+    private String name;
     @NotNull
-    private final String description;
+    private String description;
     @Range(min = 0)
     @Nullable
-    private final Integer maxDiscountPrice;
+    private Integer maxDiscountPrice;
     @Range(min = 0)
     @Nullable
-    private final Integer minDiscountPrice;
+    private Integer minDiscountPrice;
     @Range(min = 0)
-    private final Integer minFulfillPrice;
+    private Integer minFulfillPrice;
     @NotNull
-    private final CouponMethod method;
+    private CouponMethod method;
     @NotNull
-    private final Boolean canApplyToAll;
+    private Boolean canApplyToAll;
     @Range(min = 0)
     @NotNull
-    private final Double amount;
+    private Double amount;
     @NotNull
-    private final LocalDateTime expiredAt;
+    private LocalDateTime expiredAt;
 }

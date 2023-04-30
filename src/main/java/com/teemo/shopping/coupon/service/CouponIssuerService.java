@@ -21,19 +21,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponIssuerService {
 
     @Autowired
-    CouponRepository couponRepository;
+    private CouponRepository couponRepository;
     @Autowired
-    CouponIssuerRepository couponIssuerRepository;
+    private CouponIssuerRepository couponIssuerRepository;
 
     @Autowired
-    CouponIssuerAccountsRepository couponIssuerAccountsRepository;
+    private CouponIssuerAccountsRepository couponIssuerAccountsRepository;
     @Autowired
-    AccountRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
-    AccountsCouponsRepository accountsCouponsRepository;
+    private AccountsCouponsRepository accountsCouponsRepository;
     @Autowired
-    CouponService couponService;
+    private CouponService couponService;
     @Transactional
     public Long add(CouponIssuerDTO couponIssuerDTO)
         throws Exception {

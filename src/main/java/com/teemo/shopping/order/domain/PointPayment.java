@@ -1,11 +1,15 @@
 package com.teemo.shopping.order.domain;
 
-import com.teemo.shopping.order.enums.PaymentMethod;
-import com.teemo.shopping.order.enums.PaymentMethod.Values;
-import com.teemo.shopping.order.enums.PaymentStatus;
+import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.order.enums.PaymentMethods;
+import com.teemo.shopping.order.enums.PaymentMethods.Values;
+import com.teemo.shopping.order.enums.PaymentStates;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,10 +22,19 @@ import lombok.NoArgsConstructor;
     name = "point_payments"
 )
 @DiscriminatorValue(Values.POINT)
-public class PointPayment extends AllProductPayment {
+public class PointPayment extends Payment {
+
 
     @Builder
-    public PointPayment(int amount, PaymentStatus status, Order order) {
-        super(amount, status, order, PaymentMethod.POINT);
+    public PointPayment(Integer amount, PaymentStates state, Order order, PaymentMethods method,
+        Account account) {
+        super(amount, state, order, PaymentMethods.POINT);
+        this.account = account;
     }
+
+    @ManyToOne
+    @JoinColumn(name = "accounts_id")
+    @NotNull
+    private Account account;
+
 }

@@ -63,13 +63,13 @@ public class CouponController {
         return couponService.addGameCategory(couponId, gameCategoryId);
     }
     @Operation(operationId = "쿠폰이 지원하는 게임 리스트", summary = "쿠폰이 지원하는 게임 리스트", tags = {"쿠폰"})
-    @GetMapping(path = "/{couponId}/games/")
+    @GetMapping(path = "/{couponId}/games")
     public List<GameDTO> gameList(@PathVariable("couponId") Long couponId) {
         return couponService.gameList(couponId);
     }
 
     @Operation(operationId = "쿠폰이 지원하는 게임 카테고리", summary = "쿠폰이 지원하는 게임 카테고리", tags = {"쿠폰"})
-    @GetMapping(path = "/{couponId}/game-categories/")
+    @GetMapping(path = "/{couponId}/game-categories")
     public List<GameCategoryDTO> gameCategoryList(@PathVariable("couponId") Long couponId) {
         return couponService.gameCategoryList(couponId);
     }

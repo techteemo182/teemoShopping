@@ -18,11 +18,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table (
-    indexes = {
-        @Index(columnList = "game_categories_id, games_id")
-    }
-)
 @AttributeOverride(name = "id", column = @Column(name = "game_categories_games_id"))
 public class GameCategoriesGames extends BaseEntity {
 

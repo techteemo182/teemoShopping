@@ -1,13 +1,10 @@
 package com.teemo.shopping.order.controller;
 
-import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.order.dto.OrderDTO;
-import com.teemo.shopping.order.service.KakaopayPaymentService;
+import com.teemo.shopping.order.service.OrderRefundService;
 import com.teemo.shopping.order.service.OrderService;
 import com.teemo.shopping.security.PermissionChecker;
-import com.teemo.shopping.security.PermissionUtil;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
@@ -24,6 +21,9 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
     @Autowired
+    private OrderRefundService orderRefundService;
+
+    @Autowired
     private PermissionChecker permissionChecker;
     @Operation(operationId = "주문 조회", summary = "주문 조회", tags = {"주문"})
     @GetMapping(path = "/{orderId}")
@@ -35,15 +35,15 @@ public class OrderController {
     }
     @Operation(operationId = "주문 환불", summary = "주문 환불", tags = {"주문"})
     @PostMapping("/{orderId}/refund")
-    public void refundOrder(@PathVariable Long orderId) {
+    public void refundOrder(@PathVariable Long orderId) throws Exception{
         permissionChecker.checkAdminAndThrow();
-        orderService.refundOrder(orderId);
+        orderRefundService.refundOrder(orderId);
     }
     @Operation(operationId = "주문 에서 게임 환불", summary = "주문 에서 게임 환불", tags = {"주문"})
     @GetMapping("/{orderId}/games/{gameId}/refund")
     public void refundGame(@PathVariable Long orderId, @PathVariable Long gameId) {
         permissionChecker.checkAdminAndThrow();
-        orderService.refundGame(orderId, gameId);
+        orderRefundService.refundGame(orderId, gameId);
     }
 }
 

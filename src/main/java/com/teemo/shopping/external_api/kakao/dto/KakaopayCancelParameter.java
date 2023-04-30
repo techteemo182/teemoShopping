@@ -12,6 +12,8 @@ public class KakaopayCancelParameter {
     private final String tid;
 
     @NotNull
+    private final String cid;
+    @NotNull
     @Range(min = 1)
     private final Integer amount;
 }

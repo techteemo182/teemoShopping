@@ -8,6 +8,8 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,6 +24,12 @@ import org.hibernate.validator.constraints.Range;
 @Entity
 @AttributeOverride(name = "id", column = @Column(name = "coupon_id"))
 @CouponConstraint
+@Table(
+    name = "coupons",
+    indexes = {
+        @Index(columnList = "name")
+    }
+)
 public class Coupon extends BaseEntity {
 
     @Builder

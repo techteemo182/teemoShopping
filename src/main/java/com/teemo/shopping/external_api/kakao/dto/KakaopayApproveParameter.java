@@ -13,6 +13,10 @@ public class KakaopayApproveParameter {
     @NotNull
     private final String tid;
     @NotNull
+    private final String partnerUserId;
+    @NotNull
+    private final String cid;
+    @NotNull
     private final String partnerOrderId;
     @NotNull
     private final String pgToken;

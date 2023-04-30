@@ -17,11 +17,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(
-    indexes = {
-        @Index(columnList = "coupons_id, games_id")
-    }
-)
 @AttributeOverride(name = "id", column = @Column(name = "coupons_games_id"))
 @Entity
 public class CouponsGames extends BaseEntity {

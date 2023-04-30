@@ -12,18 +12,17 @@ import lombok.Getter;
 
 @Getter
 @Builder
+//재설계
 public class OrderCreateContext {
     @NotNull
     private final Order order;
     @NotNull
     private final Account account;
-    private final Game game;
+    private final Optional<Game> game;
     private final List<Game> games;
     private final Optional<Coupon> coupon;
     private final Integer point;
     private final Integer amount;
-    private final String itemName;
-    private final String redirect;
+    private final Optional<String> redirect;
 
 }
-

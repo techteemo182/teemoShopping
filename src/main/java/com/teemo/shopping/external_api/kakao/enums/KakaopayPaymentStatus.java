@@ -1,4 +1,7 @@
 package com.teemo.shopping.external_api.kakao.enums;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum KakaopayPaymentStatus {
     READY("결제 요청"),
     SEND_TMS("결제 요청 메시지(TMS) 발송 완료"),
@@ -19,6 +22,7 @@ public enum KakaopayPaymentStatus {
         this.description = description;
     }
 
+    @JsonValue
     public String getDescription() {
         return description;
     }

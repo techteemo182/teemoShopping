@@ -1,10 +1,12 @@
 package com.teemo.shopping.order.domain;
 
-import com.teemo.shopping.order.enums.PaymentMethod;
-import com.teemo.shopping.order.enums.PaymentMethod.Values;
-import com.teemo.shopping.order.enums.PaymentStatus;
+import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.order.enums.PaymentMethods;
+import com.teemo.shopping.order.enums.PaymentMethods.Values;
+import com.teemo.shopping.order.enums.PaymentStates;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.game.domain.Game;
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -23,16 +25,30 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @DiscriminatorValue(Values.COUPON)
-public class CouponPayment extends GameProductPayment {
-
+public class CouponPayment extends Payment {
     @Builder
-    protected CouponPayment(int amount, PaymentStatus status, Order order, Coupon coupon, Game game) {
-        super(amount, status, order, PaymentMethod.COUPON, game);
+    public CouponPayment(Integer amount, PaymentStates state, Order order, PaymentMethods method,
+        Coupon coupon, Game game, Account account) {
+        super(amount, state, order, PaymentMethods.COUPON);
         this.coupon = coupon;
+        this.game = game;
+        this.account = account;
     }
 
     @ManyToOne
     @JoinColumn(name = "coupons_id")
     @NotNull
-    Coupon coupon;
+    private Coupon coupon;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    @NotNull
+    private Account account;
+
+    @ManyToOne
+    @JoinColumn(name = "games_id")
+    @NotNull
+    private Game game;
+
+
 }

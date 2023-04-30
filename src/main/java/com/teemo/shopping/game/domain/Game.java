@@ -20,7 +20,8 @@ import org.hibernate.validator.constraints.Range;
 @Table(
     name = "games",
     indexes = {
-        @Index(columnList = "ratingAvg")
+        @Index(columnList = "ratingAvg"),
+        @Index(columnList = "name")
     }
 )
 public class Game extends BaseEntity {

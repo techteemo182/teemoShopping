@@ -7,12 +7,12 @@ import com.teemo.shopping.order.domain.KakaopayPayment;
 import com.teemo.shopping.order.domain.Payment;
 import com.teemo.shopping.order.domain.PointPayment;
 
-public enum PaymentMethod {
+public enum PaymentMethods {
     KAKAOPAY(Values.KAKAOPAY, KakaopayPayment.class),
     COUPON(Values.COUPON, CouponPayment.class),
     POINT(Values.POINT, PointPayment.class),
     DISCOUNT(Values.DISCOUNT, DiscountPayment.class);
-    PaymentMethod(String method, Class<? extends Payment> paymentClass) {
+    PaymentMethods(String method, Class<? extends Payment> paymentClass) {
         this.method = method;
         this.paymentClass = paymentClass;
     }

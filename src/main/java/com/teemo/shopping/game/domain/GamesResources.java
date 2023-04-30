@@ -18,11 +18,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(
-    indexes = {
-        @Index(columnList = "games_id, resources_id")
-    }
-)
 @AttributeOverride(name = "id", column = @Column(name = "games_resources_id"))
 public class GamesResources extends BaseEntity {
 

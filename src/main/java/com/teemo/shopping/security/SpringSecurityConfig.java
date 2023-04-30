@@ -29,6 +29,10 @@ public class SpringSecurityConfig {
             .and()
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(overseeFilter, ChannelProcessingFilter.class)
+            .headers()
+            .frameOptions()
+            .disable()
+            .and()
             .build();
     }
 

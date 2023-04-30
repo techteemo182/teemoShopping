@@ -1,11 +1,15 @@
 package com.teemo.shopping.order.domain;
 
-import com.teemo.shopping.order.enums.PaymentMethod;
-import com.teemo.shopping.order.enums.PaymentMethod.Values;
-import com.teemo.shopping.order.enums.PaymentStatus;
+import com.teemo.shopping.order.enums.KakaopayAPIStates;
+import com.teemo.shopping.order.enums.PaymentMethods;
+import com.teemo.shopping.order.enums.PaymentMethods.Values;
+import com.teemo.shopping.order.enums.PaymentStates;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,44 +20,76 @@ import org.hibernate.validator.constraints.Length;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(
-    name = "kakaopay_payments"
-)
+@Table(name = "kakaopay_payments")
 @DiscriminatorValue(Values.KAKAOPAY)
-public class KakaopayPayment extends AllProductPayment {
+public class KakaopayPayment extends Payment {
 
-    @Builder
-    protected KakaopayPayment(int amount, PaymentStatus status, Order order,
-        String tid, String cid) {
-        super(amount, status, order, PaymentMethod.KAKAOPAY);
-        this.tid = tid;
-        this.cid = cid;
-    }
-
+    @Column
+    private String itemName;
+    @Column
+    private String pgToken;
+    @Column
+    private String redirectSecret;
+    @Column
+    private String completeRedirect;
     @Length(min = 20, max = 20)
     private String tid;
-
+    @Enumerated(EnumType.STRING)
+    private KakaopayAPIStates kakaopayAPIStates;
+    @Column
+    private String partnerUserId;
+    @Column
+    private String partnerOrderId;
+    @Column
+    private String redirect;
     @Column
     private String cid;
-    @Column
-    private String nextRedirectAppUrl;
-    @Column
-    private String nextRedirectMobileUrl;
-    @Column
-    private String nextRedirectPcUrl;
-    @Column
-    private String androidAppScheme;
-    @Column
-    private String iosAppScheme;
-    public void updateRedirect(String nextRedirectAppUrl, String nextRedirectMobileUrl, String nextRedirectPcUrl, String androidAppScheme, String iosAppScheme) {
-        this.nextRedirectAppUrl = nextRedirectAppUrl;
-        this.nextRedirectMobileUrl = nextRedirectMobileUrl;
-        this.nextRedirectPcUrl = nextRedirectPcUrl;
-        this.androidAppScheme = androidAppScheme;
-        this.iosAppScheme = iosAppScheme;
+    @Builder
+    protected KakaopayPayment(Integer amount, PaymentStates state, Order order, PaymentMethods method,
+        String redirect, String itemName, String pgToken, String redirectSecret,
+        String completeRedirect, String tid, KakaopayAPIStates kakaopayAPIStates,
+        String partnerUserId,
+        String partnerOrderId, String cid) {
+        super(amount, state, order, PaymentMethods.KAKAOPAY);
+        this.itemName = itemName;
+        this.pgToken = pgToken;
+        this.redirectSecret = redirectSecret;
+        this.completeRedirect = completeRedirect;
+        this.tid = tid;
+        this.kakaopayAPIStates = kakaopayAPIStates;
+        this.partnerUserId = partnerUserId;
+        this.partnerOrderId = partnerOrderId;
+        this.cid = cid;
+        this.redirect = redirect;
     }
 
+    public void updateCid(String cid) {
+        this.cid = cid;
+    }
+    public void updatePartnerUserId(String partnerUserId) {
+        this.partnerUserId = partnerUserId;
+    }
+
+    public void updatePartnerOrderId(String partnerOrderId) {
+        this.partnerOrderId = partnerOrderId;
+    }
+
+    public void updateRedirectSecret(String redirectSecret) {
+        this.redirectSecret = redirectSecret;
+    }
+
+    public void updatePgToken(String pgToken) {
+        this.pgToken = pgToken;
+    }
+
+    public void updateKakaopayAPIState(KakaopayAPIStates kakaopayAPIStates) {
+        this.kakaopayAPIStates = kakaopayAPIStates;
+    }
+    public void updateRedirect(String redirect) {
+        this.redirect = redirect;
+    }
     public void updateTid(String tid) {
         this.tid = tid;
     }
 }
+

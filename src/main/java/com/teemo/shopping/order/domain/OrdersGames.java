@@ -1,7 +1,7 @@
 package com.teemo.shopping.order.domain;
 
 
-import com.teemo.shopping.order.enums.OrdersGamesStatus;
+import com.teemo.shopping.order.enums.OrdersGamesStates;
 import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.AttributeOverride;
@@ -24,10 +24,11 @@ import lombok.NoArgsConstructor;
 public class OrdersGames extends BaseEntity {
 
     @Builder
-    protected OrdersGames(Order order, Game game, OrdersGamesStatus status) {
+    protected OrdersGames(Order order, Game game, OrdersGamesStates state, Integer price) {
         this.order = order;
         this.game = game;
-        this.status = status;
+        this.state = state;
+        this.price = price;
     }
     @Override
     public boolean equals(Object obj) {
@@ -47,10 +48,13 @@ public class OrdersGames extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private OrdersGamesStatus status;
+    private OrdersGamesStates state;
 
-    public void updateStatus(OrdersGamesStatus status) {
-        this.status = status;
+    @Column
+    private Integer price;
+
+    public void updateState(OrdersGamesStates state) {
+        this.state = state;
     }
 }
 

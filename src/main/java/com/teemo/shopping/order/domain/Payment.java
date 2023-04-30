@@ -1,8 +1,8 @@
 package com.teemo.shopping.order.domain;
 
-import com.teemo.shopping.order.enums.PaymentMethod;
-import com.teemo.shopping.order.enums.PaymentStatus;
 import com.teemo.shopping.core.entity.BaseEntity;
+import com.teemo.shopping.order.enums.PaymentMethods;
+import com.teemo.shopping.order.enums.PaymentStates;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -20,7 +20,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Formula;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
@@ -34,13 +33,14 @@ import org.hibernate.validator.constraints.Range;
 @DiscriminatorValue("null")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Embeddable
-public class Payment extends BaseEntity {
+public abstract class Payment extends BaseEntity {
 
-    protected Payment(int amount, PaymentStatus status, Order order,PaymentMethod method) {
+    protected Payment(Integer amount, PaymentStates state, Order order, PaymentMethods method) {
         this.amount = amount;
-        this.status = status;
+        this.state = state;
         this.order = order;
         this.method = method;
+        this.refundedAmount = 0;
     }
     @Override
     public boolean equals(Object obj) {
@@ -52,17 +52,11 @@ public class Payment extends BaseEntity {
      *  결제의 양 또는 환불의 양
      */
     @Range(min = 0)
-    private int amount;
-
-    @Formula("amount - refunded_amount")
-    /**
-     *  환불 가능 금액
-     */
-    private int refundableAmount;
+    private Integer amount;
 
     @Column
     @NotNull
-    private int refundedAmount;
+    private Integer refundedAmount;
 
     /**
      *  결제 상태
@@ -78,18 +72,23 @@ public class Payment extends BaseEntity {
      */
     @Enumerated(EnumType.STRING)
     @NotNull
-    private PaymentMethod method;
+    private PaymentMethods method;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private PaymentStatus status;
+    private PaymentStates state;
 
     @ManyToOne
     @NotNull
     private Order order;
-
-    public void updateStatus(PaymentStatus status) {
-        this.status = status;
+    public Integer getRefundableAmount() {
+        return this.getAmount() - this.getRefundedAmount();
     }
-    public void updateRefundedPoint(int refundedPrice) {this.refundedAmount = refundedPrice;}
+    public void updateState(PaymentStates state) {
+        this.state = state;
+    }
+    public void updateRefundedAmount(int refundedAmount) {this.refundedAmount = refundedAmount;}
+    public void updateAmount(Integer amount) {
+        this.amount = amount;
+    }
 }
