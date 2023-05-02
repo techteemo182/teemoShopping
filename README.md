@@ -46,10 +46,6 @@ API: https://teemoshopping.techteemo.store/swagger-ui/index.html
 --
 - MySQL 연결 
 - CI/CD 추가
-- 내부 로직 기술명세 만들기
-- KakaopayPaymentService 에서 kakaoAPI 분리 트랜잭션 최소화 하기
-
-
 
 대표 로직
 --
@@ -130,30 +126,28 @@ GET https://teemoshopping.techteemo.store/games/
 ```
 요청
 {
-  "point": 5000,
-  "methods": [
-    "DISCOUNT",
-  	"POINT",
-    "KAKAOPAY"
-  ],
-  "game_ids": [
-    1, 2
-  ],
-  "game_coupon_id_map": {
-  },
-  "redirect": "naver.com"
+  "point": 0,
+  "payment_method": "KAKAOPAY",
+  "redirect": "http://naver.com",
+  "game_infos": [
+    {
+      "game_id": 1
+    }
+  ]
 }
 응답 
 200
 {
     "order_id": 1,
-    "redirect": "https://online-pay.kakao.com/mockup/v1/46fcb98ec2bb60e5617c607d71e4a05317929ee3c549c37c41e9e56d2d0b7243/info",
+    "redirects": [
+        "https://online-pay.kakao.com/mockup/v1/83301da3113c0603e53e06280e086b57094b23e4d9701cb8a876a3e1b9cef34d/info"
+    ],
     "payment_ids": [
-        1,
-        2
+        1
     ],
     "pending_payment_ids": [
-        2
+        1
     ]
 }
+
 ```
