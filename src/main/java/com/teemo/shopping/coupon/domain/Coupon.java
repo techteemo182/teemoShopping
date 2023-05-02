@@ -6,17 +6,25 @@ import com.teemo.shopping.coupon.validator.CouponConstraint;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Any;
+import org.hibernate.annotations.AnyDiscriminator;
+import org.hibernate.annotations.AnyDiscriminatorValue;
+import org.hibernate.annotations.AnyKeyJavaClass;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
@@ -75,8 +83,8 @@ public class Coupon extends BaseEntity {
      * if (method == PERCENT) 0 ~ 100 [%]
      * else if(method == STATIC) 0 ~ [원]
      */
-    @Column
     @Range(min = 0)
+    @Column
     private Double amount;
 
     @Column
@@ -85,5 +93,9 @@ public class Coupon extends BaseEntity {
     @NotNull
     private LocalDateTime expiredAt;
 
+}
+
+interface Unit<T> {
+    T getValue();
 }
 

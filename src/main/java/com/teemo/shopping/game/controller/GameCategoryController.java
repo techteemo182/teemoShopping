@@ -42,13 +42,13 @@ public class GameCategoryController {
         gameCategoryService.remove(gameCategoryId);
     }
     @Operation(operationId = "게임 카테고리 리스트", summary = "게임 카테고리 리스트", tags = {"게임카테고리"})
-    @GetMapping(path = "/")
+    @GetMapping(path = "")
     public List<GameCategoryDTO> list() {
         return gameCategoryService.list();
     }
 
     @Operation(operationId = "게임 카테고리의 게임 리스트", summary = "게임 카테고리의 게임 리스트", tags = {"게임카테고리"})
-    @GetMapping(path = "/{gameCategoryId}/games/")
+    @GetMapping(path = "/{gameCategoryId}/games")
     public List<GameDTO> gameList(@PathVariable("gameCategoryId") Long gameCategoryId) {
         return gameCategoryService.gameList(gameCategoryId);
     }

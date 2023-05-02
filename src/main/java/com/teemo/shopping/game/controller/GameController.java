@@ -54,12 +54,12 @@ public class GameController {
         return gameService.list();
     }
     @Operation(operationId = "게임 리뷰 리스트", summary = "게임 리뷰 리스트", tags = {"게임"})
-    @GetMapping(path = "/{gameId}/reviews/")
+    @GetMapping(path = "/{gameId}/reviews")
     public List<ReviewDTO> reviewList(@PathVariable("gameId") Long gameId) throws Exception {
         return gameService.reviewList(gameId);
     }
     @Operation(operationId = "게임 리소스 리스트", summary = "게임 리소스 리스트", tags = {"게임"})
-    @GetMapping(path = "/{gameId}/resources/")
+    @GetMapping(path = "/{gameId}/resource")
     public List<ResourceDTO> resourceList(@PathVariable("gameId") Long gameId) throws Exception {
         return gameService.resourceList(gameId);
     }

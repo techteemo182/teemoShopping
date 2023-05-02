@@ -45,7 +45,7 @@ public class CouponController {
         couponService.remove(couponId);
     }
     @Operation(operationId = "쿠폰 리스트", summary = "쿠폰 리스트", tags = {"쿠폰"})
-    @GetMapping(path = "/")
+    @GetMapping(path = "")
     public List<CouponDTO> list() {
         return couponService.list();
     }

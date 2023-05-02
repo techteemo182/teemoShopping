@@ -141,7 +141,7 @@ public class AccountController {
     }
 
     @Operation(operationId = "계정의 주문 리스트", summary = "계정의 주문 리스트", tags = {"계정"})
-    @GetMapping("/orders/")
+    @GetMapping("/orders")
     public List<OrderDTO> getOrderList() {
         Long accountId = permissionChecker.getAccountIdElseThrow();
         return accountService.orderList(accountId);

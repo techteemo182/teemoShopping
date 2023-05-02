@@ -42,7 +42,7 @@ public class CouponIssuerController {
         couponIssuerService.remove(couponIssuerId);
     }
     @Operation(operationId = "쿠폰발급자 리스트", summary = "쿠폰발급자 리스트", tags = {"쿠폰발급자"})
-    @GetMapping(path = "/")
+    @GetMapping(path = "")
     public List<CouponIssuerDTO> list() {
         return couponIssuerService.list();
     }

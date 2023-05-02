@@ -6,6 +6,7 @@ import com.teemo.shopping.game.dto.GameDTO;
 import com.teemo.shopping.game.service.GameService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,16 +19,18 @@ public class TestModule {
     @Autowired
     private GameService gameService;
 
-    TestModule() {
-
-    }
-
+    @Value("${test.admin.username}")
+    String adminUsername;
+    @Value("${test.admin.password}")
+    String adminPassword;
+    @Value("${test.user.username}")
+    String username;
+    @Value("${test.user.password}")
+    String password;
     @PostConstruct
     void inject() throws Exception {
-        String username = "root";
-        String password = "root";
-        Long accountId = accountAuthenticationService.register(username, password);
-        Long teemoId = accountAuthenticationService.register("teemo", "teemo");
+        Long accountId = accountAuthenticationService.register(adminUsername, adminPassword);
+        Long teemoId = accountAuthenticationService.register(username, password);
         accountAuthenticationService.updateAdmin(accountId, true);
         accountService.addPoint(teemoId, 100000);
 
