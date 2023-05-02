@@ -86,6 +86,7 @@ public class OrderService {
         List<Coupon> coupons = couponRepository.findAllById(couponIds);
 
         boolean isPurchasable = ordersGamesRepository.isPurchasable(accountId, gameIds);
+        System.out.println("구매확인완료");
         if (isPurchasable) {
             throw new IllegalStateException("구매 가능한 상태가 아닙니다.");
         }
@@ -177,6 +178,7 @@ public class OrderService {
         order.getPayments().addAll(payments);
         for (var game : games) { // 주문에 결제 연관
             OrdersGames ordersGames = OrdersGames.builder().game(game).order(order)
+                .account(account)
                 .price(game.getPrice()).state(OrdersGamesStates.PENDING).build();
             order.getOrdersGames().add(ordersGames);
         }

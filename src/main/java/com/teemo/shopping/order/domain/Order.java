@@ -20,6 +20,8 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Check;
+import org.hibernate.annotations.SQLInsert;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
@@ -29,6 +31,7 @@ import org.hibernate.validator.constraints.Range;
 @Table(
     name = "orders"
 )
+
 public class Order extends BaseEntity {
 
     @Builder
