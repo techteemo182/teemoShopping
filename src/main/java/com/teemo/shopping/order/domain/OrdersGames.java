@@ -2,39 +2,37 @@ package com.teemo.shopping.order.domain;
 
 
 import com.teemo.shopping.account.domain.Account;
+import com.teemo.shopping.order.domain.trigger.OrdersGamesTrigger;
 import com.teemo.shopping.order.enums.OrdersGamesStates;
 import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.game.domain.Game;
+import com.teemo.shopping.order.repository.OrdersGamesRepository;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @AttributeOverride(name = "id", column = @Column(name = "orders_games_id"))
-@Table(
-    uniqueConstraints = {
-        @UniqueConstraint(
-            columnNames = {
-                "accounts_id",
-                "games_id"
-            }
-        )
-    }
-)
+@EntityListeners(OrdersGamesTrigger.class)
 public class OrdersGames extends BaseEntity {
 
     @Builder
@@ -74,7 +72,6 @@ public class OrdersGames extends BaseEntity {
 
     @Column
     private Integer price;
-
     public void updateState(OrdersGamesStates state) {
         this.state = state;
     }

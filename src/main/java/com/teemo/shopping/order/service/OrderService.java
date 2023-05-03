@@ -23,9 +23,9 @@ import com.teemo.shopping.order.repository.PaymentRepository;
 import com.teemo.shopping.order.service.context.OrderCreateContext;
 import com.teemo.shopping.order.service.payment.CouponPaymentService;
 import com.teemo.shopping.order.service.payment.DiscountPaymentService;
-import com.teemo.shopping.order.service.payment.kakaopay_service.KakaopayPaymentService;
 import com.teemo.shopping.order.service.payment.PaymentService;
 import com.teemo.shopping.order.service.payment.PointPaymentService;
+import com.teemo.shopping.order.service.payment.kakaopay_service.KakaopayPaymentService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +67,7 @@ public class OrderService {
     private PointPaymentService pointPaymentService;
 
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Long create(Long accountId, int point, PaymentMethods paymentMethod,
         List<GamePaymentInformation> gamePaymentInfos, Optional<String> redirect) {
         Account account = accountRepository.findById(accountId).get();
@@ -85,8 +85,7 @@ public class OrderService {
         List<Game> games = gameRepository.findAllById(gameIds);
         List<Coupon> coupons = couponRepository.findAllById(couponIds);
 
-        boolean isPurchasable = ordersGamesRepository.isPurchasable(accountId, gameIds);
-        System.out.println("구매확인완료");
+        boolean isPurchasable = ordersGamesRepository.isPurchasable(accountId, gameIds);        // 돟시 접근시 해결 방법 없음 (Repeatable Read) => 접근 시점의 Select 사용
         if (isPurchasable) {
             throw new IllegalStateException("구매 가능한 상태가 아닙니다.");
         }
