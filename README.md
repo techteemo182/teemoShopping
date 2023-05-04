@@ -51,11 +51,11 @@ API: https://teemoshopping.techteemo.store/swagger-ui/index.html
 --
 
 KakaoPayment 결제 로직
-![image](https://user-images.githubusercontent.com/59180460/234909500-f8cab0ba-ac15-41cc-a763-d806c7172652.png)
+![지식 트리 - Frame 2](https://user-images.githubusercontent.com/59180460/236135512-9d339d85-9340-4e5e-b8cd-4ae93319229b.jpg)
 
 
 Payment 상태 로직
-![image](https://user-images.githubusercontent.com/59180460/234911007-f493f3db-5730-41aa-836e-c40d31729f0f.png)
+![지식 트리 - Frame 1](https://user-images.githubusercontent.com/59180460/236135249-fd4c6391-e101-4612-bd7b-205162ee977c.jpg)
 
 
 
