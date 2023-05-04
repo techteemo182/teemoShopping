@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 public class ExceptionAdvice {
     @ExceptionHandler
     public ResponseEntity<String> exception(Exception e) {
+
         if(e instanceof NoSuchElementException) {
             return ResponseEntity.status(400).body("유효 하지 않은 Parameter 입니다.");
         } else if(e instanceof SecurityException) {

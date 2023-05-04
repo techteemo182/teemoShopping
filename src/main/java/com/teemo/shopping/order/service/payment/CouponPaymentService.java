@@ -107,7 +107,7 @@ public class CouponPaymentService extends PaymentService {
                 .stream().map(gameCategoriesGames -> gameCategoriesGames.getGameCategory())
                 .toList();
             if (LocalDateTime.now().isAfter(
-                coupon.getExpiredAt())) {        // Improve: now() 시점을 서바가 Request 받은 시점으로 하고, UTC-0 을 표준으로 하기
+                coupon.getExpiredAt())) {        // Improve: now() 시점을 서버가 Request 받은 시점으로 하고, UTC-0 을 표준으로 하기
                 throw new IllegalStateException("유효 기간이 지난 쿠폰입니다.");
             }
 

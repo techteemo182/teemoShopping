@@ -16,15 +16,15 @@ public interface OrdersGamesRepository extends JpaRepository<OrdersGames, Long> 
     Optional<OrdersGames> findByOrderAndGame(Order order, Game game);
     List<OrdersGames> findAllByOrder(Order order);
 
-    @Query(value = "select case when count(og) > 0 then true else false end from OrdersGames og where og.game.id in (:gameIds) and og.account.id = :accountId and og.state <> 'REFUNDED'")
+    @Query(value = "select case when count(og) > 0 then true else false end from OrdersGames og where og.game.id in (:gameIds) and og.account.id = :accountId and not (og.state = 'REFUNDED' or og.state = 'CANCEL')")
     //nkl@Lock(LockModeType.PESSIMISTIC_WRITE)
     boolean isPurchasable(Long accountId, List<Long> gameIds);
 
-    @Query(value = "select case when count(og) > 0 then true else false end from OrdersGames og where og.game.id = :gameId and og.account.id = :accountId and og.state <> 'REFUNDED'")
+    @Query(value = "select case when count(og) > 0 then true else false end from OrdersGames og where og.game.id = :gameId and og.account.id = :accountId and not (og.state = 'REFUNDED' or og.state = 'CANCEL')")
         //nkl@Lock(LockModeType.PESSIMISTIC_WRITE)
     boolean isPurchasable(Long accountId, Long gameId);
 
-    @Query(value = "select case when count(og) > 1 then true else false end from OrdersGames og where og.game.id = :gameId and og.account.id = :accountId and og.state <> 'REFUNDED'")
+    @Query(value = "select case when count(og) > 1 then true else false end from OrdersGames og where og.game.id = :gameId and og.account.id = :accountId and not (og.state = 'REFUNDED' or og.state = 'CANCEL')")
         //nkl@Lock(LockModeType.PESSIMISTIC_WRITE)
     boolean isPurchasableWithSelf(Long accountId, Long gameId);
 }

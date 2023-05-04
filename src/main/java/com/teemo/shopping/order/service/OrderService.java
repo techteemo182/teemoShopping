@@ -32,13 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
-@Aspect
 public class OrderService {
 
     @Autowired
@@ -66,7 +65,6 @@ public class OrderService {
     @Autowired
     private PointPaymentService pointPaymentService;
 
-
     @Transactional(rollbackFor = Exception.class)
     public Long create(Long accountId, int point, PaymentMethods paymentMethod,
         List<GamePaymentInformation> gamePaymentInfos, Optional<String> redirect) {
@@ -85,7 +83,8 @@ public class OrderService {
         List<Game> games = gameRepository.findAllById(gameIds);
         List<Coupon> coupons = couponRepository.findAllById(couponIds);
 
-        boolean isPurchasable = ordersGamesRepository.isPurchasable(accountId, gameIds);        // 돟시 접근시 해결 방법 없음 (Repeatable Read) => 접근 시점의 Select 사용
+        boolean isPurchasable = ordersGamesRepository.isPurchasable(accountId,
+            gameIds);        // 돟시 접근시 해결 방법 없음 (Repeatable Read)
         if (isPurchasable) {
             throw new IllegalStateException("구매 가능한 상태가 아닙니다.");
         }
@@ -176,8 +175,7 @@ public class OrderService {
         }
         order.getPayments().addAll(payments);
         for (var game : games) { // 주문에 결제 연관
-            OrdersGames ordersGames = OrdersGames.builder().game(game).order(order)
-                .account(account)
+            OrdersGames ordersGames = OrdersGames.builder().game(game).order(order).account(account)
                 .price(game.getPrice()).state(OrdersGamesStates.PENDING).build();
             order.getOrdersGames().add(ordersGames);
         }
@@ -196,6 +194,7 @@ public class OrderService {
             }
         }
     }
+
     /**
      * @param orderId
      * @return order 반환

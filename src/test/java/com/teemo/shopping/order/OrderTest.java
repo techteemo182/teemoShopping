@@ -79,7 +79,7 @@ public class OrderTest {
         accountService.addCoupon(accountId, couponId, 1);
 
         var orderId = orderService.create(accountId, 50000,
-            PaymentMethods.KAKAOPAY, gamePaymentInfos.gameIds, gameCouponIdMap, "naver.com");
+            PaymentMethods.KAKAOPAY, gamePaymentInfos, gameCouponIdMap, "naver.com");
         var orderDTO = orderService.get(orderId);
 
 
