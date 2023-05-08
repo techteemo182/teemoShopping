@@ -1,7 +1,6 @@
 package com.teemo.shopping.game.service;
 
 import com.teemo.shopping.core.exception.ServiceException;
-import com.teemo.shopping.core.layer.ServiceLayer;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.domain.GameCategoriesGames;
 import com.teemo.shopping.game.domain.GameCategory;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class GameCategoryService implements ServiceLayer {
+public class GameCategoryService {
 
     @Autowired
     GameCategoryRepository gameCategoryRepository;

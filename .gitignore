@@ -38,6 +38,7 @@ out/
 
 
 ### SECRET ###
-**/resources/application-secret.yaml
+**/resources/application-secret-*.yml
+**/resources/application-secret-*.yaml
 ### FILE ###
 /files

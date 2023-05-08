@@ -1,4 +1,4 @@
-package com.teemo.shopping.core;
+package com.teemo.shopping.util;
 
 import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.account.service.AccountService;
@@ -54,7 +54,7 @@ public class TestModule {
         Long teemoId = accountAuthenticationService.register(username, password);
         accountAuthenticationService.updateAdmin(accountId, true);
         accountService.addPoint(teemoId, 100000);
-        for(int i = 0; i < 1000; i++) {
+        for(int i = 0; i < 100; i++) {
             gameService.add(GameDTO.builder()
                 .name(prefix[(int) (prefix.length * Math.random())] + suffix[(int) (suffix.length * Math.random())] + i)
                 .description("게임")

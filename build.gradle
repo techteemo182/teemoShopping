@@ -36,6 +36,7 @@ dependencies {
 	implementation 'com.amazonaws:aws-java-sdk-core:1.12.450'
 	implementation 'org.springframework.boot:spring-boot-starter-cache:3.0.6'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.cloud:spring-cloud-starter-vault-config:4.0.1'
 
 
 

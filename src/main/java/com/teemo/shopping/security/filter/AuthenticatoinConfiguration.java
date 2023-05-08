@@ -29,8 +29,8 @@ public class AuthenticatoinConfiguration {
 
     @Bean
     @Qualifier("jwt")
-    Algorithm jwtAlgorithm(@Value("${key.security.pri-key}") String privateKeyPem,
-        @Value("${key.security.pub-key}") String publicKeyPem)
+    Algorithm jwtAlgorithm(@Value("${jwt.privkey}") String privateKeyPem,
+        @Value("${jwt.pubkey}") String publicKeyPem)
         throws NoSuchAlgorithmException, InvalidKeySpecException {
         String stringPublicKey = publicKeyPem;
         String stringPrivateKey = privateKeyPem;

@@ -1,6 +1,5 @@
 package com.teemo.shopping.external_api.kakao.service;
 
-import com.teemo.shopping.core.layer.ServiceLayer;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveRequest;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIApproveResponse;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayAPICancelRequest;
@@ -10,6 +9,7 @@ import com.teemo.shopping.external_api.kakao.dto.KakaopayAPIReadyResponse;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayApproveParameter;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayCancelParameter;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayReadyParameter;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -18,11 +18,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
-public class KakaopayService implements ServiceLayer {
+public class KakaopayService {
 
     @Value("${kakao.admin-key}")
     private String KAKAO_ADMIN_KEY;
+    @PostConstruct
+    public void test() {
 
+    }
     //Todo: 테스트 작성
     public Mono<KakaopayAPIReadyResponse> readyKakaopay(
         KakaopayReadyParameter kakaopayReadyParameter) { // Parameter DTO로 변경

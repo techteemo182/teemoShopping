@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AwsKeyConfiguration {
-    @Value("${aws.access-key}")
+    @Value("${aws.s3.access-key}")
     private String awsAccesskey;
-    @Value("${aws.secret-key}")
+    @Value("${aws.s3.secret-key}")
     private String awsSecretKey;
     @Bean
     AWSCredentials awsCredentials() {

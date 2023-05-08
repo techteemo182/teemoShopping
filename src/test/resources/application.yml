@@ -1,0 +1,29 @@
+spring:
+  profiles:
+    include:
+      - secret
+      - db
+      - doc
+      - json
+      - secret-vault
+      - secret-aws
+    groups:
+      - prod
+      - dev
+    active: prod
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+server:
+  origin: http://teemohouse.techteemo.store
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+server:
+  origin: https://teemoshopping.techteemo.store

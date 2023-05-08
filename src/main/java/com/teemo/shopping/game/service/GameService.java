@@ -1,6 +1,5 @@
 package com.teemo.shopping.game.service;
 
-import com.teemo.shopping.core.layer.ServiceLayer;
 import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.domain.GamesResources;
 import com.teemo.shopping.game.dto.GameDTO;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class GameService implements ServiceLayer {
+public class GameService  {
 
     @Autowired
     private GameRepository gameRepository;

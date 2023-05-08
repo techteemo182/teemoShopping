@@ -1,6 +1,4 @@
 spring:
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
@@ -16,14 +14,12 @@ spring:
       enabled: true
       settings:
         web-allow-others: true
-  profiles:
-    include:
-      - secret
-springdoc:
-  version: v1
-  api-docs:
-    path: /api-docs/json
-  swagger-ui:
-    path: /api-docs
-  default-consumes-media-type: application/json;charset=UTF-8
-  default-produces-media-type: application/json;charset=UTF-8
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  h2:
+    console:
+      enabled: false
