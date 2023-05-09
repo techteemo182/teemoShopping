@@ -1,0 +1,6 @@
+aws:
+  s3:
+    bucket-name: teemoshopping
+    domain: teemoshopping.s3.ap-northeast-2.amazonaws.com
+    region: ap-northeast-2
+# 나중에 디스커버리로 변경

@@ -1,12 +1,11 @@
 spring:
   profiles:
     include:
-      - secret
       - db
       - doc
       - json
-      - secret-vault
-      - secret-aws
+      - vault
+      - aws
     groups:
       - prod
       - dev

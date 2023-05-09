@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 @EnableJpaRepositories
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class Main {
-
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
 
