@@ -41,7 +41,9 @@ dependencies {
 
 
 }
-
+bootJar {
+	archiveFileName = "server.jar"
+}
 tasks.named('test') {
 	useJUnitPlatform()
 }
