@@ -42,6 +42,11 @@ ERD: https://www.erdcloud.com/d/dg3RDn7rvmosF5Txz
 
 API: https://teemoshopping.techteemo.store/swagger-ui/index.html
 
+환경변수
+--
+--vault.token=vault토큰
+
+
 보완점 / 추가할 점
 --
 - MySQL 연결 
