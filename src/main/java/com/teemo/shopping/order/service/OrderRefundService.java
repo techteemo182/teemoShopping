@@ -102,7 +102,7 @@ public class OrderRefundService {
     @Transactional
     public void refundOrder(Long orderId) throws Exception {
         Order order = orderRepository.findById(orderId).get();
-        List<Payment> payments = paymentRepository.findAllByOrder(order);
+        List<Payment> payments = order.getPayments();
 
         order.updateState(OrderStates.PENDING_REFUND);
         List<OrdersGames> ordersGames = ordersGamesRepository.findAllByOrder(order);
@@ -129,7 +129,7 @@ public class OrderRefundService {
         OrdersGames ordersGames = ordersGamesRepository.findByOrderAndGame(order, game).get();
         ordersGames.updateState(OrdersGamesStates.PENDING_REFUND);
 
-        List<Payment> payments = paymentRepository.findAllByOrder(order);
+        List<Payment> payments = order.getPayments();
         List<PaymentMethods> paymentMethodsSequence = new ArrayList<>();
         paymentMethodsSequence.add(PaymentMethods.DISCOUNT);
         paymentMethodsSequence.add(PaymentMethods.COUPON);

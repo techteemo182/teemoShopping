@@ -1,0 +1,16 @@
+spring:
+  config:
+    import: vault://
+  cloud:
+    vault:
+      host: ci.techteemo.store
+      port: 8200
+      scheme: https
+      uri: https://ci.techteemo.store:8200
+      connection-timeout: 5000
+      read-timeout: 15000
+      kv:
+        enabled: true
+        backend: teemoshopping
+        application-name: backend
+      token: ${vault.token}

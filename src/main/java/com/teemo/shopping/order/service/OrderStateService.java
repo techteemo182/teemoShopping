@@ -28,7 +28,7 @@ public class OrderStateService {
     @Transactional
     public void orderStateTransition(Long orderId) {
         Order order = orderRepository.findById(orderId).get();
-        List<Payment> payments = paymentRepository.findAllByOrder(order);
+        List<Payment> payments = order.getPayments();
         boolean existsPaymentPending = false;
         boolean existsPaymentCancel = false;
         boolean existsPaymentPendingRefund = false;

@@ -11,6 +11,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaymentRepository<T extends Payment> extends JpaRepository<T, Long> {
-    List<T> findAllByOrder(Order order);
-    List<T> findAllByOrderAndState(Order order, PaymentStates paymentStates);
 }

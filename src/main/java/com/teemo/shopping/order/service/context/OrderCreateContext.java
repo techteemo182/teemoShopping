@@ -4,6 +4,9 @@ import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.game.domain.Game;
+import com.teemo.shopping.order.service.OrderCreateService.OrderOption;
+import com.teemo.shopping.order.service.OrderCreateService.PreparedData;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
@@ -14,15 +17,8 @@ import lombok.Getter;
 @Builder
 //재설계
 public class OrderCreateContext {
-    @NotNull
-    private final Order order;
-    @NotNull
-    private final Account account;
-    private final Optional<Game> game;
-    private final List<Game> games;
-    private final Optional<Coupon> coupon;
-    private final Integer point;
+    private final PreparedData preparedData;
+    private final OrderOption orderOption;
     private final Integer amount;
-    private final Optional<String> redirect;
-
+    private final Optional<Game> game;
 }

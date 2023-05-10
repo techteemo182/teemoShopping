@@ -1,27 +1,36 @@
 package com.teemo.shopping.order;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.teemo.shopping.Main;
-import com.teemo.shopping.account.repository.AccountRepository;
+import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.service.AccountAuthenticationService;
 import com.teemo.shopping.account.service.AccountService;
+import com.teemo.shopping.coupon.domain.Coupon;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.dto.AddCouponRequest;
 import com.teemo.shopping.coupon.service.CouponService;
+import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.dto.GameDTO;
 import com.teemo.shopping.game.service.GameService;
-import com.teemo.shopping.order.enums.PaymentMethods;
-import com.teemo.shopping.order.repository.OrderRepository;
-import com.teemo.shopping.order.repository.PaymentRepository;
+import com.teemo.shopping.order.domain.CouponPayment;
+import com.teemo.shopping.order.enums.PaymentStates;
+import com.teemo.shopping.order.service.OrderCreateService.OrderOption;
+import com.teemo.shopping.order.service.OrderCreateService.PreparedData;
 import com.teemo.shopping.order.service.OrderService;
+import com.teemo.shopping.order.service.context.OrderCreateContext;
+import com.teemo.shopping.order.service.payment.CouponPaymentService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(classes = Main.class)
 public class OrderTest {
@@ -29,58 +38,116 @@ public class OrderTest {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private OrderRepository orderRepository;
-    @Autowired
-    private AccountAuthenticationService accountAuthenticationService;
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private GameService gameService;
-    @Autowired
     private CouponService couponService;
-
     @Autowired
     private AccountService accountService;
     @Autowired
-    private PaymentRepository paymentRepository;
+    private AccountAuthenticationService accountAuthenticationService;
+    @Autowired
+    private GameService gameService;
+    @Autowired
+    private CouponPaymentService couponPaymentService;
     @PersistenceContext
-    private EntityManager em;
+    private EntityManager entityManager;
+
+    @BeforeEach
+    public void login() {
+
+    }
+
+    @AfterEach
+    public void logout() {
+
+    }
 
     @Test
-    void order() throws Exception {
-        Long accountId = accountAuthenticationService.register("teemo341", "teemo341");
-        accountService.addPoint(accountId, 50000);
-        List<Long> gameIds = new ArrayList<>();
+    @Transactional
+    void createCouponPayment() throws Exception {
+        OrderOption orderOption = OrderOption.of(
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        );
+        Long accountId = accountAuthenticationService.register("teemo", "teemo");
+        Long gameId = gameService.add(GameDTO.builder()
+            .price(5000)
+            .name("마인크래프트")
+            .description("땅 파는 게임")
+            .build());
+        Long couponId = couponService.add(AddCouponRequest
+            .builder()
+            .amount(3000d)
+            .minFulfillPrice(3000)
+            .name("마인크래프트 할인 쿠폰")
+            .canApplyToAll(true)
+            .method(CouponMethod.STATIC)
+            .build());
 
-        GameDTO game1 = GameDTO.builder().name("테트리스").description("슬라브 게임").price(10000)
-            .discountPercent(100d).build();
-        GameDTO game2 = GameDTO.builder().name("마인크래프트").description("Lets Dig Up").price(30000)
-            .discountPercent(100d).build();
-        GameDTO game3 = GameDTO.builder().name("스타크래프트").description("Use Map").price(7000)
-            .discountPercent(100d).build();
-        Long gameId1 = gameService.add(game1);
-        Long gameId2 = gameService.add(game2);
-        Long gameId3 = gameService.add(game3);
-        gameIds.add(gameId1);
-        gameIds.add(gameId2);
-        gameIds.add(gameId3);
-        AddCouponRequest couponRequest = AddCouponRequest.builder().minFulfillPrice(5000).name("5000 WON")
-            .description("1년 기념 5000원 세일").method(CouponMethod.STATIC).amount(5000d)
-            .expiredAt(LocalDateTime.now().plusDays(10)).canApplyToAll(false).build();
+        Account account = entityManager.find(Account.class, accountId);
+        Game game = entityManager.find(Game.class, gameId);
+        Coupon coupon = entityManager.find(Coupon.class, couponId);
+        PreparedData preparedData = PreparedData.of(
+            account,
+            null,
+            Map.of(game, Optional.of(coupon)),
+            0
+        );
+        OrderCreateContext orderCreateContext = OrderCreateContext.builder()
+            .orderOption(orderOption)
+            .preparedData(preparedData)
+            .amount(game.getPrice())
+            .game(Optional.of(game))
+            .build();
+        CouponPayment couponPayment = (CouponPayment)couponPaymentService.create(orderCreateContext);
 
-        Long couponId = couponService.add(couponRequest);
-        couponService.addGame(couponId, gameId1);
-        couponService.addGame(couponId, gameId2);
-        couponService.addGame(couponId, gameId3);
+        assertEquals(couponPayment.getAccount(), account);
+        assertEquals(couponPayment.getCoupon(), coupon);
+        assertEquals(couponPayment.getAmount(), coupon.getAmount().intValue());
+        assertEquals(couponPayment.getGame(), game);
+        assertEquals(couponPayment.getState(), PaymentStates.PENDING);
+    }
+    @Test
+    @Transactional
+    void payCouponPayment() throws Exception {
+        OrderOption orderOption = OrderOption.of(
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        );
+        Long accountId = accountAuthenticationService.register("teemo2", "teemo2");
+        Long gameId = gameService.add(GameDTO.builder()
+            .price(5000)
+            .name("마인크래프트")
+            .description("땅 파는 게임")
+            .build());
+        Long couponId = couponService.add(AddCouponRequest
+            .builder()
+            .amount(3000d)
+            .minFulfillPrice(3000)
+            .name("마인크래프트 할인 쿠폰")
+            .canApplyToAll(true)
+            .method(CouponMethod.STATIC)
+            .build());
 
-        HashMap<Long, Long> gameCouponIdMap = new HashMap<>();
-        gameCouponIdMap.put(gameId1, couponId);
-
-        accountService.addCoupon(accountId, couponId, 1);
-
-        var orderId = orderService.create(accountId, 50000,
-            PaymentMethods.KAKAOPAY, gamePaymentInfos, gameCouponIdMap, "naver.com");
-        var orderDTO = orderService.get(orderId);
+        Account account = entityManager.find(Account.class, accountId);
+        Game game = entityManager.find(Game.class, gameId);
+        Coupon coupon = entityManager.find(Coupon.class, couponId);
+        PreparedData preparedData = PreparedData.of(
+            account,
+            null,
+            Map.of(game, Optional.of(coupon)),
+            0
+        );
+        OrderCreateContext orderCreateContext = OrderCreateContext.builder()
+            .orderOption(orderOption)
+            .preparedData(preparedData)
+            .amount(game.getPrice())
+            .game(Optional.of(game))
+            .build();
+        CouponPayment couponPayment = (CouponPayment)couponPaymentService.create(orderCreateContext);
+        entityManager.persist(couponPayment);
+        couponPaymentService.pay(couponPayment.getId());
+        couponPayment = entityManager.find(CouponPayment.class, couponPayment.getId());
 
 
     }

@@ -11,12 +11,11 @@ import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.domain.GameCategory;
 import com.teemo.shopping.game.repository.GameCategoriesGamesRepository;
 import com.teemo.shopping.order.domain.CouponPayment;
-import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.domain.Payment;
 import com.teemo.shopping.order.enums.PaymentStates;
 import com.teemo.shopping.order.repository.PaymentRepository;
 import com.teemo.shopping.order.service.context.OrderCreateContext;
-import com.teemo.shopping.order.service.paymentSubscriber.PaymentStatePublisher;
+import com.teemo.shopping.order.service.observer.PaymentStateUpdatePublisher;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,15 +37,15 @@ public class CouponPaymentService extends PaymentService {
     @Autowired
     private GameCategoriesGamesRepository gameCategoriesGamesRepository;
     @Autowired
-    private PaymentStatePublisher paymentStatePublisher;
+    private PaymentStateUpdatePublisher paymentStateUpdatePublisher;
+
 
     @Override
     public Payment create(OrderCreateContext context) throws IllegalStateException {
         Game game = context.getGame().get();
-        Optional<Coupon> couponOptional = context.getCoupon();
+        Optional<Coupon> couponOptional = context.getPreparedData().getGameCouponMap().get(game);
         Coupon coupon = couponOptional.orElseThrow(
             () -> new IllegalStateException("쿠폰이 지정되지 않았습니다."));
-        Order order = context.getOrder();
         Integer beforeAmount = context.getAmount();
         int amount = 0;
         if (coupon.getMinFulfillPrice() > beforeAmount) {
@@ -60,9 +59,9 @@ public class CouponPaymentService extends PaymentService {
             amount = (int) Math.min(beforeAmount, coupon.getAmount());
         }
 
-        CouponPayment couponPayment = CouponPayment.builder().coupon(coupon).order(order)
-            .state(PaymentStates.PENDING).amount(amount).game(game)
-            .build();
+        CouponPayment couponPayment = CouponPayment.builder().coupon(coupon).account(context.getPreparedData()
+                .getAccount())
+            .amount(amount).game(game).build();
         return couponPayment;
     }
 
@@ -72,8 +71,7 @@ public class CouponPaymentService extends PaymentService {
             throw new IllegalStateException("환불 가능한 상태가 아님.");
         }
         Coupon coupon = payment.getCoupon();
-        Order order = payment.getOrder();
-        Account account = order.getAccount();
+        Account account = payment.getAccount();
         AccountsCoupons accountsCoupons = accountsCouponsRepository.findByAccountAndCoupon(account,
             coupon).orElse(null);
         if (accountsCoupons == null) {
@@ -84,9 +82,9 @@ public class CouponPaymentService extends PaymentService {
             accountsCoupons.updateAmount(accountsCoupons.getAmount() + 1);
         }
 
-        payment.updateState(PaymentStates.REFUNDED);
-        payment.updateRefundedAmount(payment.getAmount());
-        paymentStatePublisher.publish(paymentId);
+        payment.setState(PaymentStates.REFUNDED);
+        payment.setRefundedAmount(payment.getAmount());
+        paymentStateUpdatePublisher.publish(payment.getPaymentStateUpdateSubscriberTypes(), payment.getId());
     }
 
     @Override
@@ -100,7 +98,6 @@ public class CouponPaymentService extends PaymentService {
 
         Coupon coupon = payment.getCoupon();
         Account account = payment.getAccount();
-        Order order = payment.getOrder();
         Game game = payment.getGame();
         try {
             List<GameCategory> gameCategories = gameCategoriesGamesRepository.findAllByGame(game)
@@ -115,8 +112,7 @@ public class CouponPaymentService extends PaymentService {
                 .map(couponsGames -> couponsGames.getGame()).toList();
             List<GameCategory> applicableGameCategories = couponsGameCategoriesRepository.findAllByCoupon(
                     coupon).stream()
-                .map(couponsGameCategories -> couponsGameCategories.getGameCategory())
-                .toList();
+                .map(couponsGameCategories -> couponsGameCategories.getGameCategory()).toList();
             boolean isApplicableGame = applicableGames.contains(game);
             boolean isApplicableGameCategory = applicableGameCategories.stream().anyMatch(
                 (applicableGameCategory) -> gameCategories.contains(
@@ -125,8 +121,8 @@ public class CouponPaymentService extends PaymentService {
                 throw new IllegalStateException("쿠폰을 적용할 수 없는 게임입니다.");
             }
             AccountsCoupons accountsCoupons = accountsCouponsRepository.findByAccountAndCoupon(
-                account,
-                coupon).orElseThrow(() -> new IllegalStateException("계정이 쿠폰을 소유하고 있지 아니함"));
+                    account, coupon)
+                .orElseThrow(() -> new IllegalStateException("계정이 쿠폰을 소유하고 있지 아니함"));
 
             if (accountsCoupons.getAmount() == 1) {
                 accountsCouponsRepository.deleteById(
@@ -134,11 +130,11 @@ public class CouponPaymentService extends PaymentService {
             } else {
                 accountsCoupons.updateAmount(accountsCoupons.getAmount() - 1);  // 아니면 1개 차감
             }
-            payment.updateState(PaymentStates.SUCCESS);
-        } catch(Exception e) {
-            payment.updateState(PaymentStates.CANCEL);
+            payment.setState(PaymentStates.SUCCESS);
+        } catch (Exception e) {
+            payment.setState(PaymentStates.CANCEL);
         }
-        paymentStatePublisher.publish(paymentId);
+        paymentStateUpdatePublisher.publish(payment.getPaymentStateUpdateSubscriberTypes(), payment.getId());
     }
 
     @Override

@@ -9,7 +9,6 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -44,13 +43,13 @@ public class KakaopayPayment extends Payment {
     private String redirect;
     @Column
     private String cid;
+
     @Builder
-    protected KakaopayPayment(Integer amount, PaymentStates state, Order order, PaymentMethods method,
-        String redirect, String itemName, String pgToken, String redirectSecret,
-        String completeRedirect, String tid, KakaopayAPIStates kakaopayAPIStates,
-        String partnerUserId,
-        String partnerOrderId, String cid) {
-        super(amount, state, order, PaymentMethods.KAKAOPAY);
+    protected KakaopayPayment(Integer amount, String redirect, String itemName,
+        String pgToken, String redirectSecret, String completeRedirect, String tid,
+        KakaopayAPIStates kakaopayAPIStates, String partnerUserId, String partnerOrderId,
+        String cid) {
+        super(amount, PaymentMethods.KAKAOPAY);
         this.itemName = itemName;
         this.pgToken = pgToken;
         this.redirectSecret = redirectSecret;
@@ -66,6 +65,7 @@ public class KakaopayPayment extends Payment {
     public void updateCid(String cid) {
         this.cid = cid;
     }
+
     public void updatePartnerUserId(String partnerUserId) {
         this.partnerUserId = partnerUserId;
     }
@@ -85,9 +85,11 @@ public class KakaopayPayment extends Payment {
     public void updateKakaopayAPIState(KakaopayAPIStates kakaopayAPIStates) {
         this.kakaopayAPIStates = kakaopayAPIStates;
     }
+
     public void updateRedirect(String redirect) {
         this.redirect = redirect;
     }
+
     public void updateTid(String tid) {
         this.tid = tid;
     }

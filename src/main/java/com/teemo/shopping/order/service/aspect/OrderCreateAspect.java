@@ -1,4 +1,4 @@
-package com.teemo.shopping.order.service;
+package com.teemo.shopping.order.service.aspect;
 
 import com.teemo.shopping.account.dto.request.GamePaymentInformation;
 import java.util.ArrayList;
@@ -18,11 +18,11 @@ import org.springframework.stereotype.Component;
 class OrderCreateAspect {
 
     static private ConcurrentHashMap<LockCondition, ReentrantLock> mutexMap = new ConcurrentHashMap<>();
-    @Around("execution(* com.teemo.shopping.order.service.OrderService.create(..))")
+    @Around("@annotation(CreateOrderTransaction)") // todo: 어노테이션으로 변경
     public Object Around(ProceedingJoinPoint pointcut) throws Throwable {
         List<ReentrantLock> locks = new ArrayList<>();
         Long accountId = (Long) pointcut.getArgs()[0];
-        List<Long> gameIds = ((List<GamePaymentInformation>) pointcut.getArgs()[3]).stream()
+        List<Long> gameIds = ((List<GamePaymentInformation>) pointcut.getArgs()[2]).stream()
             .map(gamePaymentInformation -> gamePaymentInformation.getGameId()).toList();
         for (var gameId : gameIds) {
             LockCondition condition = new LockCondition(accountId, gameId);

@@ -1,17 +1,15 @@
-package com.teemo.shopping.order.service.payment.kakaopay_service;
+package com.teemo.shopping.order.service.payment;
 
 import com.teemo.shopping.external_api.kakao.dto.KakaopayCancelParameter;
 import com.teemo.shopping.external_api.kakao.dto.KakaopayReadyParameter;
 import com.teemo.shopping.external_api.kakao.service.KakaopayService;
 import com.teemo.shopping.order.domain.KakaopayPayment;
-import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.domain.Payment;
 import com.teemo.shopping.order.dto.payment.KakaopayPaymentDTO;
 import com.teemo.shopping.order.enums.KakaopayAPIStates;
 import com.teemo.shopping.order.enums.PaymentStates;
 import com.teemo.shopping.order.repository.PaymentRepository;
 import com.teemo.shopping.order.service.context.OrderCreateContext;
-import com.teemo.shopping.order.service.payment.PaymentService;
 import com.teemo.shopping.order.service.payment.kakaopay_service.KakaopayPaymentErrorService;
 import com.teemo.shopping.order.service.payment.kakaopay_service.KakaopayPaymentRefundService;
 import java.util.HashMap;
@@ -44,14 +42,13 @@ public class KakaopayPaymentService extends PaymentService {    //전략 패턴
     @Override
     public Payment create(OrderCreateContext context) {
         int amount = context.getAmount();
-        Order order = context.getOrder();
-        String redirect = context.getRedirect()
+        String redirect = context.getOrderOption().getRedirect()
             .orElseThrow(() -> new IllegalStateException("redirect가 필요합니다."));
         String itemName = StringUtils.join(
-            context.getGames().stream().map(game -> game.getName()).toList(), ",");
-        KakaopayPayment kakaopayPayment = KakaopayPayment.builder().state(PaymentStates.PENDING)
+            context.getPreparedData().getGames().stream().map(game -> game.getName()).toList(), ",");
+        KakaopayPayment kakaopayPayment = KakaopayPayment.builder()
             .kakaopayAPIStates(KakaopayAPIStates.INIT)
-            .amount(amount).order(order).itemName(itemName).completeRedirect(redirect).build();
+            .amount(amount).itemName(itemName).completeRedirect(redirect).build();
         return kakaopayPayment;
     }
 
@@ -68,7 +65,7 @@ public class KakaopayPaymentService extends PaymentService {    //전략 패턴
             throw new IllegalStateException("환불 가능한 금액이 아님.");
         }
 
-        payment.updateState(PaymentStates.PENDING_REFUND);
+        payment.setState(PaymentStates.PENDING_REFUND);
 
         kakaopayService.cancelKakaopay(
             KakaopayCancelParameter.builder()

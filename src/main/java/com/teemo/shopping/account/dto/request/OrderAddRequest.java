@@ -14,8 +14,8 @@ import lombok.Getter;
 @AllArgsConstructor(onConstructor_ = {@JsonCreator})
 @Getter
 public class OrderAddRequest {
-    private Integer point;
-    private PaymentMethods paymentMethod;
+    private Optional<Integer> point;
+    private Optional<PaymentMethods> paymentMethod;
     private Optional<String> redirect;
     private List<GamePaymentInformation> gameInfos;
 }

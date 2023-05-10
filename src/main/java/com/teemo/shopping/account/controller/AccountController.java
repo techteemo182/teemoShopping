@@ -9,7 +9,9 @@ import com.teemo.shopping.account.dto.request.OrderAddRequest;
 import com.teemo.shopping.account.dto.response.OrderAddResponse;
 import com.teemo.shopping.order.enums.PaymentMethods;
 import com.teemo.shopping.order.enums.PaymentStates;
-import com.teemo.shopping.order.service.payment.kakaopay_service.KakaopayPaymentService;
+import com.teemo.shopping.order.service.OrderCreateService;
+import com.teemo.shopping.order.service.OrderCreateService.OrderOption;
+import com.teemo.shopping.order.service.payment.KakaopayPaymentService;
 import com.teemo.shopping.order.service.OrderService;
 import com.teemo.shopping.order.service.payment.PaymentService;
 import com.teemo.shopping.review.dto.ReviewDTO;
@@ -41,6 +43,8 @@ public class AccountController {
     private ReviewService reviewService;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private OrderCreateService orderCreateService;
     @Autowired
     private List<PaymentService> paymentServices;
     @Autowired
@@ -105,8 +109,7 @@ public class AccountController {
         @RequestBody OrderAddRequest orderAddRequest) throws Exception {
         //improve: useragent 에 따른 redirect 변화
         Long accountId = permissionChecker.getAccountIdElseThrow();
-        Long orderId = orderService.create(accountId, orderAddRequest.getPoint(),
-            orderAddRequest.getPaymentMethod(), orderAddRequest.getGameInfos(), orderAddRequest.getRedirect());
+        Long orderId = orderCreateService.createOrder(accountId, OrderOption.of(orderAddRequest.getPoint(), orderAddRequest.getPaymentMethod(), orderAddRequest.getRedirect()), orderAddRequest.getGameInfos());
         List<PaymentDTO> paymentDtos = orderService.getPayments(orderId);
         var responseBuilder = OrderAddResponse.builder();
         List<Long> paymentIds = paymentDtos.stream().map((payment) -> payment.getId()).toList();

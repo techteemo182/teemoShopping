@@ -25,16 +25,16 @@ import lombok.NoArgsConstructor;
 public class PointPayment extends Payment {
 
 
-    @Builder
-    public PointPayment(Integer amount, PaymentStates state, Order order, PaymentMethods method,
-        Account account) {
-        super(amount, state, order, PaymentMethods.POINT);
-        this.account = account;
-    }
-
     @ManyToOne
     @JoinColumn(name = "accounts_id")
     @NotNull
     private Account account;
+
+    @Builder
+    public PointPayment(Integer amount,
+        Account account) {
+        super(amount, PaymentMethods.POINT);
+        this.account = account;
+    }
 
 }

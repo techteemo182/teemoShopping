@@ -9,7 +9,7 @@ spring:
     groups:
       - prod
       - dev
-    active: prod
+    active: dev
 
 ---
 spring:
@@ -17,7 +17,7 @@ spring:
     activate:
       on-profile: dev
 server:
-  origin: http://teemohouse.techteemo.store
+  origin: http://teemohouse.techteemo.store:8080
 
 ---
 spring:

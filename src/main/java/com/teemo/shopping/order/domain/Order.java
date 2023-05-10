@@ -6,11 +6,13 @@ import com.teemo.shopping.core.entity.BaseEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -55,19 +57,14 @@ public class Order extends BaseEntity {
     @Range(min = 0)
     private int totalPrice;
 
-    /**
-     * 주문 상태
-     *  CANCEL : 취소
-     *  PENDING : 기다리는 중
-     *  SUCCESS : 성공
-     */
     @Enumerated(EnumType.STRING)
     @NotNull
     private OrderStates state;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {
+    @OneToMany(fetch = FetchType.LAZY, cascade = {
         CascadeType.PERSIST
     })
+    @JoinTable(name = "orders_payments")
     private List<Payment> payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {

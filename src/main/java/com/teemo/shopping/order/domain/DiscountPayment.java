@@ -1,10 +1,9 @@
 package com.teemo.shopping.order.domain;
 
+import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.order.enums.PaymentMethods;
 import com.teemo.shopping.order.enums.PaymentMethods.Values;
 import com.teemo.shopping.order.enums.PaymentStates;
-import com.teemo.shopping.game.domain.Game;
-import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -25,17 +24,17 @@ import lombok.NoArgsConstructor;
 @DiscriminatorValue(Values.DISCOUNT)
 public class DiscountPayment extends Payment {
 
-    @Builder
-    protected DiscountPayment(Integer amount, PaymentStates status, Order order,
-        Game game) {
-        super(amount, status, order, PaymentMethods.DISCOUNT);
-        this.game = game;
-    }
-
-
     @ManyToOne
     @JoinColumn(name = "games_id")
     @NotNull
     private Game game;
+
+
+    @Builder
+    protected DiscountPayment(Integer amount,
+        Game game) {
+        super(amount, PaymentMethods.DISCOUNT);
+        this.game = game;
+    }
 
 }
