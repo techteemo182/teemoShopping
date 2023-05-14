@@ -50,8 +50,7 @@ API: https://teemoshopping.techteemo.store/swagger-ui/index.html
 보완점 / 추가할 점
 --
 - MySQL 연결 
-- CI/CD 추가
-
+- 
 대표 로직
 --
 
