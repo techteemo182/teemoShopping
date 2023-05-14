@@ -50,7 +50,8 @@ API: https://teemoshopping.techteemo.store/swagger-ui/index.html
 보완점 / 추가할 점
 --
 - MySQL 연결 
-- 
+- Order 결제 API 변경
+- API Test 작성
 대표 로직
 --
 
