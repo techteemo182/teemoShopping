@@ -35,7 +35,6 @@ teemoShopping
 4. Util
   - Lombok
   - Jwt
-  - Gson
 
 ERD: https://www.erdcloud.com/d/dg3RDn7rvmosF5Txz
 
