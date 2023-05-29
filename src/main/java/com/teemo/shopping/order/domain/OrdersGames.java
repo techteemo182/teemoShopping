@@ -2,7 +2,7 @@ package com.teemo.shopping.order.domain;
 
 
 import com.teemo.shopping.account.domain.Account;
-import com.teemo.shopping.order.enums.OrdersGamesStates;
+import com.teemo.shopping.order.domain.enums.OrdersGamesStates;
 import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.game.domain.Game;
 import jakarta.persistence.AttributeOverride;

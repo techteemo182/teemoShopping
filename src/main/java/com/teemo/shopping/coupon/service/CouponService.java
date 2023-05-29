@@ -113,6 +113,4 @@ public class CouponService {
         GameCategory gameCategory = gameCategoryRepository.findById(gameCategoryId).get();
         couponsGameCategoriesRepository.deleteByCouponAndGameCategory(coupon, gameCategory);
     }
-
-
 }

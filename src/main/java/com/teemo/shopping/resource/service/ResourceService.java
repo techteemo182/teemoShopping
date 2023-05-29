@@ -15,9 +15,11 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Owner;
 import com.amazonaws.services.s3.model.Permission;
 import com.teemo.shopping.core.exception.ServiceException;
+import com.teemo.shopping.game.domain.GamesResources;
 import com.teemo.shopping.resource.domain.Resource;
 import com.teemo.shopping.resource.dto.ResourceDTO;
 import com.teemo.shopping.resource.repository.ResourceRepository;
+import com.teemo.shopping.review.domain.Review;
 import jakarta.persistence.Access;
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +47,10 @@ public class ResourceService {
     private ResourceRepository resourceRepository;
     @Autowired
     private AmazonS3 s3Client;
+    public Resource getResource(Long resourceId) {
+        Resource resource = resourceRepository.findById(resourceId).get();
+        return resource;
+    }
     public Long add(MultipartFile file) throws Exception {
         UUID uuid = UUID.randomUUID();
         MessageDigest digest = MessageDigest.getInstance("SHA-256");

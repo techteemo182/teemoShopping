@@ -21,29 +21,15 @@ public class GameService  {
 
     @Autowired
     private GameRepository gameRepository;
+
     @Autowired
     private ReviewRepository reviewRepository;
-    @Autowired
-    private GamesResourcesRepository gamesResourcesRepository;
-    @Autowired
-    private ResourceRepository resourceRepository;
     @Transactional
     public Long add(GameDTO gameDTO) throws Exception {
         Game game = Game.builder().name(gameDTO.getName()).description(gameDTO.getDescription())
             .price(gameDTO.getPrice()).ratingCount(0).ratingAvg(0).build();
         game = gameRepository.save(game);
         return game.getId();
-    }
-    @Transactional
-    public Long addResource(Long gameId, Long resourceId) throws Exception {
-        Game game = gameRepository.findById(gameId).get();
-        Resource resource = resourceRepository.findById(resourceId).get();
-        GamesResources gamesResources = GamesResources.builder()
-            .game(game)
-            .resource(resource)
-            .build();
-        gamesResources = gamesResourcesRepository.save(gamesResources);
-        return gamesResources.getId();
     }
     @Transactional
     public void remove(Long gameId) throws Exception {
@@ -68,10 +54,8 @@ public class GameService  {
             .toList();
     }
 
-    @Transactional(readOnly = true)
-    public List<ResourceDTO> resourceList(Long gameId) {
+    public Game getGame(Long gameId) {
         Game game = gameRepository.findById(gameId).get();
-        return gamesResourcesRepository.findAllByGame(game).stream()
-            .map(gamesResources -> ResourceDTO.from(gamesResources.getResource())).toList();
+        return game;
     }
 }

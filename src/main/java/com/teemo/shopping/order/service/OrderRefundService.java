@@ -4,19 +4,21 @@ import com.teemo.shopping.game.domain.Game;
 import com.teemo.shopping.game.repository.GameRepository;
 import com.teemo.shopping.order.domain.Order;
 import com.teemo.shopping.order.domain.OrdersGames;
-import com.teemo.shopping.order.domain.Payment;
-import com.teemo.shopping.order.enums.OrderStates;
-import com.teemo.shopping.order.enums.OrdersGamesStates;
-import com.teemo.shopping.order.enums.PaymentMethods;
-import com.teemo.shopping.order.enums.PaymentStates;
+import com.teemo.shopping.payment.domain.Payment;
+import com.teemo.shopping.order.domain.enums.OrderStates;
+import com.teemo.shopping.order.domain.enums.OrdersGamesStates;
+import com.teemo.shopping.payment.domain.enums.PaymentMethods;
+import com.teemo.shopping.payment.domain.enums.PaymentStates;
 import com.teemo.shopping.order.repository.OrderRepository;
 import com.teemo.shopping.order.repository.OrdersGamesRepository;
-import com.teemo.shopping.order.repository.PaymentRepository;
-import com.teemo.shopping.order.service.payment.PaymentService;
+import com.teemo.shopping.payment.repository.PaymentRepository;
+import com.teemo.shopping.payment.service.PaymentService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.teemo.shopping.payment.service.PaymentServiceDirector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +30,13 @@ public class OrderRefundService {
      * 입력된 모든 결제를 환불
      */
     @Autowired
-    private List<PaymentService> paymentServices;
-    @Autowired
     private GameRepository gameRepository;
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
     private OrdersGamesRepository ordersGamesRepository;
     @Autowired
-    private PaymentRepository<Payment> paymentRepository;
+    private PaymentServiceDirector paymentServiceDirector;
 
     @Transactional
     public void refundPayments(Map<Payment, Integer> paymentRefundAmountMap) throws Exception {
@@ -62,11 +62,7 @@ public class OrderRefundService {
             for (var paymentRefundPriceEntry : paymentRefundAmountMap.entrySet()) {
                 Payment payment = paymentRefundPriceEntry.getKey();
                 Integer refundAmount = paymentRefundPriceEntry.getValue();
-                for (var paymentService : paymentServices) { //improve: Hashmap 사용해서 O(1) 가능 improve: 중앙집약식
-                    if (paymentService.getPaymentClass().equals(payment.getClass())) {
-                        paymentService.refund(payment.getId(), refundAmount);
-                    }
-                }
+                paymentServiceDirector.refund(payment, refundAmount);
             }
         } else {
             throw new IllegalStateException(refundErrorMessage);

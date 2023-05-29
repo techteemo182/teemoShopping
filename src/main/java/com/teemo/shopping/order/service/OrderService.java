@@ -3,15 +3,17 @@ package com.teemo.shopping.order.service;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.account.repository.AccountRepository;
 import com.teemo.shopping.order.domain.Order;
-import com.teemo.shopping.order.domain.Payment;
+import com.teemo.shopping.payment.domain.Payment;
 import com.teemo.shopping.order.dto.OrderDTO;
-import com.teemo.shopping.order.dto.payment.PaymentDTO;
-import com.teemo.shopping.order.enums.PaymentStates;
+import com.teemo.shopping.payment.dto.PaymentDTO;
 import com.teemo.shopping.order.repository.OrderRepository;
-import com.teemo.shopping.order.repository.PaymentRepository;
-import com.teemo.shopping.order.service.payment.PaymentService;
+import com.teemo.shopping.payment.repository.PaymentRepository;
+import com.teemo.shopping.payment.service.PaymentService;
+
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import com.teemo.shopping.payment.service.PaymentServiceDirector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,23 +23,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
     @Autowired
-    private List<PaymentService> paymentServices;
-    @Autowired
     private OrderRepository orderRepository;
     @Autowired
     private PaymentRepository<Payment> paymentRepository;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private PaymentServiceDirector paymentServiceDirector;
 
     @Transactional
     public void pay(List<Long> paymentIds) {
         List<Payment> payments = paymentRepository.findAllById(paymentIds);
-        for (var paymentService : paymentServices) {
-            for (var payment : payments) {
-                if (paymentService.getPaymentClass().equals(payment.getClass())) {
-                    paymentService.pay(payment.getId());
-                }
-            }
+        for (var payment : payments) {
+            paymentServiceDirector.pay(payment);
         }
     }
 
@@ -69,7 +67,7 @@ public class OrderService {
             throw new NoSuchElementException("accountId를 가지고있는 Account 없음");
         }
         return orderRepository.findAllByAccount(account).stream().map(order -> OrderDTO.from(order))
-            .toList();
+                .toList();
     }
 
 

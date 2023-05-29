@@ -1,10 +1,9 @@
 package com.teemo.shopping.order.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teemo.shopping.order.domain.Order;
-import com.teemo.shopping.order.enums.OrderStates;
+import com.teemo.shopping.order.domain.enums.OrderStates;
 import lombok.Builder;
 import lombok.Getter;
 

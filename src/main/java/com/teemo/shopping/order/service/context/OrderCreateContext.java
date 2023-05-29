@@ -16,7 +16,7 @@ import lombok.Getter;
 @Getter
 @Builder
 //재설계
-public class OrderCreateContext {
+public class OrderCreateContext {       // <- 이거 없애기!
     private final PreparedData preparedData;
     private final OrderOption orderOption;
     private final Integer amount;

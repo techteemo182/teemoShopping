@@ -11,7 +11,7 @@ public class KakaoRedirectParameter {
     @NotNull
     private final Long payment_id;
     @NotNull
-    private final String redirect;
+    private final String next_redirect;
     @NotNull
     private final String redirect_secret;
 
@@ -26,7 +26,7 @@ public class KakaoRedirectParameter {
     public Long getPaymentId() {
         return payment_id;
     }
-    public String getRedirect() {
-        return redirect;
+    public String getNextRedirect() {
+        return next_redirect;
     }
 }

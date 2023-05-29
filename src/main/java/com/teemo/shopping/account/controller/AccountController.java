@@ -4,16 +4,16 @@ import com.teemo.shopping.account.dto.request.ReviewAddRequest;
 import com.teemo.shopping.account.service.AccountService;
 import com.teemo.shopping.game.dto.GameDTO;
 import com.teemo.shopping.order.dto.OrderDTO;
-import com.teemo.shopping.order.dto.payment.PaymentDTO;
+import com.teemo.shopping.payment.dto.PaymentDTO;
 import com.teemo.shopping.account.dto.request.OrderAddRequest;
 import com.teemo.shopping.account.dto.response.OrderAddResponse;
-import com.teemo.shopping.order.enums.PaymentMethods;
-import com.teemo.shopping.order.enums.PaymentStates;
+import com.teemo.shopping.payment.domain.enums.PaymentMethods;
+import com.teemo.shopping.payment.domain.enums.PaymentStates;
 import com.teemo.shopping.order.service.OrderCreateService;
 import com.teemo.shopping.order.service.OrderCreateService.OrderOption;
-import com.teemo.shopping.order.service.payment.KakaopayPaymentService;
+import com.teemo.shopping.payment.service.KakaopayPaymentService;
 import com.teemo.shopping.order.service.OrderService;
-import com.teemo.shopping.order.service.payment.PaymentService;
+import com.teemo.shopping.payment.service.PaymentService;
 import com.teemo.shopping.review.dto.ReviewDTO;
 import com.teemo.shopping.review.service.ReviewService;
 import com.teemo.shopping.security.PermissionChecker;
@@ -118,8 +118,10 @@ public class AccountController {
         List<Long> pendingPaymentIds = paymentDtos.stream().filter(payment -> payment.getStatus().equals(
             PaymentStates.PENDING)).map((payment) -> payment.getId()).toList();
         List<String> redirects = new ArrayList<>();
+
+        //todo: redirect 찾는 방식 변경
         for(var paymentDto : paymentDtos) {
-            if(paymentDto.getMethod().equals(PaymentMethods.KAKAOPAY)) {
+            if(paymentDto.equals(PaymentMethods.KAKAOPAY)) {
                 var a = kakaopayPaymentService.get(paymentDto.getId());
                 String redirect = kakaopayPaymentService.get(paymentDto.getId()).getRedirect();
                 redirects.add(redirect);

@@ -181,4 +181,13 @@ public class AccountService {
         List<Order> orders = orderRepository.findAllByAccount(account);
         return orders.stream().map(order -> OrderDTO.from(order)).toList();
     }
+
+    @Transactional
+    public void usePoint(Long accountId, int amount) {
+        Account account = accountRepository.findById(accountId).get();
+        if(account.getPoint() < amount) {
+            throw new IllegalStateException("포인트 부족");
+        }
+        account.updatePoint(account.getPoint() - amount);
+    }
 }

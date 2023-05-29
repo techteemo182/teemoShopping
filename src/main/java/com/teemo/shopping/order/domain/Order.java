@@ -1,12 +1,12 @@
 package com.teemo.shopping.order.domain;
 
-import com.teemo.shopping.order.enums.OrderStates;
+import com.teemo.shopping.order.domain.enums.OrderStates;
 import com.teemo.shopping.account.domain.Account;
 import com.teemo.shopping.core.entity.BaseEntity;
+import com.teemo.shopping.payment.domain.Payment;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,8 +22,6 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Check;
-import org.hibernate.annotations.SQLInsert;
 import org.hibernate.validator.constraints.Range;
 
 @Getter

@@ -4,18 +4,13 @@ import com.teemo.shopping.core.entity.BaseEntity;
 import com.teemo.shopping.coupon.domain.enums.CouponMethod;
 import com.teemo.shopping.coupon.validator.CouponConstraint;
 import com.teemo.shopping.game.domain.Game;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -77,7 +72,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated
     @NotNull
-    private CouponMethod method;
+    private CouponMethod method;        // todo: inherited table로 전환
 
     /**
      * if (method == PERCENT) 0 ~ 100 [%]
@@ -93,9 +88,9 @@ public class Coupon extends BaseEntity {
     @NotNull
     private LocalDateTime expiredAt;
 
-}
-
-interface Unit<T> {
-    T getValue();
+    @OneToMany(mappedBy = "coupon", fetch = FetchType.LAZY)
+    private List<CouponsGames> couponsGames = new ArrayList<>();
+    @OneToMany(mappedBy = "coupon", fetch = FetchType.LAZY)
+    private List<CouponsGameCategories> couponsGameCategories = new ArrayList<>();
 }
 

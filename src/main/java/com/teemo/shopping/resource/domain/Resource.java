@@ -1,7 +1,6 @@
 package com.teemo.shopping.resource.domain;
 
 import com.teemo.shopping.core.entity.BaseEntity;
-import com.teemo.shopping.order.domain.Payment;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

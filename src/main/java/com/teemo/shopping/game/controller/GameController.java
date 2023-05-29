@@ -1,6 +1,7 @@
 package com.teemo.shopping.game.controller;
 
 import com.teemo.shopping.game.dto.GameDTO;
+import com.teemo.shopping.game.service.GameResourcesService;
 import com.teemo.shopping.resource.dto.ResourceDTO;
 import com.teemo.shopping.review.dto.ReviewDTO;
 import com.teemo.shopping.game.service.GameService;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class GameController {
     @Autowired
     private GameService gameService;
+    @Autowired
+    private GameResourcesService gameResourcesService;
     @Autowired
     private ReviewService reviewService;
     @Autowired
@@ -61,13 +64,13 @@ public class GameController {
     @Operation(operationId = "게임 리소스 리스트", summary = "게임 리소스 리스트", tags = {"게임"})
     @GetMapping(path = "/{gameId}/resource")
     public List<ResourceDTO> resourceList(@PathVariable("gameId") Long gameId) throws Exception {
-        return gameService.resourceList(gameId);
+        return gameResourcesService.resourceList(gameId);
     }
     @Operation(operationId = "게임 리소스 추가", summary = "게임 리소스 추가", tags = {"게임"})
     @PostMapping(path = "/{gameId}/resources/{resourcesId}")
     public String addResource(@PathVariable("gameId") Long gameId, @PathVariable("resourcesId") Long resourcesId) throws Exception {
         permissionChecker.checkAdminAndThrow();
-        gameService.addResource(gameId, resourcesId);
+        gameResourcesService.add(gameId, resourcesId);
         return "success";
     }
 }
