@@ -6,7 +6,6 @@ teemoShopping
 게임 구매 사이트를 위한 Rest API 제공 Backend
 
 현재 전체적인 기능은 동작하나
-더 나은 코드를 위해서 리팩토링 중 입니다.
 
 기간
 --
